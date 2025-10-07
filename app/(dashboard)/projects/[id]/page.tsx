@@ -4,6 +4,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { MessagesTab } from "./components/MessagesTab";
 import { FilesTab } from "./components/FilesTab";
 import { InvoicesTab } from "./components/InvoicesTab";
+import { Motion } from "@/components/custom/Motion";
 
 export default async function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -22,8 +23,32 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
     .eq("project_id", id);
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">{project?.name ?? "Projekt"}</h1>
+    <Motion
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="space-y-8 max-w-4xl mx-auto py-8"
+    >
+      {/* Header */}
+      <Motion
+        className="flex flex-col md:flex-row md:items-center justify-between gap-4"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">{project?.name}</h1>
+          {project?.description && (
+            <p className="text-muted-foreground mt-1">{project.description}</p>
+          )}
+          {project?.deadline && (
+            <div className="text-sm text-muted-foreground mt-1">
+              Fällig am:{" "}
+              {new Date(project.deadline).toLocaleDateString("de-DE")}
+            </div>
+          )}
+        </div>
+      </Motion>
 
       <Tabs defaultValue="messages">
         <TabsList>
@@ -44,6 +69,6 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
           <InvoicesTab invoices={invoices || []} projectId={id} />
         </TabsContent>
       </Tabs>
-    </div>
+    </Motion>
   );
 }
