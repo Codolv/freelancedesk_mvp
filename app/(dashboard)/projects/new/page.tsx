@@ -1,4 +1,4 @@
-import { getServerSupabase } from "@/lib/supabase/server";
+import { getServerSupabaseAction } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { Input } from "@/components/ui/input";
@@ -14,7 +14,7 @@ const schema = z.object({
 
 async function create(formData: FormData) {
 	"use server";
-	const supabase = await getServerSupabase();
+	const supabase = await getServerSupabaseAction();
 	const { data: { user } } = await supabase.auth.getUser();
 	if (!user) return;
 
