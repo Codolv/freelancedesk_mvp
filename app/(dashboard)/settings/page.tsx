@@ -61,7 +61,7 @@ export default function SettingsPage() {
     setMessage(t("settings.logout.success"));
     setLoading(false);
     setTimeout(() => {
-      router.replace("/signin");
+      router.replace("/");
     }, 1000);
   };
 

@@ -1,159 +1,201 @@
 "use client";
-import Image from "next/image";
+
+import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useT } from "@/lib/i18n/client";
 
 export default function Home() {
-  const { t } = useT();
   return (
-    <div className="min-h-screen">
-      <header className="px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Image src="/logo.png" alt="FreelanceDesk Logo" width={240} height={64} priority />
-        </div>
-        <nav className="flex items-center gap-4 text-sm">
-          <Link href="#features" className="opacity-80 hover:opacity-100 transition-colors">{t("nav.features")}</Link>
-          <Link href="#pricing" className="opacity-80 hover:opacity-100 transition-colors">{t("nav.pricing")}</Link>
-          <Button asChild>
-            <Link href="/signin">{t("nav.signin")}</Link>
-          </Button>
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-blue-50 to-white">
+      {/* === Navigation === */}
+      <header className="border-b bg-white/80 backdrop-blur-md sticky top-0 z-50">
+        <nav className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+          <div className="flex items-center space-x-2">
+            <Image src="/logo.png" alt="FreelanceDesk Logo" width={240} height={64} priority />
+          </div>
+
+          <div className="flex items-center gap-4">
+            <Link href="/signin">
+              <Button variant="default">Login</Button>
+            </Link>
+          </div>
         </nav>
       </header>
 
-      <main className="px-6 sm:px-10">
-        {/* Hero */}
-        <section className="grid gap-8 sm:gap-12 lg:grid-cols-2 items-center py-10 sm:py-16">
-          <div className="space-y-6">
-            <div className="inline-flex items-center gap-2 text-xs font-medium rounded-full px-3 py-1 border border-white/10 bg-white/5">
-              <span className="w-2 h-2 rounded-full bg-[color:var(--accent)] animate-pulse" />
-              {t("hero.badge")}
-            </div>
-            <h1 className="text-3xl sm:text-5xl font-semibold tracking-tight">{t("hero.title")}</h1>
-            <p className="text-base sm:text-lg opacity-80 max-w-prose">
-              {t("hero.subtitle")}
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Button asChild>
-                <Link href="/signin">{t("hero.cta.start")}</Link>
-              </Button>
-              <Button asChild variant="outline">
-                <Link href="#pricing">{t("hero.cta.pricing")}</Link>
-              </Button>
-            </div>
-            <ul className="grid gap-2 text-sm opacity-80">
-              <li>• Kunden sicher einladen</li>
-              <li>• Dateien und Updates teilen</li>
-              <li>• Rechnungen und Zahlungen im Blick</li>
-            </ul>
-          </div>
-          <div className="grid gap-4">
-            <Card className="card bg-white/5 border-white/15 backdrop-blur">
-              <CardContent className="relative aspect-[16/9]">
-                <Image src="/feature-portal.svg" alt="Portal-Übersicht" fill className="object-contain p-6" />
-              </CardContent>
-            </Card>
-            <div className="grid grid-cols-2 gap-4">
-              <Card className="card bg-white/5 border-white/15 backdrop-blur">
-                <CardContent className="relative aspect-[4/3]">
-                  <Image src="/feature-projects.svg" alt="Projekte" fill className="object-contain p-6" />
-                </CardContent>
-              </Card>
-              <Card className="card bg-white/5 border-white/15 backdrop-blur">
-                <CardContent className="relative aspect-[4/3]">
-                  <Image src="/feature-invoices.svg" alt="Rechnungen" fill className="object-contain p-6" />
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </section>
+      {/* === Hero Section === */}
+      <main className="flex flex-col items-center justify-center flex-grow text-center px-6 py-20">
+        <motion.h1
+          className="text-4xl md:text-6xl font-bold text-gray-900 mb-6"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+        >
+          Dein Kundenportal für Freelancer.
+        </motion.h1>
 
-        {/* Features */}
-        <section id="features" className="py-10 sm:py-16">
-          <h2 className="text-2xl sm:text-3xl font-semibold text-center mb-8">Alles, was Ihre Kunden brauchen</h2>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            <Card className="card bg-white/5 border-white/15 backdrop-blur">
-              <CardHeader>
-                <CardTitle>Projekte</CardTitle>
-              </CardHeader>
-              <CardContent className="grid gap-3">
-                <div className="relative aspect-[4/3]">
-                  <Image src="/feature-projects.svg" alt="Projekte" fill className="object-contain p-4" />
-                </div>
-                <p className="text-sm opacity-80">Projekte anlegen, Fristen setzen und alle auf Kurs halten.</p>
-              </CardContent>
-            </Card>
-            <Card className="card bg-white/5 border-white/15 backdrop-blur">
-              <CardHeader>
-                <CardTitle>Rechnungen</CardTitle>
-              </CardHeader>
-              <CardContent className="grid gap-3">
-                <div className="relative aspect-[4/3]">
-                  <Image src="/feature-invoices.svg" alt="Rechnungen" fill className="object-contain p-4" />
-                </div>
-                <p className="text-sm opacity-80">Rechnungen erstellen, Status verfolgen und Zahlungen akzeptieren.</p>
-              </CardContent>
-            </Card>
-            <Card className="card bg-white/5 border-white/15 backdrop-blur">
-              <CardHeader>
-                <CardTitle>Dateien</CardTitle>
-              </CardHeader>
-              <CardContent className="grid gap-3">
-                <div className="relative aspect-[4/3]">
-                  <Image src="/feature-files.svg" alt="Dateien" fill className="object-contain p-4" />
-                </div>
-                <p className="text-sm opacity-80">Lieferungen hochladen, Assets teilen und Versionen im Blick behalten.</p>
-              </CardContent>
-            </Card>
-            <Card className="card bg-white/5 border-white/15 backdrop-blur">
-              <CardHeader>
-                <CardTitle>Updates</CardTitle>
-              </CardHeader>
-              <CardContent className="grid gap-3">
-                <div className="relative aspect-[4/3]">
-                  <Image src="/feature-updates.svg" alt="Updates" fill className="object-contain p-4" />
-                </div>
-                <p className="text-sm opacity-80">Fortschritt in Markdown posten und Kunden automatisch informieren.</p>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
+        <motion.p
+          className="text-lg md:text-xl text-gray-600 mb-10 max-w-2xl"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.7 }}
+        >
+          Behalte Projekte, Rechnungen und Kundenkommunikation an einem Ort.
+          Professionell, sicher und einfach.
+        </motion.p>
 
-        {/* Pricing */}
-        <section id="pricing" className="py-12 sm:py-16">
-          <h2 className="text-2xl sm:text-3xl font-semibold text-center mb-8">Preise</h2>
-          <div className="grid gap-6 sm:gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {[ 
-              { name: "Free", price: "0€", features: ["1 Kunde", "1 Projekt", "Branding sichtbar"], cta: t("hero.cta.start") },
-              { name: "Starter", price: "9€", features: ["Bis 5 Kunden", "PDF-Export", "Branding"], cta: "Starter wählen" },
-              { name: "Pro", price: "19–29€", features: ["Unbegrenzt", "Stripe", "Alle Funktionen"], cta: "Pro wählen" },
-              { name: "Agentur", price: "49–99€", features: ["Teams", "White-Label", "Kundengruppen"], cta: "Agentur wählen" },
-            ].map((plan, i) => (
-              <Card key={plan.name} className="card bg-white/5 border-white/15 backdrop-blur">
-                <CardHeader className="flex-row items-center justify-between">
-                  <CardTitle>{plan.name}</CardTitle>
-                  {i === 2 && <span className="text-xs px-2 py-1 rounded-full bg-[color:var(--accent)] text-[color:var(--accent-foreground)]">Beliebt</span>}
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-semibold mt-2">{plan.price}<span className="text-base opacity-70">/Monat</span></div>
-                  <ul className="mt-4 grid gap-2 text-sm opacity-90">
-                    {plan.features.map((f) => (<li key={f}>• {f}</li>))}
-                  </ul>
-                  <div className="mt-6">
-                    <Button asChild>
-                      <Link href="/signin">{plan.cta}</Link>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-        </div>
-        </section>
+        <motion.div
+          className="flex gap-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4, duration: 0.7 }}
+        >
+          <Link href="/signup">
+            <Button size="lg" className="text-lg">
+              Jetzt starten
+            </Button>
+          </Link>
+          <Link href="#preise">
+            <Button size="lg" variant="outline" className="text-lg">
+              Preise ansehen
+            </Button>
+          </Link>
+        </motion.div>
       </main>
 
-      <footer className="px-6 py-10 text-center opacity-70 text-sm">
-        © {new Date().getFullYear()} FreelanceDesk
+      <section id="funktionen" className="py-24 bg-white px-6">
+        <div className="max-w-6xl mx-auto text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            Alles, was du für dein Freelancer-Business brauchst
+          </h2>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            FreelanceDesk bündelt Kommunikation, Projekte und Rechnungen in einem
+            übersichtlichen Kundenportal.
+          </p>
+        </div>
+
+        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
+          {[
+            {
+              title: "Projektmanagement",
+              desc: "Verwalte deine Kundenprojekte mit Status, Aufgaben und Deadlines – einfach und transparent.",
+              icon: "📁",
+            },
+            {
+              title: "Rechnungen & Zahlungen",
+              desc: "Erstelle professionelle Rechnungen und akzeptiere Zahlungen direkt über Stripe.",
+              icon: "💶",
+            },
+            {
+              title: "Dateifreigabe",
+              desc: "Lade Dateien hoch, teile sie sicher mit Kunden und behalte die Kontrolle über Versionen.",
+              icon: "📂",
+            },
+            {
+              title: "Kundenportal",
+              desc: "Deine Kunden sehen Fortschritte, Dateien und Rechnungen zentral in ihrem eigenen Login.",
+              icon: "👥",
+            },
+            {
+              title: "Benachrichtigungen",
+              desc: "Automatische Updates bei neuen Dateien, Rechnungen oder Nachrichten – per E-Mail oder Portal.",
+              icon: "🔔",
+            },
+            {
+              title: "White Label Branding",
+              desc: "Gestalte dein Portal mit eigenem Logo und Farben – ganz im Stil deines Unternehmens.",
+              icon: "🎨",
+            },
+          ].map((feature, i) => (
+            <motion.div
+              key={feature.title}
+              className="p-8 bg-gradient-to-b from-white to-blue-50 border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition"
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.1, duration: 0.5 }}
+            >
+              <div className="text-4xl mb-4">{feature.icon}</div>
+              <h3 className="text-xl font-semibold mb-2 text-gray-900">{feature.title}</h3>
+              <p className="text-gray-600">{feature.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* === Pricing Section === */}
+      <section id="preise" className="bg-white py-24 px-6">
+        <div className="max-w-6xl mx-auto text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            Ein Preis für jede Phase deiner Selbstständigkeit
+          </h2>
+          <p className="text-gray-600">
+            Starte kostenlos und wachse mit deinen Kunden.
+          </p>
+        </div>
+
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4 max-w-6xl mx-auto">
+          {[
+            { name: "Free", price: "0 €", features: ["1 Kunde", "1 Projekt", "Branding sichtbar"] },
+            { name: "Starter", price: "9 €/Monat", features: ["5 Kunden", "PDF-Rechnungen", "Branding anpassbar"] },
+            { name: "Pro", price: "29 €/Monat", features: ["Unbegrenzt", "Stripe-Zahlungen", "Dateifreigabe"] },
+            { name: "Agentur", price: "79 €/Monat", features: ["Teams", "White-Label", "Kundengruppen"] },
+          ].map((plan, i) => (
+            <motion.div
+              key={plan.name}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.1, duration: 0.5 }}
+            >
+              <Card className="shadow-md hover:shadow-lg transition rounded-2xl">
+                <CardHeader>
+                  <CardTitle className="text-2xl font-semibold">{plan.name}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-4xl font-bold mb-4 text-blue-600">{plan.price}</p>
+                  <ul className="space-y-2 text-gray-600 mb-6">
+                    {plan.features.map((f) => (
+                      <li key={f}>• {f}</li>
+                    ))}
+                  </ul>
+                  <Button className="w-full">Jetzt wählen</Button>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* === Call to Action === */}
+      <section className="bg-blue-600 text-white py-20 text-center px-6">
+        <motion.h3
+          className="text-3xl md:text-4xl font-semibold mb-6"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          Bereit, dein Freelancer-Business zu vereinfachen?
+        </motion.h3>
+        <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ delay: 0.2 }}>
+          <Link href="/signup">
+            <Button size="lg" variant="secondary" className="text-lg">
+              Kostenlos starten
+            </Button>
+          </Link>
+        </motion.div>
+      </section>
+
+      {/* === Footer === */}
+      <footer className="border-t py-6 text-center text-sm text-gray-500 bg-white">
+        <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-8">
+          <Link href="/impressum" className="hover:text-blue-600">
+            Impressum
+          </Link>
+          <Link href="/datenschutz" className="hover:text-blue-600">
+            Datenschutz
+          </Link>
+        </div>
+        <p className="mt-4">© {new Date().getFullYear()} FreelanceDesk — Alle Rechte vorbehalten.</p>
       </footer>
     </div>
   );
