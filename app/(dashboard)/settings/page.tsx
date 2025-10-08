@@ -1,15 +1,18 @@
 "use client";
+
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { Motion } from "@/components/custom/Motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { getBrowserSupabase } from "@/lib/supabase/client";
 import { getProfile, updateProfile } from "@/lib/supabase/profile";
-import { useT } from "@/lib/i18n/client";
+import { Loader2 } from "lucide-react";
 
 export default function SettingsPage() {
-  const { t } = useT();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -21,7 +24,6 @@ export default function SettingsPage() {
     twitter: "",
     website: "",
   });
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
   useEffect(() => {
     getProfile().then(setProfile).catch(() => {});
@@ -30,11 +32,10 @@ export default function SettingsPage() {
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setAvatarFile(file);
     const supabase = getBrowserSupabase();
-    const userData = await supabase.auth.getUser();
-    const user = userData.data.user;
-    if (!user) return alert("Not authenticated");
+    const { data: userData } = await supabase.auth.getUser();
+    const user = userData.user;
+    if (!user) return alert("Nicht angemeldet");
     const { data, error } = await supabase.storage
       .from("avatars")
       .upload(`${user.id}/${file.name}`, file, { upsert: true });
@@ -47,60 +48,186 @@ export default function SettingsPage() {
     setLoading(true);
     try {
       await updateProfile(profile);
-      setMessage("Profile updated!");
+      setMessage("Profil wurde erfolgreich aktualisiert.");
     } catch (e) {
-      setMessage("Error updating profile");
+      setMessage("Fehler beim Aktualisieren des Profils.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleLogout = async () => {
     setLoading(true);
     const supabase = getBrowserSupabase();
     await supabase.auth.signOut();
-    setMessage(t("settings.logout.success"));
-    setLoading(false);
-    setTimeout(() => {
-      router.replace("/");
-    }, 1000);
+    setMessage("Erfolgreich abgemeldet.");
+    setTimeout(() => router.replace("/"), 1000);
   };
 
   return (
-    <div className="space-y-6 max-w-lg">
-      <h1 className="text-2xl font-semibold">{t("dashboard.settings")}</h1>
-      <div className="space-y-4 p-4 border rounded-lg bg-white/5">
-        <div className="flex items-center gap-4">
-          {profile.avatar_url && (
-            <img src={profile.avatar_url} alt="Avatar" className="w-16 h-16 rounded-full object-cover" />
+    <Motion
+      className="max-w-2xl mx-auto py-10 space-y-8"
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
+      <Motion
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <h1 className="text-3xl font-bold tracking-tight mb-2">
+          Einstellungen
+        </h1>
+        <p className="text-muted-foreground">
+          Verwalte dein Profil und persönliche Informationen.
+        </p>
+      </Motion>
+
+      <Card className="shadow-md border border-border/50 bg-background/80 backdrop-blur-sm">
+        <CardHeader>
+          <CardTitle>Profilinformationen</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <Motion
+            className="flex items-center gap-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
+            {profile.avatar_url ? (
+              <Motion
+                key={profile.avatar_url}
+                src={profile.avatar_url}
+                alt="Avatar"
+                className="w-20 h-20 rounded-full object-cover border"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.4 }}
+              />
+            ) : (
+              <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-800" />
+            )}
+            <div>
+              <Label className="block mb-2">Profilbild ändern</Label>
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarUpload}
+                className="cursor-pointer"
+              />
+            </div>
+          </Motion>
+
+          <Separator />
+
+          {/* Email */}
+          <div className="grid gap-2">
+            <Label>Email-Adresse</Label>
+            <Input value={profile.email} disabled className="bg-muted" />
+          </div>
+
+          {/* Phone */}
+          <div className="grid gap-2">
+            <Label>Telefonnummer</Label>
+            <Input
+              value={profile.phone || ""}
+              onChange={(e) =>
+                setProfile((p: any) => ({ ...p, phone: e.target.value }))
+              }
+              placeholder="+49 ..."
+            />
+          </div>
+
+          {/* LinkedIn */}
+          <div className="grid gap-2">
+            <Label>LinkedIn</Label>
+            <Input
+              value={profile.linkedin || ""}
+              onChange={(e) =>
+                setProfile((p: any) => ({ ...p, linkedin: e.target.value }))
+              }
+              placeholder="https://linkedin.com/in/..."
+            />
+          </div>
+
+          {/* Twitter */}
+          <div className="grid gap-2">
+            <Label>Twitter / X</Label>
+            <Input
+              value={profile.twitter || ""}
+              onChange={(e) =>
+                setProfile((p: any) => ({ ...p, twitter: e.target.value }))
+              }
+              placeholder="https://twitter.com/..."
+            />
+          </div>
+
+          {/* Website */}
+          <div className="grid gap-2">
+            <Label>Website</Label>
+            <Input
+              value={profile.website || ""}
+              onChange={(e) =>
+                setProfile((p: any) => ({ ...p, website: e.target.value }))
+              }
+              placeholder="https://deine-website.de"
+            />
+          </div>
+
+          {/* Save Button */}
+          <Motion
+            className="pt-2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            <Button
+              onClick={handleSave}
+              disabled={loading}
+              className="w-full text-base"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Speichern...
+                </>
+              ) : (
+                "Profil speichern"
+              )}
+            </Button>
+            {message && (
+              <p className="mt-2 text-sm text-green-600 dark:text-green-400">
+                {message}
+              </p>
+            )}
+          </Motion>
+        </CardContent>
+      </Card>
+
+      <Motion
+        className="pt-2"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4 }}
+      >
+        <Button
+          onClick={handleLogout}
+          variant="destructive"
+          disabled={loading}
+          className="w-full text-base"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Wird
+              abgemeldet...
+            </>
+          ) : (
+            "Abmelden"
           )}
-          <input type="file" accept="image/*" onChange={handleAvatarUpload} />
-        </div>
-        <div className="grid gap-2">
-          <Label>Email</Label>
-          <Input value={profile.email} disabled />
-        </div>
-        <div className="grid gap-2">
-          <Label>Phone</Label>
-          <Input value={profile.phone || ""} onChange={e => setProfile((p: any) => ({ ...p, phone: e.target.value }))} />
-        </div>
-        <div className="grid gap-2">
-          <Label>LinkedIn</Label>
-          <Input value={profile.linkedin || ""} onChange={e => setProfile((p: any) => ({ ...p, linkedin: e.target.value }))} />
-        </div>
-        <div className="grid gap-2">
-          <Label>Twitter</Label>
-          <Input value={profile.twitter || ""} onChange={e => setProfile((p: any) => ({ ...p, twitter: e.target.value }))} />
-        </div>
-        <div className="grid gap-2">
-          <Label>Website</Label>
-          <Input value={profile.website || ""} onChange={e => setProfile((p: any) => ({ ...p, website: e.target.value }))} />
-        </div>
-        <Button onClick={handleSave} disabled={loading} className="w-full">{loading ? "Saving..." : "Save Profile"}</Button>
-        {message && <div className="text-green-600 dark:text-green-400 text-sm">{message}</div>}
-      </div>
-      <Button onClick={handleLogout} disabled={loading} variant="destructive" className="w-full">
-        {loading ? "..." : t("settings.logout")}
-      </Button>
-    </div>
+        </Button>
+      </Motion>
+    </Motion>
   );
 }
+
