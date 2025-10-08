@@ -1,74 +1,152 @@
 "use client";
+
 import { getBrowserSupabase } from "@/lib/supabase/client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useT } from "@/lib/i18n/client";
+import { motion } from "framer-motion";
+import { Motion } from "@/components/custom/Motion"
+import Image from "next/image";
 
 export default function SignInClient() {
-	const { t } = useT();
-	const router = useRouter();
-	const [email, setEmail] = useState("");
-	const [password, setPassword] = useState("");
-	const [loading, setLoading] = useState(false);
-	const [message, setMessage] = useState<string | null>(null);
-	const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-	const handleGoogle = async () => {
-		const supabase = getBrowserSupabase();
-		await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${location.origin}/auth/callback` } });
-	};
+  const handleEmailPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setMessage(null);
+    setError(null);
 
-	const handleEmailPassword = async (e: React.FormEvent) => {
-		e.preventDefault();
-		setMessage(null);
-		setError(null);
-		if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-			setError(t("signin.error.email"));
-			return;
-		}
-		if (!password || password.length < 6) {
-			setError(t("signin.error.password"));
-			return;
-		}
-		setLoading(true);
-		try {
-			const supabase = getBrowserSupabase();
-			const { data, error: err } = await supabase.auth.signInWithPassword({ email, password });
-			if (err) {
-				setError(err.message);
-			} else if (data.session) {
-				router.replace("/dashboard");
-			} else {
-				setMessage(t("signin.redirect"));
-				router.replace("/dashboard");
-			}
-		} finally {
-			setLoading(false);
-		}
-	};
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError("Bitte gib eine gültige E-Mail-Adresse ein.");
+      return;
+    }
+    if (!password || password.length < 6) {
+      setError("Das Passwort muss mindestens 6 Zeichen lang sein.");
+      return;
+    }
 
-	return (
-		<div className="grid gap-4">
-			<form onSubmit={handleEmailPassword} className="grid gap-3 rounded-lg border p-4 bg-white/5">
-				<div className="grid gap-1.5">
-					<Label htmlFor="email">{t("signin.email")}</Label>
-					<Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="du@firma.de" />
-				</div>
-				<div className="grid gap-1.5">
-					<Label htmlFor="password">{t("signin.password")}</Label>
-					<Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Dein Passwort" />
-				</div>
-				<Button disabled={loading} type="submit" className="button bg-[color:var(--accent)] text-[color:var(--accent-foreground)] hover:brightness-110">
-					{loading ? t("signin.loading") : t("signin.email.cta")}
-				</Button>
-				{message && <div className="text-sm text-green-600 dark:text-green-400">{message}</div>}
-				{error && <div className="text-sm text-red-600 dark:text-red-400">{error}</div>}
-			</form>
-			<div className="text-center text-sm opacity-60">{t("signin.or")}</div>
-			<Button onClick={handleGoogle} variant="outline">{t("signin.google")}</Button>
-		</div>
-	);
+    setLoading(true);
+    try {
+      const supabase = getBrowserSupabase();
+      const { data, error: err } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (err) {
+        setError(err.message);
+      } else if (data.session) {
+        router.replace("/dashboard");
+      } else {
+        setMessage("Erfolgreich angemeldet! Weiterleitung...");
+        router.replace("/dashboard");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Motion
+      className="min-h-screen flex flex-col justify-center items-center px-6 bg-gradient-to-br from-blue-50 via-white to-blue-100 dark:from-background dark:to-background"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4 }}
+    >
+      {/* Logo */}
+      <Motion
+        className="flex flex-col items-center mb-8"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <div className="flex items-center gap-2">
+          <Image
+            src="/logo.png"
+            alt="FreelanceDesk Logo"
+            width={240}
+            height={40}
+            className="rounded-md"
+          />
+        </div>
+        <p className="text-muted-foreground mt-2 text-sm">
+          Willkommen zurück! Melde dich an, um fortzufahren.
+        </p>
+      </Motion>
+
+      {/* Form Card */}
+      <motion.form
+        onSubmit={handleEmailPassword}
+        className="w-full max-w-sm bg-white/70 dark:bg-white/5 backdrop-blur-md border border-border rounded-2xl shadow-md p-6 space-y-4"
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <div className="grid gap-1.5">
+          <Label htmlFor="email">E-Mail-Adresse</Label>
+          <Input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="du@firma.de"
+            required
+          />
+        </div>
+
+        <div className="grid gap-1.5">
+          <Label htmlFor="password">Passwort</Label>
+          <Input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Dein Passwort"
+            required
+          />
+        </div>
+
+        <Button
+          disabled={loading}
+          type="submit"
+          className="w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white transition-all duration-200"
+        >
+          {loading ? "Wird angemeldet..." : "Anmelden"}
+        </Button>
+
+        {message && (
+          <div className="text-sm text-green-600 dark:text-green-400 text-center">
+            {message}
+          </div>
+        )}
+        {error && (
+          <div className="text-sm text-red-600 dark:text-red-400 text-center">
+            {error}
+          </div>
+        )}
+      </motion.form>
+
+      {/* Footer */}
+      <Motion
+        className="mt-6 text-center text-sm text-muted-foreground"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+      >
+        Noch kein Konto?{" "}
+        <button
+          onClick={() => router.push("/signup")}
+          className="text-blue-600 hover:underline font-medium"
+        >
+          Jetzt registrieren
+        </button>
+      </Motion>
+    </Motion>
+  );
 }

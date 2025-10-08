@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
-import { ItemsField } from "@/app/(dashboard)/projects/[id]/invoices/new/ItemsField";
+import { ItemsField } from "@/components/invoices/ItemsField";
 import { FileText } from "lucide-react";
 
 export default function NewInvoiceForm({

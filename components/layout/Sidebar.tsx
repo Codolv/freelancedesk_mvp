@@ -29,7 +29,7 @@ export default function Sidebar() {
     >
       {/* Logo */}
       <div className="flex items-center justify-center space-x-2 py-6 border-b">
-        <Image src="/logo.png" alt="FreelanceDesk Logo" width={140} height={36} priority />
+        <Link href="/"><Image src="/logo.png" alt="FreelanceDesk Logo" width={140} height={36} priority /></Link>
       </div>
 
       {/* Navigation */}
