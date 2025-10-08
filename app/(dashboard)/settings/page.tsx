@@ -38,7 +38,7 @@ export default function SettingsPage() {
       setMessage("Profil wurde erfolgreich aktualisiert.");
       setEditing(false);
     } catch (e) {
-      setMessage("Fehler beim Aktualisieren des Profils. " + e.message);
+      setMessage("Fehler beim Aktualisieren des Profils.");
     } finally {
       setLoading(false);
     }
