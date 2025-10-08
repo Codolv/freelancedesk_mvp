@@ -54,6 +54,25 @@ export default function SettingsPage() {
     }, 1000);
   };
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const supabase = getBrowserSupabase();
+    const userData = await supabase.auth.getUser();
+    const user = userData.data.user;
+    if (!user) return alert("Not authenticated");
+
+    const { data: list, error: listError } = await supabase.storage.from("avatars").list(user.id);
+    const filesToRemove = list.map((x) => `${user.id}/${x.name}`);
+    await supabase.storage.from("avatars").remove(filesToRemove);
+
+    const { data, error } = await supabase.storage
+      .from("avatars")
+      .upload(`${user.id}/${file.name}`, file, { upsert: true });
+    if (error) return alert(error.message);
+    setProfile((p: any) => ({ ...p, avatar_url: `${user.id}/${file.name}` }));
+  };
+
   return (
     <Motion
       className="max-w-2xl mx-auto py-10 space-y-8"
@@ -143,6 +162,22 @@ export default function SettingsPage() {
                 className="space-y-4"
               >
                 {/* Editable Fields */}
+
+                <div className="flex items-center gap-4">
+                  {profile.singedAvatarUrl ? (
+                    <motion.img
+                      src={profile.singedAvatarUrl}
+                      alt="Avatar"
+                      className="w-20 h-20 rounded-full object-cover border"
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                    />
+                  ) : (
+                    <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-800" />
+                  )}
+                  <input type="file" accept="image/*" onChange={handleAvatarUpload} />
+                </div>
+
                 <div className="grid gap-2">
                   <Label>Email-Adresse</Label>
                   <Input value={profile.email} disabled className="bg-muted" />
