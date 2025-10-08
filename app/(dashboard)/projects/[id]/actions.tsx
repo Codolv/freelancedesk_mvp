@@ -21,6 +21,18 @@ export async function addMessage(projectId: string, formData: FormData) {
   revalidatePath(`/projects/${projectId}`);
 }
 
+export async function getFileUrl(path: string) {
+  const supabase = await getServerSupabaseAction();
+    const { data, error } = await supabase.storage
+      .from("files")
+      .createSignedUrl(path, 60 * 60); // 1h gültig
+    if (error) {
+      console.log(error)
+    } else {
+      return data.signedUrl;
+    }
+  };
+
 export async function uploadFile(projectId: string, formData: FormData) {
   const supabase = await getServerSupabaseAction();
   const {
