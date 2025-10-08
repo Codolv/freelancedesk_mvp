@@ -2,6 +2,7 @@ import { getServerSupabaseComponent } from "@/lib/supabase/server";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
 import { Motion } from "@/components/custom/Motion";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -181,7 +182,7 @@ export default async function DashboardPage() {
                 key={m.id}
                 className="rounded-md border p-3 bg-card hover:bg-muted/50 transition"
               >
-                <p className="line-clamp-2">{m.content}</p>
+                <p className="line-clamp-2"><ReactMarkdown>{m.content}</ReactMarkdown></p>
                 <p className="text-xs text-muted-foreground mt-1">
                   {new Date(m.created_at).toLocaleString("de-DE")}
                 </p>
