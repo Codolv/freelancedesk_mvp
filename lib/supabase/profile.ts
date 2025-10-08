@@ -20,6 +20,7 @@ export async function getProfile() {
 }
 
 export async function updateProfile(profile: {
+  name?: string;
   phone?: string;
   linkedin?: string;
   twitter?: string;
@@ -32,6 +33,7 @@ export async function updateProfile(profile: {
   if (!user) throw new Error("Not authenticated");
   const { error } = await supabase
     .from("profiles")
-    .upsert({ id: user.id, ...profile, updated_at: new Date().toISOString() });
+    .update({name: profile.name, phone: profile.phone, linkedin: profile.linkedin, twitter: profile.twitter, website: profile.website, avatar_url: profile.avatar_url, updated_at: new Date().toISOString() })
+    .eq("id", user.id);
   if (error) throw error;
 }

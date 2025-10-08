@@ -1,6 +1,8 @@
 "use client";
 
+import { getBrowserSupabase } from "@/lib/supabase/client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Motion } from "@/components/custom/Motion"
 import { Button } from "@/components/ui/button";
@@ -12,6 +14,7 @@ import { Loader2 } from "lucide-react";
 import { getProfile, updateProfile } from "@/lib/supabase/profile";
 
 export default function SettingsPage() {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
@@ -25,7 +28,7 @@ export default function SettingsPage() {
   });
 
   useEffect(() => {
-    getProfile().then(setProfile).catch(() => {});
+    getProfile().then(setProfile).catch(() => { });
   }, []);
 
   const handleSave = async () => {
@@ -35,10 +38,20 @@ export default function SettingsPage() {
       setMessage("Profil wurde erfolgreich aktualisiert.");
       setEditing(false);
     } catch (e) {
-      setMessage("Fehler beim Aktualisieren des Profils.");
+      setMessage("Fehler beim Aktualisieren des Profils. " + e.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleLogout = async () => {
+    setLoading(true);
+    const supabase = getBrowserSupabase();
+    await supabase.auth.signOut();
+    setLoading(false);
+    setTimeout(() => {
+      router.replace("/");
+    }, 1000);
   };
 
   return (
@@ -57,7 +70,10 @@ export default function SettingsPage() {
         <CardHeader className="flex items-center justify-between">
           <CardTitle>Profil</CardTitle>
           {!editing && (
-            <Button onClick={() => setEditing(true)}>Profil bearbeiten</Button>
+            <div className="flex justify-end gap-3 pt-4">
+              <Button onClick={() => setEditing(true)}>Profil bearbeiten</Button>
+              <Button variant="destructive" onClick={handleLogout}>Ausloggen</Button>
+            </div>
           )}
         </CardHeader>
         <CardContent className="space-y-6">
@@ -85,6 +101,7 @@ export default function SettingsPage() {
                     <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-800" />
                   )}
                   <div>
+                    <p className="font-medium">{profile.name}</p>
                     <p className="font-medium">{profile.email}</p>
                     {profile.website && (
                       <a
@@ -129,6 +146,17 @@ export default function SettingsPage() {
                 <div className="grid gap-2">
                   <Label>Email-Adresse</Label>
                   <Input value={profile.email} disabled className="bg-muted" />
+                </div>
+
+                <div className="grid gap-2">
+                  <Label>Name</Label>
+                  <Input
+                    value={profile.name || ""}
+                    onChange={(e) =>
+                      setProfile((p: any) => ({ ...p, name: e.target.value }))
+                    }
+                    placeholder="Name"
+                  />
                 </div>
 
                 <div className="grid gap-2">
