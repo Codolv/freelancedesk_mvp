@@ -11,7 +11,12 @@ export async function getProfile() {
     .eq("id", user.id)
     .single();
   if (error) throw error;
-  return { ...data, email: user.email };
+
+  const { data: singedUrl, error: urlError } = await supabase.storage
+    .from("avatars")
+    .createSignedUrl(data.avatar_url, 60 * 60);
+  if (urlError) throw urlError
+  return { ...data, email: user.email, singedAvatarUrl: singedUrl.signedUrl };
 }
 
 export async function updateProfile(profile: {

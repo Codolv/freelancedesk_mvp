@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Loader2 } from "lucide-react";
-import { getBrowserSupabase } from "@/lib/supabase/client";
 import { getProfile, updateProfile } from "@/lib/supabase/profile";
 
 export default function SettingsPage() {
@@ -74,9 +73,9 @@ export default function SettingsPage() {
               >
                 {/* Avatar */}
                 <div className="flex items-center gap-4">
-                  {profile.avatar_url ? (
+                  {profile.singedAvatarUrl ? (
                     <motion.img
-                      src={profile.avatar_url}
+                      src={profile.singedAvatarUrl}
                       alt="Avatar"
                       className="w-20 h-20 rounded-full object-cover border"
                       initial={{ opacity: 0, scale: 0.9 }}
