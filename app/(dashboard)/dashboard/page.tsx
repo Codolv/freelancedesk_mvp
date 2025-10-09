@@ -5,6 +5,7 @@ import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import { Motion } from "@/components/custom/Motion";
 import { Separator } from "@/components/ui/separator";
+import { PlusCircle } from "lucide-react";
 import {
   CheckCircle2,
   Clock,
@@ -83,7 +84,9 @@ export default async function DashboardPage() {
           </p>
         </div>
         <Button asChild>
-          <Link href="/projects/new">+ Neues Projekt</Link>
+          <Link href="/projects/new">
+            <PlusCircle className="mr-2 h-4 w-4" /> Neues Projekt
+          </Link>
         </Button>
       </div>
 

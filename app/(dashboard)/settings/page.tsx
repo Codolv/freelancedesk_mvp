@@ -63,8 +63,10 @@ export default function SettingsPage() {
     if (!user) return alert("Not authenticated");
 
     const { data: list, error: listError } = await supabase.storage.from("avatars").list(user.id);
-    const filesToRemove = list.map((x) => `${user.id}/${x.name}`);
-    await supabase.storage.from("avatars").remove(filesToRemove);
+    if (list) {
+      const filesToRemove = list.map((x) => `${user.id}/${x.name}`);
+      await supabase.storage.from("avatars").remove(filesToRemove);
+    }
 
     const { data, error } = await supabase.storage
       .from("avatars")
