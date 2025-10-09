@@ -5,6 +5,7 @@ import { MessagesTab } from "./components/MessagesTab";
 import { FilesTab } from "./components/FilesTab";
 import { InvoicesTab } from "./components/InvoicesTab";
 import { Motion } from "@/components/custom/Motion";
+import InviteClientModal from "@/components/projects/InviteClientModal"
 
 export default async function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -38,6 +39,9 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
       >
         <div>
           <h1 className="text-3xl font-bold tracking-tight">{project?.name}</h1>
+          <div className="flex gap-2">
+            <InviteClientModal projectId={id} />
+          </div>
           {project?.description && (
             <p className="text-muted-foreground mt-1">{project.description}</p>
           )}
