@@ -4,66 +4,64 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
 import {
-  LayoutDashboard,
+  Home,
   FolderKanban,
   Settings,
+  LogOut,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const navItems = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Projekte", href: "/projects", icon: FolderKanban },
-  { name: "Einstellungen", href: "/settings", icon: Settings },
+  { href: "/dashboard", label: "Dashboard", icon: Home },
+  { href: "/projects", label: "Projekte", icon: FolderKanban },
+  { href: "/settings", label: "Einstellungen", icon: Settings },
 ];
 
-export default function Sidebar() {
+export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <motion.aside
-      initial={{ x: -80, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      transition={{ duration: 0.4 }}
-      className="fixed left-0 top-0 h-screen w-64 border-r bg-white shadow-sm flex flex-col"
-    >
-      {/* Logo */}
-      <div className="flex items-center justify-center space-x-2 py-6 border-b">
-        <Link href="/"><Image src="/logo.png" alt="FreelanceDesk Logo" width={140} height={36} priority /></Link>
+    <aside className="hidden md:flex flex-col w-64 h-screen border-r bg-gradient-to-b from-white to-[#F6F8F4] dark:from-[#121512] dark:to-[#1A1E19] text-foreground">
+      {/* LOGO */}
+      <div className="flex items-center gap-2 p-6 border-b border-slate-200 dark:border-slate-700">
+        <div className="flex items-center space-x-2">
+                      <Image src="/logo.png" alt="FreelanceDesk Logo" width={240} height={64} priority />
+                    </div>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 mt-6 px-4 space-y-2">
-        {navItems.map((item, i) => {
-          const Icon = item.icon;
-          const isActive = pathname.startsWith(item.href);
-
+      {/* NAVIGATION */}
+      <nav className="flex-1 px-3 py-4 space-y-1">
+        {navItems.map(({ href, label, icon: Icon }) => {
+          const active = pathname.startsWith(href);
           return (
-            <motion.div
-              key={item.name}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.05 }}
-            >
-              <Link
-                href={item.href}
-                className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors",
-                  isActive && "bg-blue-100 text-blue-700 font-medium"
-                )}
+            <Link key={href} href={href}>
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  active
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800"
+                }`}
               >
-                <Icon className="h-5 w-5" />
-                {item.name}
-              </Link>
-            </motion.div>
+                <Icon size={18} />
+                {label}
+              </motion.div>
+            </Link>
           );
         })}
       </nav>
 
-      {/* Footer (optional) */}
-      <div className="p-4 border-t text-sm text-gray-500 text-center">
-        © {new Date().getFullYear()} FreelanceDesk
+      {/* FOOTER */}
+      <div className="border-t border-slate-200 dark:border-slate-700 p-4">
+        <Button
+          variant="ghost"
+          className="w-full flex items-center justify-center gap-2 text-sm text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
+        >
+          <LogOut size={18} />
+          Abmelden
+        </Button>
       </div>
-    </motion.aside>
+    </aside>
   );
 }

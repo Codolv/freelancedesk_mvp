@@ -3,22 +3,22 @@
 
 @custom-variant dark (&:is(.dark *));
 
-:root { /* deep blue background subtle */ /* light foreground */
-  --accent: oklch(0.968 0.007 247.896); /* blue-600 */
-  --accent-foreground: oklch(0.208 0.042 265.755);
+:root { 
+  --accent: #fbfdf7;
+  --accent-foreground: #3B4B2F(0.208 0.042 265.755);
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
+  --background: #fbfdf7;
   --foreground: oklch(0.129 0.042 264.695);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.129 0.042 264.695);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
+  --primary: #3B4B2F;
   --primary-foreground: oklch(0.984 0.003 247.858);
   --secondary: oklch(0.968 0.007 247.896);
   --secondary-foreground: oklch(0.208 0.042 265.755);
   --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
+  --muted-foreground: #6B7280;
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.929 0.013 255.508);
   --input: oklch(0.929 0.013 255.508);
@@ -30,10 +30,10 @@
   --chart-5: oklch(0.769 0.188 70.08);
   --sidebar: oklch(0.984 0.003 247.858);
   --sidebar-foreground: oklch(0.129 0.042 264.695);
-  --sidebar-primary: oklch(0.208 0.042 265.755);
+  --sidebar-primary: #3B4B2F;
   --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
   --sidebar-accent: oklch(0.968 0.007 247.896);
-  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
+  --sidebar-accent-foreground: #3B4B2F;
   --sidebar-border: oklch(0.929 0.013 255.508);
   --sidebar-ring: oklch(0.704 0.04 256.788);
 }
@@ -80,13 +80,13 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --accent: #3b82f6; /* blue-500 */
+    --accent: #3B4B2F;
   }
 }
 
 body {
-  background: radial-gradient(1200px 600px at 10% -10%, rgba(37, 99, 235, 0.25), transparent 60%),
-              radial-gradient(800px 400px at 90% 10%, rgba(59, 130, 246, 0.2), transparent 60%),
+  background: radial-gradient(1200px 600px at 10% -10%, #fbfdf7, transparent 60%),
+              radial-gradient(800px 400px at 90% 10%, #fbfdf7, transparent 60%),
               var(--background);
 }
 

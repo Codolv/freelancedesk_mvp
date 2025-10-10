@@ -1,6 +1,6 @@
 import { getServerSupabaseComponent } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import Sidebar from "@/components/layout/Sidebar";
+import { Sidebar } from "@/components/layout/Sidebar";
 
 const items = [
 	{ href: "/dashboard", key: "dashboard.overview" },

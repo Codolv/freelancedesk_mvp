@@ -66,7 +66,7 @@ export default async function ProjectsPage() {
             <p className="text-sm mb-4">
               Erstelle dein erstes Projekt, um loszulegen.
             </p>
-            <Button asChild>
+            <Button variant="default" asChild>
               <Link href="/projects/new">
                 <PlusCircle className="mr-2 h-4 w-4" /> Projekt hinzufügen
               </Link>

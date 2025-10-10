@@ -27,7 +27,7 @@ export default async function RootLayout({
   const locale = await getLocale();
   return (
     <html lang={locale}>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-brand text-brand-foreground`}>
         <I18nProvider initialLocale={locale}>{children}</I18nProvider>
       </body>
     </html>

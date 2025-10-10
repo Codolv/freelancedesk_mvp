@@ -4,199 +4,271 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function Home() {
+export default function LandingPage() {
+  // Animation variants for sections
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 30 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+  };
+
+  const fadeIn = {
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { duration: 0.6 } },
+  };
+
+  const container = {
+    hidden: {},
+    show: {
+      transition: {
+        staggerChildren: 0.15,
+      },
+    },
+  };
+
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-blue-50 to-white">
-      {/* === Navigation === */}
-      <header className="border-b bg-white/80 backdrop-blur-md sticky top-0 z-50">
-        <nav className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <Image src="/logo.png" alt="FreelanceDesk Logo" width={240} height={64} priority />
-          </div>
+    <main className="min-h-screen bg-background text-foreground overflow-x-hidden">
+      {/* NAVBAR */}
+      <motion.header
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="sticky top-0 z-50 bg-background/80 backdrop-blur border-b border-border"
+      >
+        <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="flex items-center space-x-2">
+              <Image src="/logo.png" alt="FreelanceDesk Logo" width={240} height={64} priority />
+            </div>
+          </Link>
 
-          <div className="flex items-center gap-4">
-            <Link href="/signin">
-              <Button variant="default">Login</Button>
+          <nav className="flex items-center gap-4 text-sm font-medium">
+            <Link href="#funktionen" className="hover:text-primary transition-colors">
+              Funktionen
             </Link>
+            <Link href="#preise" className="hover:text-primary transition-colors">
+              Preise
+            </Link>
+            <Button asChild variant="outline" className="rounded-lg">
+              <Link href="/signin">Login</Link>
+            </Button>
+          </nav>
+        </div>
+      </motion.header>
+
+      {/* HERO SECTION */}
+      <section className="max-w-6xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-12 items-center">
+        <motion.div
+          variants={fadeInUp}
+          initial="hidden"
+          animate="show"
+          className="space-y-6"
+        >
+          <motion.h1 className="text-4xl md:text-5xl font-extrabold leading-tight">
+            Das smarte Kundenportal für Freelancer —{" "}
+            <span className="text-primary">einfach, sicher, professionell.</span>
+          </motion.h1>
+          <motion.p
+            variants={fadeInUp}
+            className="text-lg text-muted-foreground max-w-prose"
+          >
+            Verwalte Projekte, Rechnungen und Dateien mit deinen Kunden – alles
+            an einem Ort. Keine E-Mail-Flut, keine Verwirrung.
+          </motion.p>
+
+          <div class="mt-8 flex items-center gap-6 text-sm text-muted">
+          <div class="flex items-center gap-2">
+            <div class="h-9 w-9 rounded-full bg-[#E8F1E6] flex items-center justify-center text-brand-olive">✓</div>
+            <div>
+              <div class="font-medium">Schnell eingerichtet</div>
+              <div class="text-muted text-xs">Setup in Minuten</div>
+            </div>
           </div>
-        </nav>
-      </header>
+          <div class="flex items-center gap-2">
+            <div class="h-9 w-9 rounded-full bg-[#FFF6E6] flex items-center justify-center text-[#B97F1F]">⚡</div>
+            <div>
+              <div class="font-medium">Zahlungsintegration</div>
+              <div class="text-muted foreground text-xs">Stripe & SEPA ready</div>
+            </div>
+          </div>
+        </div>
 
-      {/* === Hero Section === */}
-      <main className="flex flex-col items-center justify-center flex-grow text-center px-6 py-20">
-        <motion.h1
-          className="text-4xl md:text-6xl font-bold text-gray-900 mb-6"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-        >
-          Dein Kundenportal für Freelancer.
-        </motion.h1>
-
-        <motion.p
-          className="text-lg md:text-xl text-gray-600 mb-10 max-w-2xl"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.7 }}
-        >
-          Behalte Projekte, Rechnungen und Kundenkommunikation an einem Ort.
-          Professionell, sicher und einfach.
-        </motion.p>
+          <motion.div
+            variants={container}
+            initial="hidden"
+            animate="show"
+            className="flex flex-wrap gap-4"
+          >
+            <motion.div variants={fadeInUp}>
+              <Button asChild className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-xl">
+                <Link href="/signup">Kostenlos starten</Link>
+              </Button>
+            </motion.div>
+            <motion.div variants={fadeInUp}>
+              <Button asChild variant="outline" className="px-6 py-3 rounded-xl">
+                <Link href="#funktionen">Mehr erfahren</Link>
+              </Button>
+            </motion.div>
+          </motion.div>
+        </motion.div>
 
         <motion.div
-          className="flex gap-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4, duration: 0.7 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6 }}
+          className="relative"
         >
-          <Link href="/signup">
-            <Button size="lg" className="text-lg">
-              Jetzt starten
-            </Button>
-          </Link>
-          <Link href="#preise">
-            <Button size="lg" variant="outline" className="text-lg">
-              Preise ansehen
-            </Button>
-          </Link>
-        </motion.div>
-      </main>
-
-      <section id="funktionen" className="py-24 bg-white px-6">
-        <div className="max-w-6xl mx-auto text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Alles, was du für dein Freelancer-Business brauchst
-          </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            FreelanceDesk bündelt Kommunikation, Projekte und Rechnungen in einem
-            übersichtlichen Kundenportal.
-          </p>
-        </div>
-
-        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
-          {[
-            {
-              title: "Projektmanagement",
-              desc: "Verwalte deine Kundenprojekte mit Status, Aufgaben und Deadlines – einfach und transparent.",
-              icon: "📁",
-            },
-            {
-              title: "Rechnungen & Zahlungen",
-              desc: "Erstelle professionelle Rechnungen und akzeptiere Zahlungen direkt über Stripe.",
-              icon: "💶",
-            },
-            {
-              title: "Dateifreigabe",
-              desc: "Lade Dateien hoch, teile sie sicher mit Kunden und behalte die Kontrolle über Versionen.",
-              icon: "📂",
-            },
-            {
-              title: "Kundenportal",
-              desc: "Deine Kunden sehen Fortschritte, Dateien und Rechnungen zentral in ihrem eigenen Login.",
-              icon: "👥",
-            },
-            {
-              title: "Benachrichtigungen",
-              desc: "Automatische Updates bei neuen Dateien, Rechnungen oder Nachrichten – per E-Mail oder Portal.",
-              icon: "🔔",
-            },
-            {
-              title: "White Label Branding",
-              desc: "Gestalte dein Portal mit eigenem Logo und Farben – ganz im Stil deines Unternehmens.",
-              icon: "🎨",
-            },
-          ].map((feature, i) => (
+          <div className="h-80 rounded-2xl shadow-lg overflow-hidden bg-gradient-to-br from-[#F4FAF0] to-white border border-border flex items-center justify-center">
             <motion.div
-              key={feature.title}
-              className="p-8 bg-gradient-to-b from-white to-blue-50 border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition"
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1, duration: 0.5 }}
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 3, repeat: Infinity }}
+              className="text-center text-slate-500 text-sm"
             >
-              <div className="text-4xl mb-4">{feature.icon}</div>
-              <h3 className="text-xl font-semibold mb-2 text-gray-900">{feature.title}</h3>
-              <p className="text-gray-600">{feature.desc}</p>
+              <div className="text-3xl mb-2">📊</div>
+              <p>Dashboard-Vorschau</p>
             </motion.div>
-          ))}
-        </div>
+          </div>
+        </motion.div>
       </section>
 
-      {/* === Pricing Section === */}
-      <section id="preise" className="bg-white py-24 px-6">
-        <div className="max-w-6xl mx-auto text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Ein Preis für jede Phase deiner Selbstständigkeit
-          </h2>
-          <p className="text-gray-600">
-            Starte kostenlos und wachse mit deinen Kunden.
+      {/* FEATURES SECTION */}
+      <section id="funktionen" className="max-w-6xl mx-auto px-6 py-20">
+        <motion.div
+          initial="hidden"
+          whileInView="show"
+          variants={fadeInUp}
+          viewport={{ once: true }}
+          className="text-center max-w-3xl mx-auto mb-12"
+        >
+          <h2 className="text-3xl font-bold mb-2">Alles, was Freelancer brauchen</h2>
+          <p className="text-muted-foreground">
+            Ein Portal für Projekte, Rechnungen, Dateien und Kommunikation –
+            klar strukturiert für professionelle Kundenarbeit.
+          </p>
+        </motion.div>
+
+        <motion.div
+          variants={container}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+        >
+          {[
+            { icon: "📋", title: "Projektmanagement", desc: "Status, To-Dos und Deadlines – Kunden sehen nur, was sie brauchen." },
+            { icon: "💶", title: "Rechnungen & Zahlungen", desc: "PDF-Rechnungen, Stripe-Integration und Zahlungstracking." },
+            { icon: "📁", title: "Dateifreigabe", desc: "Sichere Ablage, Versionierung und Download-Tracking." },
+            { icon: "🎨", title: "Branding & White-Label", desc: "Logo, Farben und E-Mails im Stil deiner Marke." },
+            { icon: "🔔", title: "Benachrichtigungen", desc: "E-Mails bei neuen Nachrichten, Dateien oder Rechnungen." },
+            { icon: "🔒", title: "Sicherheit", desc: "Rolle-basierte Zugänge und DSGVO-konforme Speicherung." },
+          ].map((f) => (
+            <motion.div
+              key={f.title}
+              variants={fadeInUp}
+              className="p-6 rounded-2xl border bg-card shadow-sm hover:shadow-md transition-all hover:-translate-y-1"
+            >
+              <div className="text-3xl mb-4">{f.icon}</div>
+              <h3 className="font-semibold">{f.title}</h3>
+              <p className="text-sm text-muted-foreground mt-2">{f.desc}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+      </section>
+
+      {/* PRICING SECTION */}
+      <motion.section
+        id="preise"
+        initial="hidden"
+        whileInView="show"
+        variants={fadeIn}
+        viewport={{ once: true }}
+        className="max-w-6xl mx-auto px-6 py-20 bg-muted/30 rounded-3xl"
+      >
+        <div className="text-center mb-10">
+          <h2 className="text-3xl font-bold mb-2">Preise</h2>
+          <p className="text-muted-foreground">
+            Wähle einen Plan, der zu dir passt – monatlich kündbar.
           </p>
         </div>
 
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4 max-w-6xl mx-auto">
+        <motion.div
+          variants={container}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
+        >
           {[
-            { name: "Free", price: "0 €", features: ["1 Kunde", "1 Projekt", "Branding sichtbar"] },
-            { name: "Starter", price: "9 €/Monat", features: ["5 Kunden", "PDF-Rechnungen", "Branding anpassbar"] },
-            { name: "Pro", price: "29 €/Monat", features: ["Unbegrenzt", "Stripe-Zahlungen", "Dateifreigabe"] },
-            { name: "Agentur", price: "79 €/Monat", features: ["Teams", "White-Label", "Kundengruppen"] },
+            { name: "Free", price: "0 €", features: "1 Kunde • 1 Projekt • Branding sichtbar", text: "Starten" },
+            { name: "Starter", price: "9 €/Monat", features: "Bis 5 Kunden • PDF-Rechnungen • Branding anpassbar", text: "Wählen" },
+            { name: "Pro", price: "29 €/Monat", features: "Unbegrenzt • Stripe • White-Label", text: "Wählen" },
+            { name: "Agentur", price: "79 €/Monat", features: "Teams • Kundengruppen • Branding", text: "Kontakt" },
           ].map((plan, i) => (
             <motion.div
               key={plan.name}
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1, duration: 0.5 }}
+              variants={fadeInUp}
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 200, damping: 10 }}
+              className={`p-6 rounded-2xl border text-center bg-card shadow-sm ${i === 1 || i === 2 ? "border-primary/50 shadow-md" : "border-border"
+                }`}
             >
-              <Card className="shadow-md hover:shadow-lg transition rounded-2xl">
-                <CardHeader>
-                  <CardTitle className="text-2xl font-semibold">{plan.name}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-4xl font-bold mb-4 text-blue-600">{plan.price}</p>
-                  <ul className="space-y-2 text-gray-600 mb-6">
-                    {plan.features.map((f) => (
-                      <li key={f}>• {f}</li>
-                    ))}
-                  </ul>
-                  <Button className="w-full">Jetzt wählen</Button>
-                </CardContent>
-              </Card>
+              <h3 className="font-semibold text-lg">{plan.name}</h3>
+              <div className="text-2xl font-bold mt-3">{plan.price}</div>
+              <p className="text-sm text-muted-foreground mt-2">{plan.features}</p>
+              <Button
+                className="mt-6 w-full bg-primary text-primary-foreground hover:bg-primary/90"
+              >
+                {plan.text}
+              </Button>
             </motion.div>
           ))}
-        </div>
-      </section>
-
-      {/* === Call to Action === */}
-      <section className="bg-blue-600 text-white py-20 text-center px-6">
-        <motion.h3
-          className="text-3xl md:text-4xl font-semibold mb-6"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          Bereit, dein Freelancer-Business zu vereinfachen?
-        </motion.h3>
-        <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ delay: 0.2 }}>
-          <Link href="/signup">
-            <Button size="lg" variant="secondary" className="text-lg">
-              Kostenlos starten
-            </Button>
-          </Link>
         </motion.div>
-      </section>
+      </motion.section>
 
-      {/* === Footer === */}
-      <footer className="border-t py-6 text-center text-sm text-gray-500 bg-white">
-        <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-8">
-          <Link href="/impressum" className="hover:text-blue-600">
-            Impressum
-          </Link>
-          <Link href="/datenschutz" className="hover:text-blue-600">
-            Datenschutz
-          </Link>
+      {/* CTA SECTION */}
+      <motion.section
+        initial={{ opacity: 0, scale: 0.95 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6 }}
+        viewport={{ once: true }}
+        className="max-w-6xl mx-auto px-6 py-20"
+      >
+        <div className="rounded-2xl p-8 bg-primary text-primary-foreground shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+          <div>
+            <h3 className="text-xl font-semibold">Bereit, professioneller aufzutreten?</h3>
+            <p className="opacity-90">
+              Teste FreelanceDesk kostenlos und überzeuge deine Kunden mit einem eigenen Portal.
+            </p>
+          </div>
+          <Button asChild variant="secondary" className="bg-white text-primary hover:bg-slate-100">
+            <Link href="/signup">Jetzt starten</Link>
+          </Button>
         </div>
-        <p className="mt-4">© {new Date().getFullYear()} FreelanceDesk — Alle Rechte vorbehalten.</p>
-      </footer>
-    </div>
+      </motion.section>
+
+      {/* FOOTER */}
+      <motion.footer
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+        className="border-t py-8 text-sm text-muted-foreground"
+      >
+        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between gap-6">
+          <div>
+            <div className="font-semibold text-foreground">FreelanceDesk</div>
+            <p className="text-muted-foreground">Professionelles Kundenportal für Freelancer</p>
+          </div>
+          <div className="flex flex-col gap-2">
+            <Link href="/impressum" className="hover:text-primary transition-colors">
+              Impressum
+            </Link>
+            <Link href="/datenschutz" className="hover:text-primary transition-colors">
+              Datenschutz
+            </Link>
+          </div>
+          <div>© {new Date().getFullYear()} FreelanceDesk</div>
+        </div>
+      </motion.footer>
+    </main>
   );
 }
