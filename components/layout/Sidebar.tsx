@@ -25,9 +25,14 @@ export function Sidebar() {
     <aside className="hidden md:flex flex-col w-64 h-screen border-r bg-gradient-to-b from-white to-[#F6F8F4] dark:from-[#121512] dark:to-[#1A1E19] text-foreground">
       {/* LOGO */}
       <div className="flex items-center gap-2 p-6 border-b border-slate-200 dark:border-slate-700">
-        <div className="flex items-center space-x-2">
-                      <Image src="/logo.png" alt="FreelanceDesk Logo" width={240} height={64} priority />
-                    </div>
+        <Link href="/" className="flex items-center gap-2">
+          <div className="flex items-center space-x-2">
+            <Image src="/logo.png" alt="FreelanceDesk Logo" width={40} height={40} priority />
+          </div>
+          <span className="font-semibold text-lg tracking-tight">
+            FreelanceDesk
+          </span>
+        </Link>
       </div>
 
       {/* NAVIGATION */}
@@ -38,11 +43,10 @@ export function Sidebar() {
             <Link key={href} href={href}>
               <motion.div
                 whileHover={{ scale: 1.02 }}
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  active
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${active
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800"
-                }`}
+                  }`}
               >
                 <Icon size={18} />
                 {label}

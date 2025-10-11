@@ -37,9 +37,12 @@ export default function LandingPage() {
       >
         <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex items-center space-x-2">
-              <Image src="/logo.png" alt="FreelanceDesk Logo" width={240} height={64} priority />
-            </div>
+              <div className="flex items-center space-x-2">
+                <Image src="/logo.png" alt="FreelanceDesk Logo" width={40} height={40} priority />
+              </div>
+            <span className="font-semibold text-lg tracking-tight">
+              FreelanceDesk
+            </span>
           </Link>
 
           <nav className="flex items-center gap-4 text-sm font-medium">
@@ -77,21 +80,21 @@ export default function LandingPage() {
           </motion.p>
 
           <div class="mt-8 flex items-center gap-6 text-sm text-muted">
-          <div class="flex items-center gap-2">
-            <div class="h-9 w-9 rounded-full bg-[#E8F1E6] flex items-center justify-center text-brand-olive">✓</div>
-            <div>
-              <div class="font-medium">Schnell eingerichtet</div>
-              <div class="text-muted text-xs">Setup in Minuten</div>
+            <div class="flex items-center gap-2">
+              <div class="h-9 w-9 rounded-full bg-[#E8F1E6] flex items-center justify-center text-brand-olive">✓</div>
+              <div>
+                <div class="font-medium">Schnell eingerichtet</div>
+                <div class="text-muted text-xs">Setup in Minuten</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="h-9 w-9 rounded-full bg-[#FFF6E6] flex items-center justify-center text-[#B97F1F]">⚡</div>
+              <div>
+                <div class="font-medium">Zahlungsintegration</div>
+                <div class="text-muted foreground text-xs">Stripe & SEPA ready</div>
+              </div>
             </div>
           </div>
-          <div class="flex items-center gap-2">
-            <div class="h-9 w-9 rounded-full bg-[#FFF6E6] flex items-center justify-center text-[#B97F1F]">⚡</div>
-            <div>
-              <div class="font-medium">Zahlungsintegration</div>
-              <div class="text-muted foreground text-xs">Stripe & SEPA ready</div>
-            </div>
-          </div>
-        </div>
 
           <motion.div
             variants={container}

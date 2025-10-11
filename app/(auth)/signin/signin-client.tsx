@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
-import { Motion } from "@/components/custom/Motion"
+import { Motion } from "@/components/custom/Motion";
 import Image from "next/image";
 
 export default function SignInClient() {
@@ -54,10 +54,10 @@ export default function SignInClient() {
 
   return (
     <Motion
-      className="min-h-screen flex flex-col justify-center items-center px-6 bg-gradient-to-br from-blue-50 via-white to-blue-100 dark:from-background dark:to-background"
+      className="min-h-screen flex flex-col justify-center items-center px-6 bg-gradient-to-br from-background to-muted text-foreground"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
+      transition={{ duration: 0.5 }}
     >
       {/* Logo */}
       <Motion
@@ -70,7 +70,7 @@ export default function SignInClient() {
           <Image
             src="/logo.png"
             alt="FreelanceDesk Logo"
-            width={240}
+            width={220}
             height={40}
             className="rounded-md"
           />
@@ -83,7 +83,7 @@ export default function SignInClient() {
       {/* Form Card */}
       <motion.form
         onSubmit={handleEmailPassword}
-        className="w-full max-w-sm bg-white/70 dark:bg-white/5 backdrop-blur-md border border-border rounded-2xl shadow-md p-6 space-y-4"
+        className="w-full max-w-sm bg-card/80 dark:bg-card/40 backdrop-blur-xl border border-border rounded-2xl shadow-lg p-6 space-y-4"
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
@@ -97,6 +97,7 @@ export default function SignInClient() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="du@firma.de"
             required
+            className="focus:ring-primary/40"
           />
         </div>
 
@@ -107,15 +108,16 @@ export default function SignInClient() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Dein Passwort"
+            placeholder="••••••••"
             required
+            className="focus:ring-primary/40"
           />
         </div>
 
         <Button
           disabled={loading}
           type="submit"
-          className="w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white transition-all duration-200"
+          className="w-full mt-3 bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200 rounded-lg"
         >
           {loading ? "Wird angemeldet..." : "Anmelden"}
         </Button>
@@ -142,7 +144,7 @@ export default function SignInClient() {
         Noch kein Konto?{" "}
         <button
           onClick={() => router.push("/signup")}
-          className="text-blue-600 hover:underline font-medium"
+          className="text-primary hover:underline font-medium"
         >
           Jetzt registrieren
         </button>
