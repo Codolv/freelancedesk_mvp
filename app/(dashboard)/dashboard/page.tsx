@@ -76,7 +76,7 @@ export default async function DashboardPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
-            Willkommen zurück 👋
+            Dashboard
           </h1>
           <p className="text-muted-foreground">
             Hier siehst du einen Überblick über deine Projekte, Rechnungen und
@@ -185,7 +185,7 @@ export default async function DashboardPage() {
                 key={m.id}
                 className="rounded-md border p-3 bg-card hover:bg-muted/50 transition"
               >
-                <p className="line-clamp-2"><ReactMarkdown>{m.content}</ReactMarkdown></p>
+                <ReactMarkdown>{m.content}</ReactMarkdown>
                 <p className="text-xs text-muted-foreground mt-1">
                   {new Date(m.created_at).toLocaleString("de-DE")}
                 </p>

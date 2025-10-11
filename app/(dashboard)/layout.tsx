@@ -1,23 +1,31 @@
-import { getServerSupabaseComponent } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { getServerSupabaseComponent } from "@/lib/supabase/server";
+import "../globals.css";
 
-const items = [
-	{ href: "/dashboard", key: "dashboard.overview" },
-	{ href: "/projects", key: "dashboard.projects" },
-	{ href: "/settings", key: "dashboard.settings" },
-];
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const supabase = await getServerSupabaseComponent();
+  const { data: { user } } = await supabase.auth.getUser();
 
-export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-	const supabase = await getServerSupabaseComponent();
-	const { data } = await supabase.auth.getUser();
-	if (!data.user) redirect("/signin");
-	return (
-    <div className="flex">
-      <Sidebar />
-      <main className="ml-64 flex-1 p-8 bg-gray-50 min-h-screen">
-        {children}
-      </main>
-    </div>
+  return (
+    <html lang="de">
+      <body className="flex bg-background text-foreground min-h-screen">
+        {/* Sidebar */}
+        <Sidebar
+          user={{
+            name: user?.user_metadata?.full_name || "Freelancer",
+            email: user?.email,
+            avatar_url: user?.user_metadata?.avatar_url || "",
+          }}
+        />
+
+        {/* Main Content */}
+        <main className="flex-1 relative overflow-y-auto px-8 py-6"
+            style={{
+              minWidth: 0, // Prevent motion from breaking flex layout
+            }}>
+          {children}
+        </main>
+      </body>
+    </html>
   );
 }

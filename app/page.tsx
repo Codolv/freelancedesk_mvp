@@ -78,24 +78,7 @@ export default function LandingPage() {
             Verwalte Projekte, Rechnungen und Dateien mit deinen Kunden – alles
             an einem Ort. Keine E-Mail-Flut, keine Verwirrung.
           </motion.p>
-
-          <div class="mt-8 flex items-center gap-6 text-sm text-muted">
-            <div class="flex items-center gap-2">
-              <div class="h-9 w-9 rounded-full bg-[#E8F1E6] flex items-center justify-center text-brand-olive">✓</div>
-              <div>
-                <div class="font-medium">Schnell eingerichtet</div>
-                <div class="text-muted text-xs">Setup in Minuten</div>
-              </div>
-            </div>
-            <div class="flex items-center gap-2">
-              <div class="h-9 w-9 rounded-full bg-[#FFF6E6] flex items-center justify-center text-[#B97F1F]">⚡</div>
-              <div>
-                <div class="font-medium">Zahlungsintegration</div>
-                <div class="text-muted foreground text-xs">Stripe & SEPA ready</div>
-              </div>
-            </div>
-          </div>
-
+          
           <motion.div
             variants={container}
             initial="hidden"
