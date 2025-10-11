@@ -62,7 +62,6 @@ export default function LandingPage() {
       {/* HERO SECTION */}
       <section className="max-w-6xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-12 items-center">
         <motion.div
-          variants={fadeInUp}
           initial="hidden"
           animate="show"
           className="space-y-6"
@@ -72,7 +71,6 @@ export default function LandingPage() {
             <span className="text-primary">einfach, sicher, professionell.</span>
           </motion.h1>
           <motion.p
-            variants={fadeInUp}
             className="text-lg text-muted-foreground max-w-prose"
           >
             Verwalte Projekte, Rechnungen und Dateien mit deinen Kunden – alles
@@ -85,12 +83,12 @@ export default function LandingPage() {
             animate="show"
             className="flex flex-wrap gap-4"
           >
-            <motion.div variants={fadeInUp}>
+            <motion.div>
               <Button asChild className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-xl">
                 <Link href="/signup">Kostenlos starten</Link>
               </Button>
             </motion.div>
-            <motion.div variants={fadeInUp}>
+            <motion.div>
               <Button asChild variant="outline" className="px-6 py-3 rounded-xl">
                 <Link href="#funktionen">Mehr erfahren</Link>
               </Button>
@@ -122,7 +120,6 @@ export default function LandingPage() {
         <motion.div
           initial="hidden"
           whileInView="show"
-          variants={fadeInUp}
           viewport={{ once: true }}
           className="text-center max-w-3xl mx-auto mb-12"
         >
@@ -150,7 +147,6 @@ export default function LandingPage() {
           ].map((f) => (
             <motion.div
               key={f.title}
-              variants={fadeInUp}
               className="p-6 rounded-2xl border bg-card shadow-sm hover:shadow-md transition-all hover:-translate-y-1"
             >
               <div className="text-3xl mb-4">{f.icon}</div>
@@ -192,7 +188,6 @@ export default function LandingPage() {
           ].map((plan, i) => (
             <motion.div
               key={plan.name}
-              variants={fadeInUp}
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 200, damping: 10 }}
               className={`p-6 rounded-2xl border text-center bg-card shadow-sm ${i === 1 || i === 2 ? "border-primary/50 shadow-md" : "border-border"
