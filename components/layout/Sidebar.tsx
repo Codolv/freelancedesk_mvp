@@ -128,15 +128,6 @@ export function Sidebar({ user }: { user?: { email?: string; name?: string; avat
           </AnimatePresence>
           
         </div>
-        <div className="p-4">
-            <Button
-              variant="ghost"
-              className="w-full flex items-center justify-center gap-2 text-sm text-white hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
-            >
-              <LogOut size={18} />
-              Abmelden
-            </Button>
-          </div>
       </motion.aside>
     </TooltipProvider>
   );
