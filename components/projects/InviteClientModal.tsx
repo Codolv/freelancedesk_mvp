@@ -1,54 +1,107 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogFooter } from "@/components/ui/dialog"; // or your Dialog implementation
-import { createProjectInvite } from "@/app/actions/inviteClient"; // this is a server action import (callable from client only in forms)
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Loader2, Mail } from "lucide-react";
+import { motion } from "framer-motion";
+import { toast } from "sonner"; // or your toast system
+import { createProjectInvite } from "@/app/actions/inviteClient";
 
-
-export default function InviteClientModal({ projectId }: { projectId: string }) {
+export default function InviteClientModal({
+  projectId,
+}: {
+  projectId: string;
+}) {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [pending, startTransition] = useTransition();
+
+  const handleSubmit = (formData: FormData) => {
+    const emailValue = formData.get("email")?.toString() || "";
+    startTransition(async () => {
+      try {
+        await createProjectInvite(projectId, emailValue);
+        toast.success("Einladung erfolgreich gesendet!");
+        setOpen(false);
+        setEmail("");
+      } catch (err: any) {
+        console.error(err);
+        toast.error("Fehler beim Senden der Einladung.");
+      }
+    });
+  };
 
   return (
     <>
-      <Button onClick={() => setOpen(true)}>Kunden einladen</Button>
+      <Button
+        onClick={() => setOpen(true)}
+        className="bg-[hsl(85,30%,35%)] hover:bg-[hsl(85,30%,30%)] text-white"
+      >
+        <Mail className="mr-2 h-4 w-4" />
+        Kunden einladen
+      </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
-          <DialogHeader>Kunden per E-Mail einladen</DialogHeader>
-          <div className="p-4">
-            <Label htmlFor="invite-email">E-Mail des Kunden</Label>
-            <Input id="invite-email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="kunde@beispiel.de" />
-            <p className="text-sm text-muted-foreground mt-2">
-              Der Kunde erhält eine E-Mail mit einem Einladungslink (gültig 14 Tage).
-            </p>
-          </div>
+        <DialogContent className="max-w-md bg-background/90 backdrop-blur-md border border-border/60 shadow-xl">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.25 }}
+          >
+            <DialogHeader>
+              <DialogTitle className="text-lg font-semibold">
+                Kunden per E-Mail einladen
+              </DialogTitle>
+            </DialogHeader>
 
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setOpen(false)}>Abbrechen</Button>
+            <form action={handleSubmit} className="space-y-4 mt-4">
+              <div className="grid gap-2">
+                <Label htmlFor="invite-email">E-Mail-Adresse</Label>
+                <Input
+                  id="invite-email"
+                  name="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="kunde@beispiel.de"
+                  required
+                />
+                <p className="text-sm text-muted-foreground">
+                  Der Kunde erhält eine E-Mail mit einem Einladungslink (gültig 14 Tage).
+                </p>
+              </div>
 
-            <form action={async (formData: FormData) => {
-              setLoading(true);
-              try {
-                // call the server action. Note: server actions can be called directly from client form submissions
-                await createProjectInvite(projectId, email);
-                setOpen(false);
-                setEmail("");
-              } catch (err: any) {
-                console.log(err)
-              } finally {
-                setLoading(false);
-              }
-            }}>
-              <Button type="submit" disabled={loading}>
-                {loading ? "Senden..." : "Einladung senden"}
-              </Button>
+              <DialogFooter className="flex justify-end gap-3 mt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setOpen(false)}
+                >
+                  Abbrechen
+                </Button>
+
+                <Button
+                  type="submit"
+                  disabled={pending}
+                  className="bg-[hsl(85,30%,35%)] hover:bg-[hsl(85,30%,30%)] text-white"
+                >
+                  {pending && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  {pending ? "Senden..." : "Einladung senden"}
+                </Button>
+              </DialogFooter>
             </form>
-          </DialogFooter>
+          </motion.div>
         </DialogContent>
       </Dialog>
     </>

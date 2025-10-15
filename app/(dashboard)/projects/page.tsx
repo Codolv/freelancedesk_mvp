@@ -1,8 +1,9 @@
 import { getServerSupabaseComponent } from "@/lib/supabase/server";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { Motion } from "@/components/custom/Motion";
-import { PlusCircle, Calendar, ChevronRight } from "lucide-react";
+import { PlusCircle, Folder, UserPlus2, ArrowRight } from "lucide-react";
 
 export default async function ProjectsPage() {
   const supabase = await getServerSupabaseComponent();
@@ -10,108 +11,152 @@ export default async function ProjectsPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  let projects:
-    | Array<{
-        id: string;
-        name: string;
-        description: string | null;
-        deadline: string | null;
-      }>
-    | [] = [];
-
-  if (user) {
-    const { data } = await supabase
-      .from("projects")
-      .select("id, name, description, deadline")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
-    projects = (data as any) || [];
+  if (!user) {
+    return (
+      <div className="text-center py-20 text-muted-foreground">
+        Bitte melde dich an, um deine Projekte zu sehen.
+      </div>
+    );
   }
+
+  // === Fetch owned projects ===
+  const { data: ownedProjects } = await supabase
+    .from("projects")
+    .select("id, name, description, deadline")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  // === Fetch invited projects ===
+  const { data: invitedProjects } = await supabase
+    .from("project_clients")
+    .select("project_id, projects(id, name, description, deadline)")
+    .eq("client_id", user.id)
+    .order("created_at", { ascending: false });
+
+  const invitedList =
+    invitedProjects?.map((p) => p.projects).filter(Boolean) || [];
 
   return (
     <Motion
       className="space-y-10 max-w-5xl mx-auto py-10"
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.4 }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Projekte</h1>
           <p className="text-muted-foreground mt-1">
-            Eine Übersicht über alle Kundenprojekte.
+            Hier findest du alle Projekte, die du besitzt oder zu denen du eingeladen wurdest.
           </p>
         </div>
-        <Button asChild className="bg-[--color-accent] hover:bg-[--color-accent-hover] text-white">
+        <Button asChild className="bg-[hsl(85,30%,35%)] hover:bg-[hsl(85,30%,30%)] text-white">
           <Link href="/projects/new">
             <PlusCircle className="mr-2 h-4 w-4" /> Neues Projekt
           </Link>
         </Button>
       </div>
 
-      {/* Project List */}
-      {projects.length === 0 ? (
-        <Motion
-          className="text-center py-20 text-muted-foreground"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-        >
-          <p className="text-lg font-medium mb-2">
-            Noch keine Projekte vorhanden.
-          </p>
-          <p className="text-sm mb-4">
-            Erstelle dein erstes Projekt, um loszulegen.
-          </p>
-          <Button variant="default" asChild>
-            <Link href="/projects/new">
-              <PlusCircle className="mr-2 h-4 w-4" /> Projekt hinzufügen
-            </Link>
-          </Button>
-        </Motion>
-      ) : (
-        <div className="rounded-lg border border-border/40 bg-background/50 backdrop-blur-sm divide-y divide-border/40">
-          {projects.map((p, idx) => (
+      {/* === Owned Projects Section === */}
+      <section>
+        <h2 className="text-xl font-semibold flex items-center gap-2 mb-3">
+          <Folder className="h-5 w-5 text-[hsl(85,30%,35%)]" />
+          Eigene Projekte
+        </h2>
+        <Separator className="mb-4" />
+
+        {(!ownedProjects || ownedProjects.length === 0) && (
+          <p className="text-muted-foreground">Du hast noch keine Projekte erstellt.</p>
+        )}
+
+        <ul className="divide-y divide-border/50 rounded-lg border border-border/50 bg-background/70 backdrop-blur-sm">
+          {ownedProjects?.map((p, i) => (
             <Motion
-              className=""
               key={p.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.04 }}
+              transition={{ delay: i * 0.05 }}
+              className="p-4 hover:bg-muted/40 transition-all duration-200 group"
             >
-              <Link
-                href={`/projects/${p.id}`}
-                className="group flex items-center justify-between px-5 py-4 hover:bg-muted/50 transition-colors"
-              >
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-2">
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium truncate group-hover:text-[--color-accent] transition-colors">
-                      {p.name}
+              <Link href={`/projects/${p.id}`} className="flex justify-between items-center">
+                <div>
+                  <p className="font-medium text-lg group-hover:text-[hsl(85,30%,35%)] transition-colors">
+                    {p.name}
+                  </p>
+                  {p.description && (
+                    <p className="text-sm text-muted-foreground line-clamp-1">
+                      {p.description}
                     </p>
-                    {p.description && (
-                      <p className="text-sm text-muted-foreground truncate">
-                        {p.description}
-                      </p>
-                    )}
-                  </div>
+                  )}
                   {p.deadline && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground whitespace-nowrap">
-                      <Calendar className="h-4 w-4 opacity-70" />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Frist:{" "}
                       {new Date(p.deadline).toLocaleDateString("de-DE", {
                         day: "2-digit",
                         month: "2-digit",
                         year: "numeric",
                       })}
-                    </div>
+                    </p>
                   )}
                 </div>
-                <ChevronRight className="h-4 w-4 ml-4 text-muted-foreground group-hover:text-[--color-accent]" />
+                <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-[hsl(85,30%,35%)] transition" />
               </Link>
             </Motion>
           ))}
-        </div>
-      )}
+        </ul>
+      </section>
+
+      {/* === Invited Projects Section === */}
+      <section>
+        <h2 className="text-xl font-semibold flex items-center gap-2 mb-3">
+          <UserPlus2 className="h-5 w-5 text-[hsl(85,30%,35%)]" />
+          Eingeladene Projekte
+        </h2>
+        <Separator className="mb-4" />
+
+        {invitedList.length === 0 && (
+          <p className="text-muted-foreground">
+            Du wurdest noch zu keinem Projekt eingeladen.
+          </p>
+        )}
+
+        <ul className="divide-y divide-border/50 rounded-lg border border-border/50 bg-background/70 backdrop-blur-sm">
+          {invitedList.map((p, i) => (
+            <Motion
+              key={p?.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.05 }}
+              className="p-4 hover:bg-muted/40 transition-all duration-200 group"
+            >
+              <Link href={`/projects/${p?.id}`} className="flex justify-between items-center">
+                <div>
+                  <p className="font-medium text-lg group-hover:text-[hsl(85,30%,35%)] transition-colors">
+                    {p?.name}
+                  </p>
+                  {p?.description && (
+                    <p className="text-sm text-muted-foreground line-clamp-1">
+                      {p.description}
+                    </p>
+                  )}
+                  {p?.deadline && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Frist:{" "}
+                      {new Date(p.deadline).toLocaleDateString("de-DE", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      })}
+                    </p>
+                  )}
+                </div>
+                <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-[hsl(85,30%,35%)] transition" />
+              </Link>
+            </Motion>
+          ))}
+        </ul>
+      </section>
     </Motion>
   );
 }

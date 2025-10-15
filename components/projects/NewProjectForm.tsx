@@ -1,87 +1,57 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Motion } from "@/components/custom/Motion";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon, FileText, Loader2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
-import { de } from "date-fns/locale";
+import { Calendar, FileText, Loader2, CheckCircle2 } from "lucide-react";
 
 export default function NewProjectForm({
   createAction,
 }: {
-  createAction: (formData: FormData) => Promise<void> | void;
+  createAction: (formData: FormData) => Promise<void>;
 }) {
-  const [loading, setLoading] = useState(false);
-  const [date, setDate] = useState<Date | undefined>(undefined);
+  const [isPending, startTransition] = useTransition();
+  const [success, setSuccess] = useState(false);
 
-  async function handleSubmit(formData: FormData) {
-    setLoading(true);
-    try {
-      if (date) formData.set("deadline", date.toISOString().split("T")[0]);
+  const handleSubmit = (formData: FormData) => {
+    setSuccess(false);
+    startTransition(async () => {
       await createAction(formData);
-    } finally {
-      setLoading(false);
-    }
-  }
+      setSuccess(true);
+    });
+  };
 
   return (
     <Motion
-      className="max-w-2xl mx-auto py-10 px-4 relative"
+      className="max-w-2xl mx-auto py-10"
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      {/* Loading overlay */}
-      <AnimatePresence>
-        {loading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 flex flex-col items-center justify-center bg-background/80 backdrop-blur-md z-50"
-          >
-            <Loader2 className="h-10 w-10 animate-spin text-primary mb-3" />
-            <p className="text-muted-foreground text-sm">Projekt wird erstellt...</p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Header */}
-      <div className="mb-8 text-center space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight mb-1">
           Neues Projekt
         </h1>
-        <p className="text-muted-foreground max-w-md mx-auto">
-          Lege ein neues Kundenprojekt mit Frist und Beschreibung an.  
-          Organisiere deine Arbeit effizienter mit FreelanceDesk.
+        <p className="text-muted-foreground">
+          Lege ein neues Kundenprojekt mit Frist und Beschreibung an.
         </p>
       </div>
 
-      {/* Form Card */}
-      <Card className="border-border/50 bg-card/70 backdrop-blur-md shadow-lg hover:shadow-xl transition-all duration-300">
+      {/* Form */}
+      <Card className="border-border/60 bg-background/80 backdrop-blur-sm shadow-sm">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg font-semibold">
-            <FileText className="h-5 w-5 text-primary" />
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5 text-muted-foreground" />
             Projektdetails
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <motion.form
-            action={handleSubmit}
-            className="grid gap-6"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.1 }}
-          >
-            {/* Projektname */}
+          <form action={handleSubmit} className="grid gap-5">
             <div className="grid gap-2">
               <Label htmlFor="name">Projektname</Label>
               <Input
@@ -89,11 +59,10 @@ export default function NewProjectForm({
                 name="name"
                 placeholder="Website-Relaunch"
                 required
-                className="focus:ring-2 focus:ring-primary/40 focus:border-primary/60 transition-all"
+                disabled={isPending}
               />
             </div>
 
-            {/* Beschreibung */}
             <div className="grid gap-2">
               <Label htmlFor="description">Beschreibung</Label>
               <Textarea
@@ -101,53 +70,47 @@ export default function NewProjectForm({
                 name="description"
                 placeholder="Projektumfang, Ziele, Notizen..."
                 rows={4}
-                className="focus:ring-2 focus:ring-primary/40 focus:border-primary/60 transition-all"
+                disabled={isPending}
               />
             </div>
 
-            {/* Date Picker */}
             <div className="grid gap-2">
-              <Label>Frist</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={`w-full justify-start text-left font-normal ${
-                      !date && "text-muted-foreground"
-                    }`}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? format(date, "dd.MM.yyyy", { locale: de }) : "Datum auswählen"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={setDate}
-                    locale={de}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
+              <Label htmlFor="deadline">Frist</Label>
+              <div className="relative">
+                <Calendar className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="deadline"
+                  name="deadline"
+                  type="date"
+                  className="pl-8"
+                  disabled={isPending}
+                />
+              </div>
             </div>
 
-            {/* Submit */}
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              transition={{ type: "spring", stiffness: 200 }}
+            <Button
+              type="submit"
+              size="lg"
+              className="w-full flex items-center justify-center gap-2"
+              disabled={isPending}
             >
-              <Button
-                type="submit"
-                size="lg"
-                disabled={loading}
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-md transition-all"
-              >
-                {loading ? "Wird erstellt..." : "Projekt erstellen"}
-              </Button>
-            </motion.div>
-          </motion.form>
+              {isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Projekt wird erstellt...
+                </>
+              ) : (
+                "Projekt erstellen"
+              )}
+            </Button>
+
+            {success && (
+              <div className="flex items-center justify-center text-green-600 dark:text-green-400 mt-3 text-sm">
+                <CheckCircle2 className="h-4 w-4 mr-2" />
+                Projekt erfolgreich erstellt!
+              </div>
+            )}
+          </form>
         </CardContent>
       </Card>
     </Motion>
