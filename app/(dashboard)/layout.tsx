@@ -7,25 +7,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const { data: { user } } = await supabase.auth.getUser();
 
   return (
-    <html lang="de">
-      <body className="flex bg-background text-foreground min-h-screen">
-        {/* Sidebar */}
-        <Sidebar
-          user={{
-            name: user?.user_metadata?.full_name || "Freelancer",
-            email: user?.email,
-            avatar_url: user?.user_metadata?.avatar_url || "",
-          }}
-        />
+    <div className="h-screen flex bg-background text-foreground">
+      <aside className="fixed left-0 top-0 h-full w-64 border-r border-border bg-muted/10 z-50">
+        <Sidebar />
+      </aside>
 
-        {/* Main Content */}
-        <main className="flex-1 relative overflow-y-auto px-8 py-6"
-            style={{
-              minWidth: 0, // Prevent motion from breaking flex layout
-            }}>
-          {children}
-        </main>
-      </body>
-    </html>
+      <main className="flex-1 ml-64 overflow-y-visible">
+        <div className="min-h-full p-6">{children}</div>
+      </main>
+    </div>
+
   );
 }

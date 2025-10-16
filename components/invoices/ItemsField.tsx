@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { Motion } from "@/components/custom/Motion"
 import { Plus, Trash2 } from "lucide-react";
 
@@ -21,7 +21,6 @@ export function ItemsField() {
   ]);
   const [total, setTotal] = useState(0);
 
-  // 🧮 Recalculate total
   useEffect(() => {
     const totalCents = items.reduce(
       (sum, it) => sum + ((it.qty || 0) * (it.unit_price_cents || 0)),

@@ -14,9 +14,11 @@ async function acceptInviteServer(token: string) {
   } = await supabase.auth.getUser();
 
   if (!user) {
+    // Not logged in — redirect to signin with next param
     redirect(`/signin?next=/invite/${token}`);
   }
 
+  // find invite
   const { data: invite } = await supabase
     .from("project_invites")
     .select("id, project_id, accepted, expires_at")
@@ -24,24 +26,25 @@ async function acceptInviteServer(token: string) {
     .single();
 
   if (!invite) throw new Error("Ungültiger Einladungstoken.");
-  if (invite.accepted) redirect(`/projects/${invite.project_id}`);
+
+  if (invite.accepted) {
+    // already accepted
+    redirect(`/projects/${invite.project_id}`);
+  }
 
   if (new Date(invite.expires_at) < new Date()) {
     throw new Error("Der Einladungslink ist abgelaufen.");
   }
 
-  await supabase
-    .from("project_clients")
-    .insert({ project_id: invite.project_id, client_id: user.id })
-    .select()
-    .single();
+  // add to project_clients (ignore conflict)
+  await supabase.from("project_clients").insert({
+    project_id: invite.project_id,
+    client_id: user.id,
+  });
 
-  await supabase
-    .from("project_invites")
-    .update({ accepted: true })
-    .eq("id", invite.id);
+  // mark invite accepted
+  await supabase.from("project_invites").update({ accepted: true }).eq("id", invite.id);
 
-  revalidatePath(`/projects/${invite.project_id}`);
   redirect(`/projects/${invite.project_id}`);
 }
 

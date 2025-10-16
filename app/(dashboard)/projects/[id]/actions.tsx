@@ -4,50 +4,61 @@
 import { getServerSupabaseAction } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
-export async function addMessage(projectId: string, formData: FormData) {
+export async function addMessage(projectId: string, content: string) {
   const supabase = await getServerSupabaseAction();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
 
-  const content = (formData.get("content")?.toString() || "").trim();
-  if (!content) return;
+  // check if user owns project or is a client
+  const { data: project } = await supabase
+    .from("projects")
+    .select("user_id")
+    .eq("id", projectId)
+    .single();
 
-  await supabase
-    .from("project_messages")
-    .insert({ project_id: projectId, user_id: user.id, content });
+  const sender_role = project?.user_id === user.id ? "freelancer" : "client";
 
-  revalidatePath(`/projects/${projectId}`);
+  await supabase.from("project_messages").insert({
+    project_id: projectId,
+    user_id: user.id,
+    content,
+    sender_role,
+  });
 }
 
-export async function getFileUrl(path: string) {
-  const supabase = await getServerSupabaseAction();
-    const { data, error } = await supabase.storage
-      .from("files")
-      .createSignedUrl(path, 60 * 60); // 1h gültig
-    if (error) {
-      console.log(error)
-    } else {
-      return data.signedUrl;
-    }
-  };
 
+// Upload file to Supabase storage
 export async function uploadFile(projectId: string, formData: FormData) {
   const supabase = await getServerSupabaseAction();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return;
-
-  const file = formData.get("file") as File | null;
+  const file = formData.get("file") as File;
   if (!file) return;
 
-  const path = `${projectId}/${file.name}`;
-  await supabase.storage.from("files").upload(path, file, { upsert: true });
+  const { data, error } = await supabase.storage
+    .from("files")
+    .upload(`${projectId}/${file.name}`, file, { upsert: true });
 
-  revalidatePath(`/projects/${projectId}`);
+  if (error) throw error;
+
+  return { 
+    name: file.name,
+    size: file.size,
+    last_modified: file.lastModified,
+  };
 }
+
+// Delete file
+export async function deleteFile(projectId: string, fileName: string) {
+  const supabase = await getServerSupabaseAction();
+  await supabase.storage.from("files").remove([`${projectId}/${fileName}`]);
+}
+
+// Get file URL
+export async function getFileUrl(path: string) {
+  const supabase = await getServerSupabaseAction();
+  const { data } = await supabase.storage.from("files").createSignedUrl(path, 60);
+  return data?.signedUrl;
+}
+
 
 export async function deleteInvoice(projectId: string, invoiceId: string) {
   const supabase = await getServerSupabaseAction();

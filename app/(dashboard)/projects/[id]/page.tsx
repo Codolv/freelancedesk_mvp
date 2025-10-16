@@ -1,22 +1,13 @@
+// app/projects/[id]/page.tsx
 import { getServerSupabaseComponent } from "@/lib/supabase/server";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { MessagesTab } from "./components/MessagesTab";
-import { FilesTab } from "./components/FilesTab";
-import { InvoicesTab } from "./components/InvoicesTab";
-import { ClientsTab } from "./components/ClientsTab";
-import { ClientInfoBar } from "./components/ClientInfoBar";
 import { Motion } from "@/components/custom/Motion";
-import InviteClientModal from "@/components/projects/InviteClientModal";
+import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { User, MessageSquare, Folder, Wallet } from "lucide-react";
+import { ClientInfoBar } from "./components/ClientInfoBar";
+import ProjectTabsAnimated from "./ProjectTabsAnimated";
 
-export default async function ProjectDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await getServerSupabaseComponent();
 
@@ -24,178 +15,69 @@ export default async function ProjectDetailPage({
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user)
-    return (
-      <div className="flex items-center justify-center h-screen text-muted-foreground">
-        Bitte melde dich an.
-      </div>
-    );
+  if (!user) return <div className="flex items-center justify-center h-screen text-muted-foreground">Bitte melde dich an.</div>;
 
-  // === Fetch project info ===
-  const { data: project } = await supabase
-    .from("projects")
-    .select("*")
-    .eq("id", id)
-    .single();
+  const { data: user_profile } = await supabase.from("profiles").select("id, name, email, avatar_url").eq("id", user.id);
 
-  if (!project)
-    return (
-      <div className="flex items-center justify-center h-screen text-muted-foreground">
-        Projekt nicht gefunden.
-      </div>
-    );
+  const { data: project } = await supabase.from("projects").select("*").eq("id", id).single();
+  if (!project) return <div className="flex items-center justify-center h-screen text-muted-foreground">Projekt nicht gefunden.</div>;
 
-  // === Determine user role ===
   const isFreelancer = project.user_id === user.id;
-  const { data: isClient } = await supabase
-    .from("project_clients")
-    .select("id")
-    .eq("project_id", id)
-    .eq("client_id", user.id)
-    .maybeSingle();
+  const { data: isClient } = await supabase.from("project_clients").select("id").eq("project_id", id).eq("client_id", user.id).maybeSingle();
 
-  if (!isFreelancer && !isClient) {
-    return (
-      <div className="flex items-center justify-center h-screen text-muted-foreground">
-        Du hast keinen Zugriff auf dieses Projekt.
-      </div>
-    );
+  if (!isFreelancer && !isClient) return <div className="flex items-center justify-center h-screen text-muted-foreground">Du hast keinen Zugriff auf dieses Projekt.</div>;
+
+  // fetch data for tabs
+  const { data: messages } = await supabase.from("project_messages").select("*").eq("project_id", id).order("created_at", { ascending: false });
+  const { data: files } = await supabase.storage.from("files").list(id);
+  const { data: invoices } = await supabase.from("project_invoices").select("*").eq("project_id", id).order("created_at", { ascending: false });
+
+  // accepted clients (robust, no join)
+  const { data: projectClients } = await supabase.from("project_clients").select("client_id").eq("project_id", id);
+  let acceptedClients: any[] = [];
+  if (projectClients && projectClients.length) {
+    const ids = projectClients.map((c: any) => c.client_id);
+    const { data: clientProfiles } = await supabase.from("profiles").select("id, name, email, avatar_url").in("id", ids);
+    acceptedClients = clientProfiles || [];
   }
 
-  // === Fetch project data ===
-  const { data: messages } = await supabase
-    .from("project_messages")
-    .select("*")
-    .eq("project_id", id)
-    .order("created_at", { ascending: false });
-
-  const { data: files } = await supabase.storage.from("files").list(id);
-  const { data: invoices } = await supabase
-    .from("project_invoices")
-    .select("*")
-    .eq("project_id", id)
-    .order("created_at", { ascending: false });
-
-  const { data: acceptedClients } = await supabase
-    .from("project_clients")
-    .select("client_id, profiles(email)")
-    .eq("project_id", id)
-    .returns<{ id: string; email: string }[]>();
-
-  const { data: pendingInvites } = await supabase
-    .from("project_invites")
-    .select("id, email, accepted")
-    .eq("project_id", id)
-    .eq("accepted", false);
-
+  const { data: pendingInvites } = await supabase.from("project_invites").select("id, email, accepted").eq("project_id", id).eq("accepted", false);
 
   return (
-    <Motion
-      className="max-w-5xl mx-auto py-10 space-y-8"
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-    >
-      {/* === Header === */}
-      <Motion
-        className="flex flex-col md:flex-row md:items-center justify-between gap-4"
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-      >
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">{project.name}</h1>
-          {project.description && (
-            <p className="text-muted-foreground mt-1">{project.description}</p>
-          )}
-          {project.deadline && (
-            <p className="text-sm text-muted-foreground mt-1">
-              Fällig am{" "}
-              {new Date(project.deadline).toLocaleDateString("de-DE", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-              })}
-            </p>
+    <Motion className="max-w-5xl mx-auto py-6" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+      {/* Header (shrink-0 so it doesn't flex) */}
+      <div className="space-y-4 shrink-0">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">{project.name}</h1>
+            {project.description && <p className="text-muted-foreground mt-1">{project.description}</p>}
+            {project.deadline && <p className="text-sm text-muted-foreground mt-1">Fällig am {new Date(project.deadline).toLocaleDateString("de-DE")}</p>}
+          </div>
+
+          {isFreelancer && (
+            <div className="flex gap-2">
+              <Button asChild variant="outline"><Link href={`/projects/${id}/edit`}>Projekt bearbeiten</Link></Button>
+            </div>
           )}
         </div>
 
-        {isFreelancer && (
-          <div className="flex flex-wrap gap-2">
-            <Button asChild variant="outline">
-              <Link href={`/projects/${id}/edit`}>Projekt bearbeiten</Link>
-            </Button>
-          </div>
-        )}
-      </Motion>
+        {isFreelancer && <ClientInfoBar clients={acceptedClients || []} projectId={id} isFreelancer={true} />}
 
-      {isFreelancer && (
-        <ClientInfoBar
-          clients={acceptedClients || []}
-          projectId={id}
-          isFreelancer={true}
-        />
-      )}
+        <Separator />
+      </div>
 
-      <Separator />
-
-      {/* === Tabs === */}
-      <Tabs defaultValue="messages" className="w-full">
-        <TabsList className="mb-4 flex flex-wrap">
-          <TabsTrigger value="messages" className="flex items-center gap-2">
-            <MessageSquare className="h-4 w-4" /> Nachrichten
-          </TabsTrigger>
-          <TabsTrigger value="files" className="flex items-center gap-2">
-            <Folder className="h-4 w-4" /> Dateien
-          </TabsTrigger>
-          <TabsTrigger value="invoices" className="flex items-center gap-2">
-            <Wallet className="h-4 w-4" /> Rechnungen
-          </TabsTrigger>
-          {isFreelancer && (
-            <TabsTrigger value="clients" className="flex items-center gap-2">
-              <User className="h-4 w-4" /> Kunden
-            </TabsTrigger>
-          )}
-        </TabsList>
-
-        {/* === Messages === */}
-        <TabsContent value="messages">
-          <MessagesTab
-            messages={messages || []}
-            projectId={id}
-            readOnly={!isFreelancer && !isClient}
-          />
-        </TabsContent>
-
-        {/* === Files === */}
-        <TabsContent value="files">
-          <FilesTab
-            files={files || []}
-            projectId={id}
-            canUpload={isFreelancer}
-          />
-        </TabsContent>
-
-        {/* === Invoices === */}
-        <TabsContent value="invoices">
-          <InvoicesTab
-            invoices={invoices || []}
-            projectId={id}
-            canManage={isFreelancer}
-          />
-        </TabsContent>
-
-        {/* === Clients (Freelancer only) === */}
-        {isFreelancer && (
-          <TabsContent value="clients">
-            <ClientsTab
-              projectId={id}
-              clients={acceptedClients || []}
-              invites={pendingInvites || []}
-            />
-          </TabsContent>
-        )}
-      </Tabs>
+      {/* Client-side scrollable tabs area */}
+      <ProjectTabsAnimated
+        projectId={id}
+        isFreelancer={isFreelancer}
+        isClient={!!isClient}
+        messages={messages || []}
+        files={files || []}
+        invoices={invoices || []}
+        acceptedClients={acceptedClients || []}
+        pendingInvites={pendingInvites || []}
+        user={user_profile}
+      />
     </Motion>
   );
 }
