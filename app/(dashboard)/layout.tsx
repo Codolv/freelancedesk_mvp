@@ -12,7 +12,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Sidebar />
       </aside>
 
-      <main className="flex-1 ml-64 overflow-y-visible">
+      <main className="w-full max-w-none px-4 flex-1 ml-64 overflow-y-visible">
         <div className="min-h-full p-6">{children}</div>
       </main>
     </div>
