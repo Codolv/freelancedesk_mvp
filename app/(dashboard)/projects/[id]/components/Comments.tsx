@@ -1,97 +1,159 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { useTransition } from "react";
-import { addMessage } from "../actions";
+import { useEffect, useState } from "react";
+import { getBrowserSupabase } from "@/lib/supabase/client";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Avatar, AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Motion } from "@/components/custom/Motion";
 import ReactMarkdown from "react-markdown";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
-import { format } from "date-fns";
-import { de } from "date-fns/locale";
 
-export function Comments({ projectId, messages = [], user }: any) {
+export function Comments({ messages: initialMessages, projectId }: any) {
+  const supabase = getBrowserSupabase();
+  const [messages, setMessages] = useState(initialMessages || []);
   const [content, setContent] = useState("");
-  const [isPending, startTransition] = useTransition();
-  const formRef = useRef<HTMLFormElement>(null);
+  const [posting, setPosting] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // === Fetch signed avatar URLs ===
+  async function getAvatarUrl(path: string | null) {
+    if (!path) return null;
+    const { data } = await supabase.storage.from("avatars").createSignedUrl(path, 60 * 60);
+    return data?.signedUrl || null;
+  }
+
+  // === Enrich messages with profile info and avatar URL ===
+  async function enrichMessages(rawMessages: any[]) {
+    const userIds = [...new Set(rawMessages.map((m) => m.user_id))];
+    const { data: profiles } = await supabase.from("profiles").select("id, name, avatar_url").in("id", userIds);
+    const enriched = await Promise.all(
+      rawMessages.map(async (m) => {
+        const profile = profiles?.find((p) => p.id === m.user_id);
+        const signedAvatarUrl = await getAvatarUrl(profile?.avatar_url || null);
+        return { ...m, profile: { ...profile, signedAvatarUrl } };
+      })
+    );
+    return enriched;
+  }
+
+  // === Initialize messages ===
+  useEffect(() => {
+    enrichMessages(initialMessages).then(setMessages);
+  }, []);
+
+  // === Realtime subscription ===
+  useEffect(() => {
+    const channel = supabase
+      .channel(`project-messages-${projectId}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "project_messages", filter: `project_id=eq.${projectId}` },
+        async (payload) => {
+          const newMsg = payload.new;
+          const enriched = await enrichMessages([newMsg]);
+          setMessages((prev: any[]) => [enriched[0], ...prev]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [projectId]);
+
+  // === Post new message ===
+  const handlePost = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!content.trim()) return;
+    setPosting(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
-    const formData = new FormData();
-    formData.append("content", content);
-    startTransition(() => {
-      addMessage(projectId, content);
-    });
+      // Optimistic UI
+      const optimisticMsg = {
+        id: `temp-${Date.now()}`,
+        project_id: projectId,
+        user_id: user.id,
+        content,
+        created_at: new Date().toISOString(),
+        profile: { name: "Du", signedAvatarUrl: null },
+      };
+      setMessages((prev: any[]) => [optimisticMsg, ...prev]);
+      setContent("");
 
-    setContent("");
+      // Send to Supabase
+      await supabase.from("project_messages").insert({ project_id: projectId, user_id: user.id, content });
+    } finally {
+      setPosting(false);
+    }
   };
 
   return (
-    <div className="flex flex-col h-[70vh] max-h-[70vh] border rounded-lg bg-card/60 backdrop-blur-sm overflow-hidden">
-      {/* === Message List === */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Noch keine Kommentare.</p>
-        ) : (
-          messages.map((m: any, i: number) => (
+    <Card className="shadow-sm border border-border/50 bg-background/80 backdrop-blur-sm">
+      <CardHeader>
+        <h2 className="text-xl font-semibold">Nachrichten</h2>
+        <p className="text-sm text-muted-foreground">
+          Teile Updates und Fortschritte mit deinem Kunden.
+        </p>
+      </CardHeader>
+
+      <CardContent>
+        {/* === Post new message form === */}
+        <form onSubmit={handlePost} className="space-y-3 mb-6">
+          <Label htmlFor="content">Nachricht (Markdown unterstützt)</Label>
+          <Textarea
+            id="content"
+            name="content"
+            rows={4}
+            placeholder="Update schreiben..."
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            disabled={posting}
+          />
+          <Button type="submit" disabled={posting}>
+            {posting ? "Posten..." : "Posten"}
+          </Button>
+        </form>
+
+        {/* === Messages List === */}
+        <Motion layout className="space-y-4 overflow-y-auto max-h-[60vh] pr-2">
+          {messages.length === 0 && (
+            <div className="text-sm text-muted-foreground">Noch keine Nachrichten.</div>
+          )}
+
+          {messages.map((m: any, idx: number) => (
             <Motion
               key={m.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.03 }}
-              className="flex gap-3 group"
+              transition={{ delay: idx * 0.03 }}
+              className="flex gap-3 items-start border rounded-md p-3 bg-card hover:bg-muted/40 transition"
             >
-              <Avatar className="h-9 w-9">
-                <AvatarImage src={m.profiles?.signedAvatarUrl || ""} alt={m.profiles?.name || "U"} />
-                <AvatarFallback>{m.profiles?.name?.[0]?.toUpperCase() || "U"}</AvatarFallback>
-              </Avatar>
-
+              {m.profile?.signedAvatarUrl ? (
+                <Avatar className="h-9 w-9">
+                  <AvatarImage src={m.profiles?.signedAvatarUrl || ""} alt={m.profiles?.name || "U"} />
+                  <AvatarFallback>{m.profiles?.name?.[0]?.toUpperCase() || "U"}</AvatarFallback>
+                </Avatar>
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-sm font-medium">
+                  {m.profile?.name?.[0]?.toUpperCase() || "?"}
+                </div>
+              )}
               <div className="flex-1">
-                <div className="flex justify-between items-center text-sm">
-                  <span className="font-medium">{m.sender_role || "Unbekannt"}</span>
+                <div className="flex items-center justify-between text-sm mb-1">
+                  <span className="font-medium">{m.profile?.name || "Unbekannt"}</span>
                   <span className="text-xs text-muted-foreground">
-                    {format(new Date(m.created_at), "dd.MM.yyyy HH:mm", { locale: de })}
+                    {new Date(m.created_at).toLocaleString("de-DE")}
                   </span>
                 </div>
-
-                <div className="mt-1 prose prose-sm dark:prose-invert text-sm leading-relaxed">
-                  <ReactMarkdown>{m.content}</ReactMarkdown>
-                </div>
-
-                {/* Hover actions like edit/delete */}
-                {m.user_id === user?.id && (
-                  <div className="opacity-0 group-hover:opacity-100 transition text-xs mt-1 flex gap-2">
-                    <button className="text-blue-600 hover:underline">Bearbeiten</button>
-                    <button className="text-red-600 hover:underline">Löschen</button>
-                  </div>
-                )}
-                <Separator className="mt-3" />
+                <ReactMarkdown>{m.content}</ReactMarkdown>
               </div>
             </Motion>
-          ))
-        )}
-      </div>
-
-      {/* === Comment Input === */}
-      <div className="border-t p-4 bg-background sticky bottom-0">
-        <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col gap-2">
-          <Textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="Kommentar hinzufügen... (Markdown unterstützt)"
-            className="min-h-[80px] resize-none focus:min-h-[120px] transition-all duration-300"
-          />
-          <div className="flex justify-end">
-            <Button type="submit" disabled={isPending || !content.trim()}>
-              {isPending ? "Wird gesendet..." : "Posten"}
-            </Button>
-          </div>
-        </form>
-      </div>
-    </div>
+          ))}
+        </Motion>
+      </CardContent>
+    </Card>
   );
 }
