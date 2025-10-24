@@ -24,7 +24,7 @@ export function Comments({ projectId, messages = [], user }: any) {
     const formData = new FormData();
     formData.append("content", content);
     startTransition(() => {
-      addMessage(projectId, formData);
+      addMessage(projectId, content);
     });
 
     setContent("");
@@ -46,8 +46,8 @@ export function Comments({ projectId, messages = [], user }: any) {
               className="flex gap-3 group"
             >
               <Avatar className="h-9 w-9">
-                <AvatarImage src={m.user_avatar_url || ""} alt={m.sender_role || "U"} />
-                <AvatarFallback>{m.sender_role?.[0]?.toUpperCase() || "U"}</AvatarFallback>
+                <AvatarImage src={m.profiles?.signedAvatarUrl || ""} alt={m.profiles?.name || "U"} />
+                <AvatarFallback>{m.profiles?.name?.[0]?.toUpperCase() || "U"}</AvatarFallback>
               </Avatar>
 
               <div className="flex-1">

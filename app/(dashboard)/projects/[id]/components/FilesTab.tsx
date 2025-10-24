@@ -37,7 +37,7 @@ export function FilesTab({ files: initialFiles, projectId }: any) {
       try {
         const newFile = await uploadFile(projectId, formData);
         if (newFile) {
-          setFiles((prev) => [newFile, ...prev]);
+          setFiles((prev: any[]) => [newFile, ...prev]);
         }
       } catch (err) {
         console.error("Upload failed:", err);
@@ -52,7 +52,7 @@ export function FilesTab({ files: initialFiles, projectId }: any) {
     startTransition(async () => {
       try {
         await deleteFile(projectId, fileName);
-        setFiles((prev) => prev.filter((f: any) => f.name !== fileName));
+        setFiles((prev: any[]) => prev.filter((f: any) => f.name !== fileName));
       } catch (err) {
         console.error("Delete failed:", err);
       }

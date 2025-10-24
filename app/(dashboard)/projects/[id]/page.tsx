@@ -6,6 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { ClientInfoBar } from "./components/ClientInfoBar";
 import ProjectTabsAnimated from "./ProjectTabsAnimated";
+import { getAvatarUrl } from '../../../../lib/supabase/getAvatarUrl';
 
 export default async function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -28,7 +29,33 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   if (!isFreelancer && !isClient) return <div className="flex items-center justify-center h-screen text-muted-foreground">Du hast keinen Zugriff auf dieses Projekt.</div>;
 
   // fetch data for tabs
-  const { data: messages } = await supabase.from("project_messages").select("*").eq("project_id", id).order("created_at", { ascending: false });
+  const { data: messagesRaw, error: messagesError } = await supabase
+  .from("project_messages")
+  .select(`
+    id,
+    content,
+    created_at,
+    user_id,
+    profiles (
+      id,
+      full_name,
+      email,
+      avatar_url
+    )
+  `)
+  .eq("project_id", id)
+  .order("created_at", { ascending: false });
+
+  const messages = await Promise.all(
+    (messagesRaw || []).map(async (m) => ({
+      ...m,
+      profiles: {
+        ...m.profiles,
+        signedAvatarUrl: await getAvatarUrl((Array.isArray((m as any)?.profiles) ? (m as any).profiles[0]?.avatar_url : (m as any)?.profiles?.avatar_url) ?? null)
+      },
+    }))
+  );
+
   const { data: files } = await supabase.storage.from("files").list(id);
   const { data: invoices } = await supabase.from("project_invoices").select("*").eq("project_id", id).order("created_at", { ascending: false });
 

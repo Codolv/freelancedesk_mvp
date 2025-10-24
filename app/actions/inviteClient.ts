@@ -67,7 +67,7 @@ export async function createProjectInvite(projectId: string, email: string) {
 
   if (error) throw error;
 
-  await sendInviteEmail(email, token, expiresAt)
+  await sendInviteEmail(email, token, expiresAt);
 
   return { success: true, token };
 }

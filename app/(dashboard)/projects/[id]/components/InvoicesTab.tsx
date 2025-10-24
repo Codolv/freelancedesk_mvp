@@ -81,9 +81,7 @@ export function InvoicesTab({ invoices, projectId }: any) {
                   {/* Mark Paid Button */}
                   <form action={markInvoicePaid.bind(null, projectId, inv.id)}>
                     <Button
-                      variant={
-                        inv.status === "Paid" ? "outline" : "success"
-                      }
+                      variant={inv.status === "Paid" ? "outline" : "secondary"}
                       size="sm"
                       type="submit"
                     >

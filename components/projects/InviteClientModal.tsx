@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/dialog";
 import { Loader2, Mail } from "lucide-react";
 import { motion } from "framer-motion";
-import { toast } from "sonner"; // or your toast system
 import { createProjectInvite } from "@/app/actions/inviteClient";
 
 export default function InviteClientModal({
@@ -30,12 +29,10 @@ export default function InviteClientModal({
     startTransition(async () => {
       try {
         await createProjectInvite(projectId, emailValue);
-        toast.success("Einladung erfolgreich gesendet!");
         setOpen(false);
         setEmail("");
       } catch (err: any) {
         console.error(err);
-        toast.error("Fehler beim Senden der Einladung.");
       }
     });
   };
@@ -44,7 +41,6 @@ export default function InviteClientModal({
     <>
       <Button
         onClick={() => setOpen(true)}
-        className="bg-[hsl(85,30%,35%)] hover:bg-[hsl(85,30%,30%)] text-white"
       >
         <Mail className="mr-2 h-4 w-4" />
         Kunden einladen

@@ -122,7 +122,7 @@ export default async function ProjectsPage() {
         )}
 
         <ul className="divide-y divide-border/50 rounded-lg border border-border/50 bg-background/70 backdrop-blur-sm">
-          {invitedList.map((p, i) => (
+          {invitedList.map((p: any, i: number) => (
             <Motion
               key={p?.id}
               initial={{ opacity: 0, y: 10 }}
