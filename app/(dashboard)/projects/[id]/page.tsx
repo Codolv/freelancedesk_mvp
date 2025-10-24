@@ -38,7 +38,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
     user_id,
     profiles (
       id,
-      full_name,
+      name,
       email,
       avatar_url
     )
