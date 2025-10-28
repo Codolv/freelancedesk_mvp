@@ -227,29 +227,7 @@ export default function LandingPage() {
         </div>
       </motion.section>
 
-      {/* FOOTER */}
-      <motion.footer
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-        className="border-t py-8 text-sm text-muted-foreground"
-      >
-        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between gap-6">
-          <div>
-            <div className="font-semibold text-foreground">FreelanceDesk</div>
-            <p className="text-muted-foreground">Professionelles Kundenportal für Freelancer</p>
-          </div>
-          <div className="flex flex-col gap-2">
-            <Link href="/impressum" className="hover:text-primary transition-colors">
-              Impressum
-            </Link>
-            <Link href="/datenschutz" className="hover:text-primary transition-colors">
-              Datenschutz
-            </Link>
-          </div>
-          <div>© {new Date().getFullYear()} FreelanceDesk</div>
-        </div>
-      </motion.footer>
+      
     </main>
   );
 }

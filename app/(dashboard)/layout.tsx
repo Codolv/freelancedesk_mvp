@@ -1,4 +1,5 @@
 import Sidebar from "@/components/layout/Sidebar";
+import Footer from "@/components/layout/Footer"
 import "../globals.css";
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
@@ -11,7 +12,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
       <main className="w-full max-w-none px-4 flex-1 ml-64 overflow-y-visible">
         <div className="min-h-full p-6">{children}</div>
+        
       </main>
+
+      
     </div>
 
   );
