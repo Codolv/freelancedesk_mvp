@@ -34,7 +34,6 @@ const navItems = [
   { name: "Projekte", href: "/projects", icon: FolderKanban },
   { name: "Rechnungen", href: "/invoices", icon: FileText },
   { name: "Kunden", href: "/clients", icon: Users },
-  { name: "Einstellungen", href: "/settings", icon: Settings },
 ];
 
 export default function Sidebar() {
@@ -198,7 +197,7 @@ export default function Sidebar() {
 
           <DropdownMenuContent side="top" align="start" className="w-48">
             <DropdownMenuItem asChild>
-              <Link href="/settings/profile">
+              <Link href="/settings">
                 <User size={16} className="mr-2" /> Profil
               </Link>
             </DropdownMenuItem>
