@@ -51,7 +51,7 @@ export default async function ProjectsPage() {
             Hier findest du alle Projekte, die du besitzt oder zu denen du eingeladen wurdest.
           </p>
         </div>
-        <Button asChild className="bg-[hsl(85,30%,35%)] hover:bg-[hsl(85,30%,30%)] text-white">
+        <Button asChild>
           <Link href="/projects/new">
             <PlusCircle className="mr-2 h-4 w-4" /> Neues Projekt
           </Link>
