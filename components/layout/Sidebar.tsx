@@ -1,134 +1,229 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
   FolderKanban,
+  FileText,
+  Users,
   Settings,
-  Menu,
   ChevronLeft,
+  ChevronRight,
+  PlusCircle,
   LogOut,
+  User,
+  CreditCard,
+  HelpCircle,
 } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getProfile } from "@/lib/supabase/profile";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
+import Image from "next/image";
+import { getBrowserSupabase } from "@/lib/supabase/client";
 
-export function Sidebar({ user }: { user?: { email?: string; name?: string; avatar_url?: string } }) {
-  const [collapsed, setCollapsed] = useState(false);
+const navItems = [
+  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Projekte", href: "/projects", icon: FolderKanban },
+  { name: "Rechnungen", href: "/invoices", icon: FileText },
+  { name: "Kunden", href: "/clients", icon: Users },
+  { name: "Einstellungen", href: "/settings", icon: Settings },
+];
+
+export default function Sidebar() {
   const pathname = usePathname();
-  const [profile, setProfile] = useState<any>({
-    avatar_url: "",
-    email: "",
-    phone: "",
-    linkedin: "",
-    twitter: "",
-    website: "",
-  });
+  const [collapsed, setCollapsed] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
+  // ✅ Fetch user and avatar
   useEffect(() => {
-    getProfile().then(setProfile).catch(() => { });
+    const fetchUser = async () => {
+      const supabase = getBrowserSupabase();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) return;
+
+      // Get profile info
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("name, avatar_url")
+        .eq("id", user.id)
+        .single();
+
+      setUser({
+        name: profile?.name || "Unbekannter Nutzer",
+        email: user.email,
+      });
+
+      if (profile?.avatar_url) {
+        // ✅ Convert avatar path to public URL
+        const { data } = await supabase.storage
+          .from("avatars")
+          .createSignedUrl(profile.avatar_url, 60 * 60);
+        setAvatarUrl(data?.signedUrl || null);
+      }
+    };
+
+    fetchUser();
   }, []);
 
-  const links = [
-    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/projects", label: "Projekte", icon: FolderKanban },
-    { href: "/settings", label: "Einstellungen", icon: Settings },
-  ];
-
   return (
-    <TooltipProvider delayDuration={0}>
-      <motion.aside
-        initial={{ width: 260 }}
-        animate={{ width: collapsed ? 80 : 260 }}
-        transition={{ duration: 0.3, ease: "easeInOut" }}
-        className="h-screen bg-primary text-primary-foreground flex flex-col border-r border-border shadow-lg"
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-4">
-          {!collapsed && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.1 }}
-              className="text-lg font-semibold tracking-tight"
-            >
-              FreelanceDesk
-            </motion.div>
-          )}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setCollapsed((p) => !p)}
-            className="text-primary-foreground hover:bg-primary/40"
-          >
-            {collapsed ? <Menu className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
-          </Button>
-        </div>
+    <motion.aside
+      animate={{ width: collapsed ? 80 : 240 }}
+      className={cn(
+        "h-screen fixed left-0 top-0 z-40 flex flex-col border-r border-border/40 bg-background/80 backdrop-blur-sm transition-all duration-300 shadow-sm"
+      )}
+    >
+      {/* === Logo + Collapse Button === */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border/30">
+        {!collapsed ? (
+          <div className="flex items-center gap-2">
+            <Image
+              src="/logo.png"
+              alt="FreelanceDesk Logo"
+              width={28}
+              height={28}
+              className="rounded-sm"
+            />
+            <span className="font-semibold text-lg">FreelanceDesk</span>
+          </div>
+        ) : (
+          <Image
+            src="/logo.png"
+            alt="Logo"
+            width={28}
+            height={28}
+            className="rounded-sm mx-auto"
+          />
+        )}
 
-        {/* Navigation */}
-        <nav className="flex-1 flex flex-col gap-1 px-2">
-          {links.map(({ href, label, icon: Icon }) => {
-            const active = pathname.startsWith(href);
-            return (
-              <Tooltip key={href}>
-                <TooltipTrigger asChild>
-                  <Link
-                    href={href}
-                    className={cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-150",
-                      active
-                        ? "bg-primary-foreground/10 text-white font-medium"
-                        : "text-primary-foreground/80 hover:bg-primary-foreground/10"
-                    )}
-                  >
-                    <Icon className="h-5 w-5 shrink-0" />
-                    {!collapsed && (
-                      <motion.span
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.1 }}
-                      >
-                        {label}
-                      </motion.span>
-                    )}
-                  </Link>
-                </TooltipTrigger>
-                {collapsed && <TooltipContent side="right">{label}</TooltipContent>}
-              </Tooltip>
-            );
-          })}
-        </nav>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setCollapsed(!collapsed)}
+          className="text-muted-foreground hover:text-foreground"
+        >
+          {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+        </Button>
+      </div>
 
-        {/* User Info */}
-        <div className="border-t border-primary-foreground/20 px-4 py-3 flex items-center gap-3">
-          <Avatar className="h-9 w-9">
-            <AvatarImage src={profile.singedAvatarUrl || ""} alt={user?.name || "User"} />
-            <AvatarFallback>
-              {profile.name?.[0]?.toUpperCase() || profile.email?.[0]?.toUpperCase() || "U"}
-            </AvatarFallback>
-          </Avatar>
-          <AnimatePresence>
-            {!collapsed && (
+      {/* === Navigation === */}
+      <nav className="flex-1 overflow-y-auto py-4 space-y-1">
+        {navItems.map((item) => {
+          const active = pathname.startsWith(item.href);
+          const Icon = item.icon;
+
+          return (
+            <Link key={item.name} href={item.href}>
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="min-w-0 flex-1"
+                whileHover={{ scale: 1.02 }}
+                className={cn(
+                  "flex items-center gap-3 px-4 py-2.5 text-sm transition-all duration-200",
+                  active
+                    ? "bg-muted/60 text-foreground font-medium"
+                    : "text-muted-foreground hover:bg-muted/40"
+                )}
               >
-                <p className="text-sm font-medium truncate">{profile.name || "Unbekannt"}</p>
-                <p className="text-xs opacity-75 truncate">{profile.email || "Kein E-Mail"}</p>
+                <Icon size={18} />
+                <AnimatePresence>
+                  {!collapsed && (
+                    <motion.span
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -10 }}
+                    >
+                      {item.name}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
               </motion.div>
-            )}
-          </AnimatePresence>
-          
-        </div>
-      </motion.aside>
-    </TooltipProvider>
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* === Quick Action Button === */}
+      <div className="p-4 border-t border-border/30">
+        <Button
+          asChild
+          className="w-full justify-center"
+          size={collapsed ? "icon" : "default"}
+        >
+          <Link href="/projects/new">
+            <PlusCircle size={18} className={collapsed ? "" : "mr-2"} />
+            {!collapsed && "Neues Projekt"}
+          </Link>
+        </Button>
+      </div>
+
+      {/* === User Section === */}
+      <div className="p-4 border-t border-border/30 flex items-center justify-between">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="flex items-center gap-3 w-full hover:bg-muted/30 rounded-md p-2 transition">
+              {avatarUrl ? (
+                <motion.img
+                      src={avatarUrl}
+                      alt="Avatar"
+                      className="w-9 h-9 rounded-full object-cover border"
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                    />
+              ) : (
+                <div className="w-9 h-9 rounded-full bg-muted border border-border/30" />
+              )}
+
+              {!collapsed && (
+                <div className="flex-1 text-left truncate">
+                  <p className="text-sm font-medium">
+                    {user?.name || "Lädt..."}
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {user?.email || ""}
+                  </p>
+                </div>
+              )}
+            </button>
+          </DropdownMenuTrigger>
+
+          <DropdownMenuContent side="top" align="start" className="w-48">
+            <DropdownMenuItem asChild>
+              <Link href="/settings/profile">
+                <User size={16} className="mr-2" /> Profil
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/settings/billing">
+                <CreditCard size={16} className="mr-2" /> Abrechnung
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/help">
+                <HelpCircle size={16} className="mr-2" /> Hilfe & Support
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={async () => {
+                const supabase = getBrowserSupabase();
+                await supabase.auth.signOut();
+                window.location.href = "/";
+              }}
+            >
+              <LogOut size={16} className="mr-2 text-destructive" /> Abmelden
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </motion.aside>
   );
 }

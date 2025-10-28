@@ -5,7 +5,7 @@ import { getBrowserSupabase } from "@/lib/supabase/client";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Avatar, AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
+import { motion } from "framer-motion";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Motion } from "@/components/custom/Motion";
 import ReactMarkdown from "react-markdown";
@@ -132,10 +132,13 @@ export function Comments({ messages: initialMessages, projectId }: any) {
               className="flex gap-3 items-start border rounded-md p-3 bg-card hover:bg-muted/40 transition"
             >
               {m.profile?.signedAvatarUrl ? (
-                <Avatar className="h-9 w-9">
-                  <AvatarImage src={m.profiles?.signedAvatarUrl || ""} alt={m.profiles?.name || "U"} />
-                  <AvatarFallback>{m.profiles?.name?.[0]?.toUpperCase() || "U"}</AvatarFallback>
-                </Avatar>
+                <motion.img
+                      src={m.profile.signedAvatarUrl}
+                      alt="Avatar"
+                      className="w-11 h-11 rounded-full object-cover border"
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                    />
               ) : (
                 <div className="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-sm font-medium">
                   {m.profile?.name?.[0]?.toUpperCase() || "?"}

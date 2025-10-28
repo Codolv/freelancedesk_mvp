@@ -1,10 +1,7 @@
-import { Sidebar } from "@/components/layout/Sidebar";
-import { getServerSupabaseComponent } from "@/lib/supabase/server";
+import Sidebar from "@/components/layout/Sidebar";
 import "../globals.css";
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await getServerSupabaseComponent();
-  const { data: { user } } = await supabase.auth.getUser();
 
   return (
     <div className="h-screen flex bg-background text-foreground">
