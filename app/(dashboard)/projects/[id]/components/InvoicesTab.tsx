@@ -9,7 +9,7 @@ import { de } from "date-fns/locale";
 import { FileEdit, FileText, Trash2, CheckCircle } from "lucide-react";
 import { deleteInvoice, markInvoicePaid } from "../actions";
 
-export function InvoicesTab({ invoices, projectId }: any) {
+export function InvoicesTab({ invoices, projectId, isFreelancer }: any) {
   return (
     <Card className="shadow-sm border border-border/50 bg-background/80 backdrop-blur-sm">
       <CardHeader className="flex flex-row items-center justify-between">
@@ -32,7 +32,7 @@ export function InvoicesTab({ invoices, projectId }: any) {
             Noch keine Rechnungen vorhanden.
           </p>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-3 bg-white">
             {invoices.map((inv: any, idx: number) => (
               <Motion
                 key={inv.id}
@@ -66,7 +66,7 @@ export function InvoicesTab({ invoices, projectId }: any) {
                   })}
                 </div>
 
-                <div className="flex items-center gap-2">
+                {isFreelancer && <div className="flex items-center gap-2">
                   {/* Edit Button */}
                   <Button
                     variant="secondary"
@@ -96,7 +96,7 @@ export function InvoicesTab({ invoices, projectId }: any) {
                       <Trash2 className="h-4 w-4 mr-1" /> Löschen
                     </Button>
                   </form>
-                </div>
+                </div>}
               </Motion>
             ))}
           </div>

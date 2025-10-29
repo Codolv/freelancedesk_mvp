@@ -70,7 +70,7 @@ export default async function ProjectsPage() {
           <p className="text-muted-foreground">Du hast noch keine Projekte erstellt.</p>
         )}
 
-        <ul className="divide-y divide-border/50 rounded-lg border border-border/50 bg-background/70 backdrop-blur-sm">
+        <ul className="divide-y divide-border/50 rounded-lg border border-border/50 bg-background/70 backdrop-blur-sm bg-white">
           {ownedProjects?.map((p, i) => (
             <Motion
               key={p.id}
@@ -121,7 +121,7 @@ export default async function ProjectsPage() {
           </p>
         )}
 
-        <ul className="divide-y divide-border/50 rounded-lg border border-border/50 bg-background/70 backdrop-blur-sm">
+        <ul className="divide-y divide-border/50 rounded-lg border border-border/50 bg-background/70 backdrop-blur-sm bg-white">
           {invitedList.map((p: any, i: number) => (
             <Motion
               key={p?.id}

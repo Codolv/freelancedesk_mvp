@@ -1,10 +1,8 @@
-// app/clients/page.tsx
 import { getServerSupabaseComponent } from "@/lib/supabase/server";
 import { Motion } from "@/components/custom/Motion";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Users, Mail, Folder } from "lucide-react";
 
@@ -23,79 +21,87 @@ export default async function ClientsPage() {
   }
 
   // 1) Projekte des Freelancers
-const { data: ownedProjects } = await supabase
-  .from("projects")
-  .select("id, name")
-  .eq("user_id", user.id);
+  const { data: ownedProjects } = await supabase
+    .from("projects")
+    .select("id, name")
+    .eq("user_id", user.id);
 
-const projectIds = (ownedProjects || []).map((p: any) => p.id);
-if (projectIds.length === 0) {
-  // keine Projekte -> keine Clients
-  return { clients: [], invites: [] };
-}
+  const projectIds = (ownedProjects || []).map((p: any) => p.id);
 
-// 2) project_clients für diese Projekte
-const { data: projectClients, error: pcErr } = await supabase
-  .from("project_clients")
-  .select("client_id, project_id")
-  .in("project_id", projectIds);
-
-if (pcErr) {
-  console.error("project_clients error", pcErr);
-  throw pcErr;
-}
-
-// 3) Unique client ids
-const clientIds = [...new Set((projectClients || []).map((r: any) => r.client_id))];
-
-// 4) Load profiles for those clients
-let profiles: {
-    id: any;
-    name: any;
-    email: any;
-    avatar_url: any;
-}[] | null = []:
-
-if (clientIds.length) {
-  const { data: _profiles } = await supabase
-    .from("profiles")
-    .select("id, name, email, avatar_url")
-    .in("id", clientIds);
-  profiles = _profiles || [];
-}
-
-// 5) Optionally build a map of projectId -> project (we already have ownedProjects)
-const projectsById = (ownedProjects || []).reduce((acc: any, p: any) => {
-  acc[p.id] = p;
-  return acc;
-}, {});
-
-// 6) Group clients and attach projects
-const clientsMap: Record<string, any> = {};
-(projectClients || []).forEach((r: any) => {
-  const cid = r.client_id;
-  if (!clientsMap[cid]) {
-    const profile = profiles.find((p: any) => p.id === cid) || { id: cid, name: null, email: null, avatar_url: null };
-    clientsMap[cid] = { profile, projects: [] as any[] };
+  if (projectIds.length === 0) {
+    return (
+      <Motion
+        className="max-w-3xl mx-auto py-10 text-center"
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <h1 className="text-3xl font-bold tracking-tight mb-4">Kunden</h1>
+        <p className="text-muted-foreground mb-8">
+          Du hast noch keine Projekte – dadurch sind auch keine Kunden vorhanden.
+        </p>
+        <Link
+          href="/projects/new"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-olive-600 text-white hover:bg-olive-700 transition"
+        >
+          Neues Projekt erstellen
+        </Link>
+      </Motion>
+    );
   }
-  // attach project info if available
-  if (projectsById[r.project_id]) {
-    clientsMap[cid].projects.push(projectsById[r.project_id]);
-  } else {
-    // fallback: push project id
-    clientsMap[cid].projects.push({ id: r.project_id });
+
+  // 2) project_clients für diese Projekte
+  const { data: projectClients } = await supabase
+    .from("project_clients")
+    .select("client_id, project_id")
+    .in("project_id", projectIds);
+
+  const clientIds = [
+    ...new Set((projectClients || []).map((r: any) => r.client_id)),
+  ];
+
+  // 3) Load profiles
+  let profiles: { id: string; name: string; email: string; avatar_url: string | null }[] = [];
+  if (clientIds.length) {
+    const { data: _profiles } = await supabase
+      .from("profiles")
+      .select("id, name, email, avatar_url")
+      .in("id", clientIds);
+    profiles = _profiles || [];
   }
-});
 
-const clients = Object.values(clientsMap);
+  // 4) Map projectId -> project
+  const projectsById = (ownedProjects || []).reduce((acc: any, p: any) => {
+    acc[p.id] = p;
+    return acc;
+  }, {});
 
-  // === Fetch pending invites ===
+  // 5) Group clients with their projects
+  const clientsMap: Record<string, any> = {};
+  (projectClients || []).forEach((r: any) => {
+    const cid = r.client_id;
+    if (!clientsMap[cid]) {
+      const profile =
+        profiles.find((p: any) => p.id === cid) || {
+          id: cid,
+          name: "Unbekannt",
+          email: "—",
+          avatar_url: null,
+        };
+      clientsMap[cid] = { profile, projects: [] };
+    }
+    if (projectsById[r.project_id]) {
+      clientsMap[cid].projects.push(projectsById[r.project_id]);
+    }
+  });
+
+  const clients = Object.values(clientsMap);
+
+  // 6) Pending invites
   const { data: invites } = await supabase
     .from("project_invites")
     .select("email, accepted, project_id, projects(name)")
     .eq("accepted", false);
-
-
 
   return (
     <Motion

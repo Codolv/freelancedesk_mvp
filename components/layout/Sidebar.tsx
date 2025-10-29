@@ -9,7 +9,6 @@ import {
   FolderKanban,
   FileText,
   Users,
-  Settings,
   ChevronLeft,
   ChevronRight,
   PlusCircle,

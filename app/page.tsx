@@ -108,8 +108,7 @@ export default function LandingPage() {
               transition={{ duration: 3, repeat: Infinity }}
               className="text-center text-slate-500 text-sm"
             >
-              <div className="text-3xl mb-2">📊</div>
-              <p>Dashboard-Vorschau</p>
+              <Image src="/dashboard.png" width={500} height={500} alt="Dashboard Image"/>
             </motion.div>
           </div>
         </motion.div>

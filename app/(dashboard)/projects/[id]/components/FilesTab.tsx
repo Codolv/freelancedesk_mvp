@@ -113,7 +113,7 @@ export function FilesTab({ files: initialFiles, projectId }: any) {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.05 }}
-              className="flex items-center justify-between px-4 py-3 hover:bg-muted/40 transition-colors"
+              className="flex items-center justify-between px-4 py-3 hover:bg-muted/40 transition-colors bg-white"
             >
               <div className="flex items-center gap-3 truncate">
                 <FileIcon className="h-5 w-5 text-muted-foreground flex-shrink-0" />
