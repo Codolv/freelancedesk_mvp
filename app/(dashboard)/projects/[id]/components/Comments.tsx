@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { getBrowserSupabase } from "@/lib/supabase/client";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -10,9 +10,64 @@ import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Motion } from "@/components/custom/Motion";
 import ReactMarkdown from "react-markdown";
 
-export function Comments({ messages: initialMessages, projectId }: any) {
+interface Message {
+  id: string;
+  project_id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+  sender_role?: "freelancer" | "client";
+  profile?: {
+    id?: string;
+    name?: string;
+    avatar_url?: string;
+    signedAvatarUrl?: string | null;
+  };
+}
+
+interface Profile {
+  id: string;
+  name: string;
+  avatar_url: string;
+}
+
+interface CommentsProps {
+  messages: Message[];
+  projectId: string;
+}
+
+interface RawMessage {
+  id: string;
+  project_id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+  profiles?: {
+    id?: string;
+    name?: string;
+    email?: string;
+    avatar_url?: string | null;
+  } | null;
+}
+
+interface EnrichedMessage {
+  id: string;
+  project_id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+  sender_role?: "freelancer" | "client";
+  profile?: {
+    id?: string;
+    name?: string;
+    avatar_url?: string;
+    signedAvatarUrl?: string | null;
+  };
+}
+
+export function Comments({ messages: initialMessages, projectId }: { messages: RawMessage[]; projectId: string }) {
   const supabase = getBrowserSupabase();
-  const [messages, setMessages] = useState(initialMessages || []);
+  const [messages, setMessages] = useState<EnrichedMessage[]>([]);
   const [content, setContent] = useState("");
   const [posting, setPosting] = useState(false);
 
@@ -24,23 +79,26 @@ export function Comments({ messages: initialMessages, projectId }: any) {
   }
 
   // === Enrich messages with profile info and avatar URL ===
-  async function enrichMessages(rawMessages: any[]) {
+  const enrichMessages = useCallback(async (rawMessages: RawMessage[]) => {
     const userIds = [...new Set(rawMessages.map((m) => m.user_id))];
-    const { data: profiles } = await supabase.from("profiles").select("id, name, avatar_url").in("id", userIds);
+    const { data: profiles } = await supabase.from("profiles").select("id, name, avatar_url").in("id", userIds) as { data: Profile[] | null; error: unknown };
     const enriched = await Promise.all(
       rawMessages.map(async (m) => {
         const profile = profiles?.find((p) => p.id === m.user_id);
         const signedAvatarUrl = await getAvatarUrl(profile?.avatar_url || null);
-        return { ...m, profile: { ...profile, signedAvatarUrl } };
+        return { 
+          ...m, 
+          profile: { ...profile, signedAvatarUrl } 
+        };
       })
     );
-    return enriched;
-  }
+    return enriched as EnrichedMessage[];
+  }, [supabase, getAvatarUrl]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // === Initialize messages ===
   useEffect(() => {
     enrichMessages(initialMessages).then(setMessages);
-  }, []);
+  }, [initialMessages, enrichMessages]);
 
   // === Realtime subscription ===
   useEffect(() => {
@@ -50,9 +108,9 @@ export function Comments({ messages: initialMessages, projectId }: any) {
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "project_messages", filter: `project_id=eq.${projectId}` },
         async (payload) => {
-          const newMsg = payload.new;
+          const newMsg = payload.new as RawMessage;
           const enriched = await enrichMessages([newMsg]);
-          setMessages((prev: any[]) => [enriched[0], ...prev]);
+          setMessages((prev: EnrichedMessage[]) => [enriched[0], ...prev]);
         }
       )
       .subscribe();
@@ -60,7 +118,7 @@ export function Comments({ messages: initialMessages, projectId }: any) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [projectId]);
+  }, [projectId, enrichMessages, supabase]);
 
   // === Post new message ===
   const handlePost = async (e: React.FormEvent) => {
@@ -72,7 +130,7 @@ export function Comments({ messages: initialMessages, projectId }: any) {
       if (!user) return;
 
       // Optimistic UI
-      const optimisticMsg = {
+      const optimisticMsg: EnrichedMessage = {
         id: `temp-${Date.now()}`,
         project_id: projectId,
         user_id: user.id,
@@ -80,7 +138,7 @@ export function Comments({ messages: initialMessages, projectId }: any) {
         created_at: new Date().toISOString(),
         profile: { name: "Du", signedAvatarUrl: null },
       };
-      setMessages((prev: any[]) => [optimisticMsg, ...prev]);
+      setMessages((prev: EnrichedMessage[]) => [optimisticMsg, ...prev]);
       setContent("");
 
       // Send to Supabase
@@ -118,12 +176,12 @@ export function Comments({ messages: initialMessages, projectId }: any) {
         </form>
 
         {/* === Messages List === */}
-        <Motion layout className="space-y-4 overflow-y-auto max-h-[60vh] pr-2">
+        <Motion layout className="space-y-4 overflow-y-auto max-h-[60vh]" style={{ scrollbarGutter: 'stable' }}>
           {messages.length === 0 && (
             <div className="text-sm text-muted-foreground">Noch keine Nachrichten.</div>
           )}
 
-          {messages.map((m: any, idx: number) => (
+          {messages.map((m: EnrichedMessage, idx: number) => (
             <Motion
               key={m.id}
               initial={{ opacity: 0, y: 10 }}
@@ -133,8 +191,8 @@ export function Comments({ messages: initialMessages, projectId }: any) {
             >
               {m.profile?.signedAvatarUrl ? (
                 <Avatar className="h-9 w-9">
-                  <AvatarImage src={m.profiles?.signedAvatarUrl || ""} alt={m.profiles?.name || "U"} />
-                  <AvatarFallback>{m.profiles?.name?.[0]?.toUpperCase() || "U"}</AvatarFallback>
+                  <AvatarImage src={m.profile?.signedAvatarUrl || ""} alt={m.profile?.name || "U"} />
+                  <AvatarFallback>{m.profile?.name?.[0]?.toUpperCase() || "U"}</AvatarFallback>
                 </Avatar>
               ) : (
                 <div className="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-sm font-medium">

@@ -11,11 +11,9 @@ import { resendInvite, revokeInvite } from "@/app/actions/inviteClient";
 export function ClientsTab({
   clients = [],
   invites = [],
-  projectId,
 }: {
   clients: Array<{ id: string; email: string }>;
   invites: Array<{ id: string; email: string; accepted: boolean }>;
-  projectId: string;
 }) {
   const [isPending, startTransition] = useTransition();
 

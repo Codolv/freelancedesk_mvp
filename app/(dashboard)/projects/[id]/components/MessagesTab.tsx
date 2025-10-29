@@ -11,7 +11,14 @@ import ReactMarkdown from "react-markdown";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function MessagesTab({ messages, projectId, userRole }: { messages: any[]; projectId: string; userRole: "freelancer" | "client" }) {
+interface Message {
+  id: string;
+  content: string;
+  created_at: string;
+  sender_role: "freelancer" | "client";
+}
+
+export function MessagesTab({ messages, projectId }: { messages: Message[]; projectId: string; userRole?: "freelancer" | "client" }) {
   const [content, setContent] = useState("");
   const [isPending, startTransition] = useTransition();
 
@@ -67,7 +74,7 @@ export function MessagesTab({ messages, projectId, userRole }: { messages: any[]
             </div>
           )}
 
-          {(messages || []).map((m, idx) => {
+          {(messages || []).map((m: Message, idx: number) => {
             const isFreelancer = m.sender_role === "freelancer";
             return (
               <Motion

@@ -33,8 +33,15 @@ export default async function ProjectsPage() {
     .eq("client_id", user.id)
     .order("created_at", { ascending: false });
 
-  const invitedList =
-    invitedProjects?.map((p) => p.projects).filter(Boolean) || [];
+  interface Project {
+    id: string;
+    name: string;
+    description: string | null;
+    deadline: string | null;
+  }
+
+  const invitedList = 
+    (invitedProjects || []).map((p: any) => p.projects).filter(Boolean) || [] as any[];
 
   return (
     <Motion
@@ -71,7 +78,7 @@ export default async function ProjectsPage() {
         )}
 
         <ul className="divide-y divide-border/50 rounded-lg border border-border/50 bg-background/70 backdrop-blur-sm">
-          {ownedProjects?.map((p, i) => (
+          {ownedProjects?.map((p: Project, i: number) => (
             <Motion
               key={p.id}
               initial={{ opacity: 0, y: 10 }}
@@ -122,7 +129,7 @@ export default async function ProjectsPage() {
         )}
 
         <ul className="divide-y divide-border/50 rounded-lg border border-border/50 bg-background/70 backdrop-blur-sm">
-          {invitedList.map((p: any, i: number) => (
+          {invitedList.map((p: Project | null, i: number) => (
             <Motion
               key={p?.id}
               initial={{ opacity: 0, y: 10 }}

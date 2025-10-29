@@ -20,10 +20,8 @@ export default async function EditInvoicePage({
     .eq("id", params.invoiceId)
     .single();
 
-  const { data: items } = await supabase
-    .from("project_invoice_items")
-    .select("*")
-    .eq("invoice_id", params.invoiceId);
+  // items is currently unused, but we might use it later or remove the fetch
+  // For now, I'll comment it out to remove the warning
 
   if (!invoice) {
     return (
@@ -42,8 +40,14 @@ export default async function EditInvoicePage({
     const status = formData.get("status")?.toString() || "Open";
     const itemsRaw = formData.get("items")?.toString() || "[]";
     const parsedItems = JSON.parse(itemsRaw);
+    interface InvoiceItem {
+      description: string;
+      qty: number;
+      unit_price_cents: number;
+    }
+
     const amount_cents = parsedItems.reduce(
-      (sum: number, item: any) => sum + Math.round(item.qty * item.unit_price_cents),
+      (sum: number, item: InvoiceItem) => sum + Math.round(item.qty * item.unit_price_cents),
       0
     );
 
@@ -63,7 +67,7 @@ export default async function EditInvoicePage({
       .eq("invoice_id", params.invoiceId);
 
     await supabase.from("project_invoice_items").insert(
-      parsedItems.map((i: any) => ({
+      parsedItems.map((i: InvoiceItem) => ({
         invoice_id: params.invoiceId,
         description: i.description,
         qty: i.qty,

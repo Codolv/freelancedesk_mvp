@@ -31,7 +31,7 @@ export default function InviteClientModal({
         await createProjectInvite(projectId, emailValue);
         setOpen(false);
         setEmail("");
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error(err);
       }
     });

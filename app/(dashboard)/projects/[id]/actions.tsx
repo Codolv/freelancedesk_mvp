@@ -33,7 +33,7 @@ export async function uploadFile(projectId: string, formData: FormData) {
   const file = formData.get("file") as File;
   if (!file) return;
 
-  const { data, error } = await supabase.storage
+  const { error } = await supabase.storage
     .from("files")
     .upload(`${projectId}/${file.name}`, file, { upsert: true });
 

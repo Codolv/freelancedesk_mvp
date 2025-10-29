@@ -7,18 +7,18 @@ interface CustomMotionProps<Tag extends keyof HTMLElementTagNameMap>
   extends MotionProps {
   type?: Tag;
   children: React.ReactNode;
-  className: string | undefined | null;
+  className?: string | null;
 }
 
-export const Motion = <Tag extends keyof HTMLElementTagNameMap >({
+export const Motion = <Tag extends keyof HTMLElementTagNameMap>({
   type,
   children,
   className,
   ...props
 }: CustomMotionProps<Tag>) => {
-  const Component = type ? (motion as any)[type] : motion.div;
+  const Component = type ? (motion as Record<string, any>)[type as keyof typeof motion] : motion.div;
   return (
-    <Component className={className} {...props}>
+    <Component className={className || undefined} {...props}>
       {children}
     </Component>
   );

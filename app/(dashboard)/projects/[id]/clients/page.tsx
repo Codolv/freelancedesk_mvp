@@ -5,10 +5,20 @@ import Link from "next/link";
 
 export default async function ProjectClientsPage({ params }: { params: { id: string } }) {
   const supabase = await getServerSupabaseComponent();
+interface Client {
+  id: string;
+  client_id: string;
+  created_at: string;
+  client: {
+    id: string;
+    email: string;
+  } | null;
+}
+
   const { data: clients } = await supabase
     .from("project_clients")
     .select("id, client_id, created_at, client:auth.users (id, email)")
-    .eq("project_id", params.id);
+    .eq("project_id", params.id) as { data: Client[] | null; error: unknown };
 
   return (
     <div className="space-y-6 max-w-3xl mx-auto py-8">
@@ -19,7 +29,7 @@ export default async function ProjectClientsPage({ params }: { params: { id: str
 
       <div className="grid gap-3">
         {(clients || []).length === 0 && <div className="text-sm text-muted-foreground">Noch keine eingeladenen Kunden.</div>}
-        {(clients || []).map((c: any) => (
+        {(clients || []).map((c: Client) => (
           <div key={c.id} className="flex items-center justify-between border rounded p-3">
             <div>
               <div className="font-medium">{c.client?.email ?? "(unbekannt)"}</div>

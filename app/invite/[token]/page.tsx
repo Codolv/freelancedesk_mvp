@@ -1,7 +1,6 @@
 // app/invite/[token]/page.tsx
 import { getServerSupabaseAction } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
 import { Motion } from "@/components/custom/Motion";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";

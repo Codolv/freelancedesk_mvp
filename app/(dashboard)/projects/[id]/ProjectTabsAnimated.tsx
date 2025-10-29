@@ -9,6 +9,73 @@ import { FilesTab } from "./components/FilesTab";
 import { InvoicesTab } from "./components/InvoicesTab";
 import { ClientsTab } from "./components/ClientsTab";
 
+interface ProjectMessage {
+  id: string;
+  content: string;
+  created_at: string;
+  user_id: string;
+  user_email?: string;
+  user_role?: string;
+}
+
+interface ProjectFile {
+  id: string;
+  name: string;
+  url: string;
+  created_at: string;
+  user_id: string;
+}
+
+interface ProjectInvoice {
+  id: string;
+  title: string;
+  amount_cents: number;
+  status: string;
+  created_at: string;
+}
+
+interface Client {
+  id: string;
+  email: string;
+  accepted: boolean;
+  role: string;
+}
+
+interface User {
+  id: string;
+  email: string;
+}
+
+interface RawMessage {
+  id: string;
+  content: string;
+  created_at: string;
+  user_id: string;
+  project_id: string;
+  profile?: {
+    id?: string;
+    name?: string;
+    avatar_url?: string;
+    signedAvatarUrl?: string | null;
+  };
+}
+
+interface ProjectTabsAnimatedProps {
+  projectId: string;
+  isFreelancer: boolean;
+  messages: RawMessage[]; // Use the type expected by Comments component
+  files: ProjectFile[];
+  invoices: ProjectInvoice[];
+  acceptedClients: Client[];
+  pendingInvites: Client[];
+  user?: {
+    id?: string;
+    name?: string;
+    email?: string;
+    avatar_url?: string | null;
+  }; // Define a flexible user interface
+}
+
 export default function ProjectTabsAnimated({
   projectId,
   isFreelancer,
@@ -18,30 +85,36 @@ export default function ProjectTabsAnimated({
   acceptedClients,
   pendingInvites,
   user
-}: any) {
+}: ProjectTabsAnimatedProps) {
   const [value, setValue] = useState<string>("messages");
 
   // measured height of active content (px)
   const [height, setHeight] = useState<number | "auto">("auto");
 
   // refs for each content panel so we can measure
-  const refs = {
-    messages: useRef<HTMLDivElement | null>(null),
-    files: useRef<HTMLDivElement | null>(null),
-    invoices: useRef<HTMLDivElement | null>(null),
-    clients: useRef<HTMLDivElement | null>(null),
-  };
+  const messagesRef = useRef<HTMLDivElement | null>(null);
+  const filesRef = useRef<HTMLDivElement | null>(null);
+  const invoicesRef = useRef<HTMLDivElement | null>(null);
+  const clientsRef = useRef<HTMLDivElement | null>(null);
+  
+  const refs = useRef({
+    messages: messagesRef,
+    files: filesRef,
+    invoices: invoicesRef,
+    clients: clientsRef,
+  }).current;
 
   // helper to measure active panel
   const measure = useCallback((key: string) => {
-    const el = (refs as any)[key]?.current as HTMLDivElement | null;
+    const ref = refs[key as keyof typeof refs];
+    const el = ref?.current as HTMLDivElement | null;
     if (!el) {
       setHeight("auto");
       return;
     }
     const rect = el.getBoundingClientRect();
     setHeight(Math.ceil(rect.height));
-  }, []);
+  }, [refs]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // measure on mount and when value changes
   useEffect(() => {
@@ -52,7 +125,8 @@ export default function ProjectTabsAnimated({
 
   // observe size changes inside the active panel (handles images, late content, markdown)
   useEffect(() => {
-    const el = (refs as any)[value]?.current as HTMLDivElement | null;
+    const ref = refs[value as keyof typeof refs];
+    const el = ref?.current as HTMLDivElement | null;
     if (!el) return;
 
     const ro = new ResizeObserver(() => {
@@ -60,7 +134,7 @@ export default function ProjectTabsAnimated({
     });
     ro.observe(el);
     return () => ro.disconnect();
-  }, [value, measure]);
+  }, [value, measure, refs]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // optional: set min height so layout doesn't bounce if height briefly becomes 0
   const containerStyle: React.CSSProperties =
@@ -136,7 +210,7 @@ export default function ProjectTabsAnimated({
               ref={refs.clients}
               style={{ display: value === "clients" ? "block" : "none" }}
             >
-              <ClientsTab projectId={projectId} clients={acceptedClients || []} invites={pendingInvites || []} />
+              <ClientsTab clients={acceptedClients || []} invites={pendingInvites || []} />
             </div>
           )}
         </div>

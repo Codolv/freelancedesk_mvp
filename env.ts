@@ -5,4 +5,6 @@ export const env = {
 	RESEND_API_KEY: process.env.RESEND_API_KEY,
 	STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
 	STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
+	FROM_EMAIL: process.env.FROM_EMAIL!,
+	NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL!,
 };

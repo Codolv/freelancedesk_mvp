@@ -18,13 +18,25 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
-  const [profile, setProfile] = useState<any>({
+interface Profile {
+  avatar_url: string;
+  email: string;
+  phone: string;
+  linkedin: string;
+  twitter: string;
+  website: string;
+  name: string;
+  singedAvatarUrl?: string;
+}
+
+  const [profile, setProfile] = useState<Profile>({
     avatar_url: "",
     email: "",
     phone: "",
     linkedin: "",
     twitter: "",
     website: "",
+    name: "",
   });
 
   useEffect(() => {
@@ -37,7 +49,7 @@ export default function SettingsPage() {
       await updateProfile(profile);
       setMessage("Profil wurde erfolgreich aktualisiert.");
       setEditing(false);
-    } catch (e) {
+    } catch {
       setMessage("Fehler beim Aktualisieren des Profils.");
     } finally {
       setLoading(false);
@@ -62,17 +74,17 @@ export default function SettingsPage() {
     const user = userData.data.user;
     if (!user) return alert("Not authenticated");
 
-    const { data: list, error: listError } = await supabase.storage.from("avatars").list(user.id);
+    const { data: list } = await supabase.storage.from("avatars").list(user.id);
     if (list) {
       const filesToRemove = list.map((x) => `${user.id}/${x.name}`);
       await supabase.storage.from("avatars").remove(filesToRemove);
     }
 
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from("avatars")
       .upload(`${user.id}/${file.name}`, file, { upsert: true });
     if (error) return alert(error.message);
-    setProfile((p: any) => ({ ...p, avatar_url: `${user.id}/${file.name}` }));
+    setProfile((p: Profile) => ({ ...p, avatar_url: `${user.id}/${file.name}` }));
   };
 
   return (
@@ -190,7 +202,7 @@ export default function SettingsPage() {
                   <Input
                     value={profile.name || ""}
                     onChange={(e) =>
-                      setProfile((p: any) => ({ ...p, name: e.target.value }))
+                      setProfile((p: Profile) => ({ ...p, name: e.target.value }))
                     }
                     placeholder="Name"
                   />
@@ -201,7 +213,7 @@ export default function SettingsPage() {
                   <Input
                     value={profile.phone || ""}
                     onChange={(e) =>
-                      setProfile((p: any) => ({ ...p, phone: e.target.value }))
+                      setProfile((p: Profile) => ({ ...p, phone: e.target.value }))
                     }
                     placeholder="+49 ..."
                   />
@@ -212,7 +224,7 @@ export default function SettingsPage() {
                   <Input
                     value={profile.linkedin || ""}
                     onChange={(e) =>
-                      setProfile((p: any) => ({
+                      setProfile((p: Profile) => ({
                         ...p,
                         linkedin: e.target.value,
                       }))
@@ -226,7 +238,7 @@ export default function SettingsPage() {
                   <Input
                     value={profile.twitter || ""}
                     onChange={(e) =>
-                      setProfile((p: any) => ({
+                      setProfile((p: Profile) => ({
                         ...p,
                         twitter: e.target.value,
                       }))
@@ -240,7 +252,7 @@ export default function SettingsPage() {
                   <Input
                     value={profile.website || ""}
                     onChange={(e) =>
-                      setProfile((p: any) => ({
+                      setProfile((p: Profile) => ({
                         ...p,
                         website: e.target.value,
                       }))

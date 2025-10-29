@@ -3,8 +3,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { motion } from "framer-motion";
-import { UserPlus } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import InviteClientModal from "@/components/projects/InviteClientModal";
 
 interface ClientInfoBarProps {
@@ -26,7 +24,7 @@ export function ClientInfoBar({ clients, projectId, isFreelancer }: ClientInfoBa
       <TooltipProvider>
         <div className="flex -space-x-2">
           {clients.length > 0 ? (
-            clients.map((client, idx) => (
+            clients.map((client) => (
               <Tooltip key={client.id}>
                 <TooltipTrigger asChild>
                   <Avatar className="border-2 border-background hover:scale-105 transition-transform duration-150">

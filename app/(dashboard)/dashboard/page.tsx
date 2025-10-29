@@ -22,23 +22,45 @@ export default async function DashboardPage() {
 
   if (!user) return <div>Bitte anmelden.</div>;
 
-  // === Fetch basic data ===
+  interface Project {
+  id: string;
+  name: string;
+  deadline: string | null;
+  status: string;
+  created_at: string;
+}
+
+interface Invoice {
+  id: string;
+  title: string;
+  amount_cents: number;
+  status: string;
+  created_at: string;
+}
+
+interface Message {
+  id: string;
+  content: string;
+  created_at: string;
+}
+
+// === Fetch basic data ===
   const { data: projects } = await supabase
     .from("projects")
     .select("id, name, deadline, status, created_at")
-    .eq("user_id", user.id);
+    .eq("user_id", user.id) as { data: Project[] | null };
 
   const { data: invoices } = await supabase
     .from("project_invoices")
     .select("id, title, amount_cents, status, created_at")
-    .eq("user_id", user.id);
+    .eq("user_id", user.id) as { data: Invoice[] | null };
 
   const { data: messages } = await supabase
     .from("project_messages")
     .select("id, content, created_at")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
-    .limit(5);
+    .limit(5) as { data: Message[] | null };
 
   // === Basic statistics ===
   const totalProjects = projects?.length || 0;
@@ -180,7 +202,7 @@ export default async function DashboardPage() {
                 Noch keine Nachrichten vorhanden.
               </p>
             )}
-            {messages?.map((m: any) => (
+            {messages?.map((m: Message) => (
               <div
                 key={m.id}
                 className="rounded-md border p-3 bg-card hover:bg-muted/50 transition"
@@ -208,7 +230,7 @@ export default async function DashboardPage() {
                 Keine anstehenden Deadlines.
               </p>
             )}
-            {upcomingDeadlines.map((p: any) => (
+            {upcomingDeadlines.map((p: Project) => (
               <div
                 key={p.id}
                 className="rounded-md border p-3 bg-card hover:bg-muted/50 transition"
@@ -216,7 +238,7 @@ export default async function DashboardPage() {
                 <div className="font-medium">{p.name}</div>
                 <p className="text-xs text-muted-foreground">
                   Fällig am{" "}
-                  {new Date(p.deadline).toLocaleDateString("de-DE", {
+                  {new Date(p.deadline!).toLocaleDateString("de-DE", {
                     day: "2-digit",
                     month: "2-digit",
                     year: "numeric",

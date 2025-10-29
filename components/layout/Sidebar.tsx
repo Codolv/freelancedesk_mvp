@@ -13,21 +13,47 @@ import {
   Settings,
   Menu,
   ChevronLeft,
-  LogOut,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getProfile } from "@/lib/supabase/profile";
 
 export function Sidebar({ user }: { user?: { email?: string; name?: string; avatar_url?: string } }) {
   const [collapsed, setCollapsed] = useState(false);
+  
+  // Update main content margin when collapsed state changes
+  useEffect(() => {
+    const updateLayout = () => {
+      const mainContent = document.getElementById('main-content');
+      const sidebar = document.getElementById('sidebar');
+      if (mainContent && sidebar) {
+        const width = collapsed ? '80px' : '260px';
+        sidebar.style.width = width;
+        mainContent.style.marginLeft = width;
+      }
+    };
+    // Use a small timeout to ensure DOM is ready
+    setTimeout(updateLayout, 0);
+  }, [collapsed]);
   const pathname = usePathname();
-  const [profile, setProfile] = useState<any>({
+interface Profile {
+  avatar_url: string;
+  email: string;
+  phone: string;
+  linkedin: string;
+  twitter: string;
+  website: string;
+  name: string;
+  singedAvatarUrl?: string;
+}
+
+  const [profile, setProfile] = useState<Profile>({
     avatar_url: "",
     email: "",
     phone: "",
     linkedin: "",
     twitter: "",
     website: "",
+    name: "",
   });
 
   useEffect(() => {

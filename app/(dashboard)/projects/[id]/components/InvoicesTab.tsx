@@ -9,7 +9,21 @@ import { de } from "date-fns/locale";
 import { FileEdit, FileText, Trash2, CheckCircle } from "lucide-react";
 import { deleteInvoice, markInvoicePaid } from "../actions";
 
-export function InvoicesTab({ invoices, projectId }: any) {
+interface Invoice {
+  id: string;
+  title: string;
+  amount_cents: number;
+  status: string;
+  created_at: string;
+}
+
+interface InvoicesTabProps {
+  invoices: Invoice[];
+  projectId: string;
+  canManage?: boolean;
+}
+
+export function InvoicesTab({ invoices, projectId, canManage = true }: InvoicesTabProps) {
   return (
     <Card className="shadow-sm border border-border/50 bg-background/80 backdrop-blur-sm">
       <CardHeader className="flex flex-row items-center justify-between">
@@ -19,11 +33,13 @@ export function InvoicesTab({ invoices, projectId }: any) {
             Alle Rechnungen für dieses Projekt im Überblick.
           </p>
         </div>
-        <Button asChild>
-          <Link href={`/projects/${projectId}/invoices/new`}>
-            <FileText className="mr-2 h-4 w-4" /> Neue Rechnung
-          </Link>
-        </Button>
+        {canManage && (
+          <Button asChild>
+            <Link href={`/projects/${projectId}/invoices/new`}>
+              <FileText className="mr-2 h-4 w-4" /> Neue Rechnung
+            </Link>
+          </Button>
+        )}
       </CardHeader>
 
       <CardContent>
@@ -33,7 +49,7 @@ export function InvoicesTab({ invoices, projectId }: any) {
           </p>
         ) : (
           <div className="space-y-3">
-            {invoices.map((inv: any, idx: number) => (
+            {invoices.map((inv: Invoice, idx: number) => (
               <Motion
                 key={inv.id}
                 initial={{ opacity: 0, y: 10 }}
@@ -68,34 +84,40 @@ export function InvoicesTab({ invoices, projectId }: any) {
 
                 <div className="flex items-center gap-2">
                   {/* Edit Button */}
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    asChild
-                  >
-                    <Link href={`/projects/${projectId}/invoices/${inv.id}`}>
-                      <FileEdit className="h-4 w-4 mr-1" /> Bearbeiten
-                    </Link>
-                  </Button>
+                  {canManage && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      asChild
+                    >
+                      <Link href={`/projects/${projectId}/invoices/${inv.id}`}>
+                        <FileEdit className="h-4 w-4 mr-1" /> Bearbeiten
+                      </Link>
+                    </Button>
+                  )}
 
                   {/* Mark Paid Button */}
-                  <form action={markInvoicePaid.bind(null, projectId, inv.id)}>
-                    <Button
-                      variant={inv.status === "Paid" ? "outline" : "secondary"}
-                      size="sm"
-                      type="submit"
-                    >
-                      <CheckCircle className="h-4 w-4 mr-1" />
-                      {inv.status === "Paid" ? "Offen" : "Bezahlt"}
-                    </Button>
-                  </form>
+                  {canManage && (
+                    <form action={markInvoicePaid.bind(null, projectId, inv.id)}>
+                      <Button
+                        variant={inv.status === "Paid" ? "outline" : "secondary"}
+                        size="sm"
+                        type="submit"
+                      >
+                        <CheckCircle className="h-4 w-4 mr-1" />
+                        {inv.status === "Paid" ? "Offen" : "Bezahlt"}
+                      </Button>
+                    </form>
+                  )}
 
                   {/* Delete Button */}
-                  <form action={deleteInvoice.bind(null, projectId, inv.id)}>
-                    <Button variant="destructive" size="sm" type="submit">
-                      <Trash2 className="h-4 w-4 mr-1" /> Löschen
-                    </Button>
-                  </form>
+                  {canManage && (
+                    <form action={deleteInvoice.bind(null, projectId, inv.id)}>
+                      <Button variant="destructive" size="sm" type="submit">
+                        <Trash2 className="h-4 w-4 mr-1" /> Löschen
+                      </Button>
+                    </form>
+                  )}
                 </div>
               </Motion>
             ))}

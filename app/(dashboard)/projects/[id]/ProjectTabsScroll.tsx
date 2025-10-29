@@ -2,23 +2,64 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MessageSquare, Folder, Wallet, User } from "lucide-react";
 import { MessagesTab } from "./components/MessagesTab";
 import { FilesTab } from "./components/FilesTab";
 import { InvoicesTab } from "./components/InvoicesTab";
 import { ClientsTab } from "./components/ClientsTab";
 
+interface ProjectMessage {
+  id: string;
+  content: string;
+  created_at: string;
+  user_id: string;
+  user_email?: string;
+  user_role?: string;
+}
+
+interface ProjectFile {
+  id: string;
+  name: string;
+  url: string;
+  created_at: string;
+  user_id: string;
+}
+
+interface ProjectInvoice {
+  id: string;
+  title: string;
+  amount_cents: number;
+  status: string;
+  created_at: string;
+}
+
+interface Client {
+  id: string;
+  email: string;
+  accepted: boolean;
+  role: string;
+}
+
+interface ProjectTabsScrollProps {
+  projectId: string;
+  isFreelancer: boolean;
+  messages: any[]; // Temporarily use any to resolve type issues // Temporarily use any to resolve the type mismatch
+  files: ProjectFile[];
+  invoices: ProjectInvoice[];
+  acceptedClients: Client[];
+  pendingInvites: Client[];
+}
+
 export default function ProjectTabsScroll({
   projectId,
   isFreelancer,
-  isClient,
   messages,
   files,
   invoices,
   acceptedClients,
   pendingInvites,
-}: any) {
+}: ProjectTabsScrollProps) {
   const [value, setValue] = useState<string>("messages");
 
   // wrapper ref for the scrollable content
@@ -42,9 +83,9 @@ export default function ProjectTabsScroll({
         </TabsList>
 
         {/* Scrollable content area: only this scrolls */}
-        <div ref={scrollRef} className="flex-1 overflow-y-auto pr-2 space-y-6" style={{ WebkitOverflowScrolling: "touch" }}>
+        <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-6" style={{ WebkitOverflowScrolling: "touch", scrollbarGutter: 'stable' }}>
           <div style={{ display: value === "messages" ? "block" : "none" }}>
-            <MessagesTab messages={messages} projectId={projectId} userRole={isFreelancer ? "freelancer" : "client"} />
+            <MessagesTab messages={messages} projectId={projectId} />
           </div>
 
           <div style={{ display: value === "files" ? "block" : "none" }}>
@@ -57,7 +98,7 @@ export default function ProjectTabsScroll({
 
           {isFreelancer && (
             <div style={{ display: value === "clients" ? "block" : "none" }}>
-              <ClientsTab projectId={projectId} clients={acceptedClients} invites={pendingInvites} />
+              <ClientsTab clients={acceptedClients} invites={pendingInvites} />
             </div>
           )}
         </div>
