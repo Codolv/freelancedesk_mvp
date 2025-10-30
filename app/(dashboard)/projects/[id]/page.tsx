@@ -59,6 +59,21 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   const { data: files } = await supabase.storage.from("files").list(id);
   const { data: invoices } = await supabase.from("project_invoices").select("*").eq("project_id", id).order("created_at", { ascending: false });
 
+  // Fetch todos
+  const { data: todos } = await supabase
+    .from("project_todos")
+    .select(`
+      *,
+      profiles (
+        id,
+        name,
+        email,
+        avatar_url
+      )
+    `)
+    .eq("project_id", id)
+    .order("created_at", { ascending: false });
+
   // accepted clients (robust, no join)
   const { data: projectClients } = await supabase.from("project_clients").select("client_id").eq("project_id", id);
   let acceptedClients: any[] = [];
@@ -101,6 +116,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         messages={messages || []}
         files={files || []}
         invoices={invoices || []}
+        todos={todos || []}
         acceptedClients={acceptedClients || []}
         pendingInvites={pendingInvites || []}
         user={user_profile}

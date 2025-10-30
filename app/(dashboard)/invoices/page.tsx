@@ -7,6 +7,16 @@ import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { Wallet, FileText, PlusCircle } from "lucide-react";
 
+interface Invoice {
+  id: string;
+  title: string | null;
+  amount_cents: number;
+  status: string;
+  created_at: string;
+  project_id: string;
+  projects: { name: string }[] | { name: string } | null;
+}
+
 export default async function InvoicesPage() {
   const supabase = await getServerSupabaseComponent();
   const {
@@ -32,6 +42,9 @@ export default async function InvoicesPage() {
     )
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
+
+  // Type assertion for the invoices data
+  const typedInvoices = invoices as Invoice[] | null;
 
   return (
     <Motion
@@ -61,7 +74,7 @@ export default async function InvoicesPage() {
       <Separator />
 
       {/* Invoice List */}
-      {!invoices?.length ? (
+      {!typedInvoices?.length ? (
         <Motion
           className="text-center py-24 text-muted-foreground"
           initial={{ opacity: 0 }}
@@ -83,7 +96,7 @@ export default async function InvoicesPage() {
         </Motion>
       ) : (
         <div className="grid gap-4">
-          {invoices.map((invoice, idx) => (
+          {typedInvoices.map((invoice, idx) => (
             <Motion
               key={invoice.id}
               initial={{ opacity: 0, y: 10 }}
@@ -98,7 +111,7 @@ export default async function InvoicesPage() {
                       {invoice.title || "Rechnung"}
                     </h2>
                     <p className="text-sm text-muted-foreground">
-                      Projekt: {invoice.projects?.name || "Unbekannt"}
+                      Projekt: {invoice.projects && !Array.isArray(invoice.projects) ? invoice.projects.name : Array.isArray(invoice.projects) ? invoice.projects[0]?.name : "Unbekannt"}
                     </p>
                   </div>
 

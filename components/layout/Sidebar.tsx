@@ -37,8 +37,13 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  interface UserData {
+    name: string;
+    email: string;
+  }
+
   const [collapsed, setCollapsed] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<UserData | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   // ✅ Fetch user and avatar
@@ -60,7 +65,7 @@ export default function Sidebar() {
 
       setUser({
         name: profile?.name || "Unbekannter Nutzer",
-        email: user.email,
+        email: user?.email || "Unbeannter Nutzer",
       });
 
       if (profile?.avatar_url) {
@@ -79,8 +84,10 @@ export default function Sidebar() {
     <motion.aside
       animate={{ width: collapsed ? 80 : 240 }}
       className={cn(
-        "h-screen fixed left-0 top-0 z-40 flex flex-col border-r border-border/40 bg-background/80 backdrop-blur-sm transition-all duration-300 shadow-sm"
+        "h-screen fixed left-0 top-0 z-40 flex flex-col border-r border-border/40 bg-background/80 backdrop-blur-sm transition-all duration-300 shadow-sm",
+        "max-w-[240px] min-w-[80px]"
       )}
+      style={{ width: collapsed ? 80 : 240 }}
     >
       {/* === Logo + Collapse Button === */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border/30">
@@ -109,7 +116,7 @@ export default function Sidebar() {
           variant="ghost"
           size="icon"
           onClick={() => setCollapsed(!collapsed)}
-          className="text-muted-foreground hover:text-foreground"
+          className="text-muted-foreground hover:text-foreground flex-shrink-0"
         >
           {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
         </Button>
@@ -122,23 +129,25 @@ export default function Sidebar() {
           const Icon = item.icon;
 
           return (
-            <Link key={item.name} href={item.href}>
+            <Link key={item.name} href={item.href} className="block">
               <motion.div
                 whileHover={{ scale: 1.02 }}
                 className={cn(
-                  "flex items-center gap-3 px-4 py-2.5 text-sm transition-all duration-200",
+                  "flex items-center gap-3 px-4 py-2.5 text-sm transition-all duration-200 cursor-pointer",
+                  "min-h-[44px]",
                   active
                     ? "bg-muted/60 text-foreground font-medium"
                     : "text-muted-foreground hover:bg-muted/40"
                 )}
               >
-                <Icon size={18} />
+                <Icon size={18} className="flex-shrink-0" />
                 <AnimatePresence>
                   {!collapsed && (
                     <motion.span
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -10 }}
+                      className="truncate"
                     >
                       {item.name}
                     </motion.span>
@@ -151,39 +160,39 @@ export default function Sidebar() {
       </nav>
 
       {/* === Quick Action Button === */}
-      <div className="p-4 border-t border-border/30">
+      <div className="p-4 border-t border-border/30 w-full">
         <Button
           asChild
           className="w-full justify-center"
           size={collapsed ? "icon" : "default"}
         >
-          <Link href="/projects/new">
-            <PlusCircle size={18} className={collapsed ? "" : "mr-2"} />
-            {!collapsed && "Neues Projekt"}
+          <Link href="/projects/new" className="w-full">
+            <PlusCircle size={18} className={collapsed ? "" : "mr-2 flex-shrink-0"} />
+            {!collapsed && <span className="truncate">Neues Projekt</span>}
           </Link>
         </Button>
       </div>
 
       {/* === User Section === */}
-      <div className="p-4 border-t border-border/30 flex items-center justify-between">
+      <div className="p-4 border-t border-border/30 w-full">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-3 w-full hover:bg-muted/30 rounded-md p-2 transition">
+            <button className="flex items-center gap-3 w-full hover:bg-muted/30 rounded-md p-2 transition min-w-0">
               {avatarUrl ? (
                 <motion.img
                       src={avatarUrl}
                       alt="Avatar"
-                      className="w-9 h-9 rounded-full object-cover border"
+                      className="w-9 h-9 rounded-full object-cover border flex-shrink-0"
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
                     />
               ) : (
-                <div className="w-9 h-9 rounded-full bg-muted border border-border/30" />
+                <div className="w-9 h-9 rounded-full bg-muted border border-border/30 flex-shrink-0" />
               )}
 
               {!collapsed && (
-                <div className="flex-1 text-left truncate">
-                  <p className="text-sm font-medium">
+                <div className="flex-1 text-left min-w-0">
+                  <p className="text-sm font-medium truncate">
                     {user?.name || "Lädt..."}
                   </p>
                   <p className="text-xs text-muted-foreground truncate">

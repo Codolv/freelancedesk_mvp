@@ -3,21 +3,24 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageSquare, Folder, Wallet, User } from "lucide-react";
+import { MessageSquare, Folder, Wallet, User, CheckSquare } from "lucide-react";
 import { Comments } from "./components/Comments";
 import { FilesTab } from "./components/FilesTab";
 import { InvoicesTab } from "./components/InvoicesTab";
 import { ClientsTab } from "./components/ClientsTab";
+import { TodosTab } from "./components/TodosTab";
 
 export default function ProjectTabsAnimated({
   projectId,
   isFreelancer,
+  isClient,
   messages,
   files,
   invoices,
   acceptedClients,
   pendingInvites,
-  user
+  user,
+  todos
 }: any) {
   const [value, setValue] = useState<string>("messages");
 
@@ -27,6 +30,7 @@ export default function ProjectTabsAnimated({
   // refs for each content panel so we can measure
   const refs = {
     messages: useRef<HTMLDivElement | null>(null),
+    todos: useRef<HTMLDivElement | null>(null),
     files: useRef<HTMLDivElement | null>(null),
     invoices: useRef<HTMLDivElement | null>(null),
     clients: useRef<HTMLDivElement | null>(null),
@@ -77,6 +81,9 @@ export default function ProjectTabsAnimated({
           <TabsTrigger value="messages" className="flex items-center gap-2">
             <MessageSquare className="h-4 w-4" /> Nachrichten
           </TabsTrigger>
+          <TabsTrigger value="todos" className="flex items-center gap-2">
+            <CheckSquare className="h-4 w-4" /> Aufgaben
+          </TabsTrigger>
           <TabsTrigger value="files" className="flex items-center gap-2">
             <Folder className="h-4 w-4" /> Dateien
           </TabsTrigger>
@@ -111,6 +118,18 @@ export default function ProjectTabsAnimated({
               projectId={projectId}
               messages={messages}
               user={user}
+            />
+          </div>
+
+          {/* Todos panel */}
+          <div
+            ref={refs.todos}
+            style={{ display: value === "todos" ? "block" : "none" }}
+          >
+            <TodosTab
+              projectId={projectId}
+              isFreelancer={isFreelancer}
+              initialTodos={todos}
             />
           </div>
 
