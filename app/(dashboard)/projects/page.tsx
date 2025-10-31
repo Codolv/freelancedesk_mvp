@@ -26,19 +26,32 @@ export default async function ProjectsPage() {
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
+  interface Project {
+    id: string;
+    name: string;
+    description: string | null;
+    deadline: string | null;
+  }
+
+  interface InvitedProjectResult {
+    project_id: string;
+    projects: Project | null;
+  }
+
   // === Fetch invited projects ===
-  const { data: invitedProjects } = await supabase
+ const { data: invitedProjects } = await supabase
     .from("project_clients")
     .select("project_id, projects(id, name, description, deadline)")
     .eq("client_id", user.id)
     .order("created_at", { ascending: false });
 
-  const invitedList =
-    invitedProjects?.map((p) => p.projects).filter(Boolean) || [];
+  const invitedList: Project[] = ((invitedProjects as unknown) as Array<{ project_id: string; projects: Project | null }> || [])
+    .map((p) => p.projects)
+    .filter((project): project is Project => project !== null && project !== undefined);
 
   return (
     <Motion
-      className="space-y-10 max-w-5xl mx-auto py-10"
+      className="space-y-10 w-full max-w-7xl mx-auto py-10 px-4"
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
@@ -122,25 +135,25 @@ export default async function ProjectsPage() {
         )}
 
         <ul className="divide-y divide-border/50 rounded-lg border border-border/50 bg-background/70 backdrop-blur-sm bg-white">
-          {invitedList.map((p: any, i: number) => (
+          {invitedList.map((p, i) => (
             <Motion
-              key={p?.id}
+              key={p.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
               className="p-4 hover:bg-muted/40 transition-all duration-200 group"
             >
-              <Link href={`/projects/${p?.id}`} className="flex justify-between items-center">
+              <Link href={`/projects/${p.id}`} className="flex justify-between items-center">
                 <div>
                   <p className="font-medium text-lg group-hover:text-[hsl(85,30%,35%)] transition-colors">
-                    {p?.name}
+                    {p.name}
                   </p>
-                  {p?.description && (
+                  {p.description && (
                     <p className="text-sm text-muted-foreground line-clamp-1">
                       {p.description}
                     </p>
                   )}
-                  {p?.deadline && (
+                  {p.deadline && (
                     <p className="text-xs text-muted-foreground mt-1">
                       Frist:{" "}
                       {new Date(p.deadline).toLocaleDateString("de-DE", {

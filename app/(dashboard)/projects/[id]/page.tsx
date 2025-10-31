@@ -46,14 +46,65 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   .eq("project_id", id)
   .order("created_at", { ascending: false });
 
+  interface MessageProfile {
+    id: string;
+    name: string;
+    email: string;
+    avatar_url: string | null;
+  }
+
+  interface Message {
+    id: string;
+    content: string;
+    created_at: string;
+    user_id: string;
+    profiles: MessageProfile[];
+  }
+
+  interface TodoProfile {
+    id: string;
+    name: string;
+    email: string;
+    avatar_url: string | null;
+  }
+
+  interface Todo {
+    id: string;
+    title: string;
+    completed: boolean;
+    created_at: string;
+    assigned_to: string | null;
+    profiles: TodoProfile[];
+  }
+
+  interface ProjectClient {
+    client_id: string;
+  }
+
+  interface ProjectInvite {
+    id: string;
+    email: string;
+    accepted: boolean;
+  }
+
+  interface UserProfile {
+    id: string;
+    name: string;
+    email: string;
+    avatar_url: string | null;
+  }
+
   const messages = await Promise.all(
-    (messagesRaw || []).map(async (m) => ({
-      ...m,
-      profiles: {
-        ...m.profiles,
-        signedAvatarUrl: await getAvatarUrl((Array.isArray((m as any)?.profiles) ? (m as any).profiles[0]?.avatar_url : (m as any)?.profiles?.avatar_url) ?? null)
-      },
-    }))
+    (messagesRaw || []).map(async (m: Message) => {
+      const firstProfile = m.profiles[0] || null;
+      return {
+        ...m,
+        profiles: firstProfile ? {
+          ...firstProfile,
+          signedAvatarUrl: await getAvatarUrl(firstProfile.avatar_url ?? null)
+        } : null,
+      };
+    })
   );
 
   const { data: files } = await supabase.storage.from("files").list(id);
@@ -76,9 +127,9 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
 
   // accepted clients (robust, no join)
   const { data: projectClients } = await supabase.from("project_clients").select("client_id").eq("project_id", id);
-  let acceptedClients: any[] = [];
+  let acceptedClients: UserProfile[] = [];
   if (projectClients && projectClients.length) {
-    const ids = projectClients.map((c: any) => c.client_id);
+    const ids = projectClients.map((c: ProjectClient) => c.client_id);
     const { data: clientProfiles } = await supabase.from("profiles").select("id, name, email, avatar_url").in("id", ids);
     acceptedClients = clientProfiles || [];
   }
@@ -86,7 +137,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   const { data: pendingInvites } = await supabase.from("project_invites").select("id, email, accepted").eq("project_id", id).eq("accepted", false);
 
   return (
-    <Motion className="max-w-5xl mx-auto py-6" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+    <Motion className="w-full max-w-7xl mx-auto py-6 px-4" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
       {/* Header (shrink-0 so it doesn't flex) */}
       <div className="space-y-4 shrink-0">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

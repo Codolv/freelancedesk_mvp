@@ -48,7 +48,7 @@ export default async function InvoicesPage() {
 
   return (
     <Motion
-      className="max-w-6xl mx-auto py-10 space-y-10"
+      className="w-full max-w-7xl mx-auto py-10 space-y-10 px-4"
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}

@@ -33,6 +33,12 @@ export default async function EditInvoicePage({
     );
   }
 
+  interface InvoiceItem {
+    description: string;
+    qty: number;
+    unit_price_cents: number;
+  }
+
   // ✅ Define local server action
   async function updateInvoice(formData: FormData) {
     "use server";
@@ -41,9 +47,9 @@ export default async function EditInvoicePage({
     const title = formData.get("title")?.toString() || "";
     const status = formData.get("status")?.toString() || "Open";
     const itemsRaw = formData.get("items")?.toString() || "[]";
-    const parsedItems = JSON.parse(itemsRaw);
+    const parsedItems: InvoiceItem[] = JSON.parse(itemsRaw);
     const amount_cents = parsedItems.reduce(
-      (sum: number, item: any) => sum + Math.round(item.qty * item.unit_price_cents),
+      (sum: number, item: InvoiceItem) => sum + Math.round(item.qty * item.unit_price_cents),
       0
     );
 
@@ -63,7 +69,7 @@ export default async function EditInvoicePage({
       .eq("invoice_id", params.invoiceId);
 
     await supabase.from("project_invoice_items").insert(
-      parsedItems.map((i: any) => ({
+      parsedItems.map((i: InvoiceItem) => ({
         invoice_id: params.invoiceId,
         description: i.description,
         qty: i.qty,
@@ -76,7 +82,7 @@ export default async function EditInvoicePage({
 
   return (
     <Motion
-      className="max-w-3xl mx-auto py-10 space-y-6"
+      className="w-full max-w-6xl mx-auto py-10 space-y-6 px-4"
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}

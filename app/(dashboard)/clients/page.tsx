@@ -68,7 +68,7 @@ export default async function ClientsPage() {
       console.error("Projects fetch error:", projectsError);
       return (
         <Motion
-          className="max-w-3xl mx-auto py-10 text-center"
+          className="w-full max-w-6xl mx-auto py-10 text-center px-4"
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
@@ -89,7 +89,7 @@ export default async function ClientsPage() {
   if (projectIds.length === 0) {
     return (
       <Motion
-        className="max-w-3xl mx-auto py-10 text-center"
+        className="w-full max-w-6xl mx-auto py-10 text-center px-4"
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
@@ -178,11 +178,11 @@ export default async function ClientsPage() {
   const { data: invites } = await supabase
     .from("project_invites")
     .select("email, accepted, project_id, projects(name)")
-    .eq("accepted", false) as { data: InviteData[] | null };
+    .eq("accepted", false);
 
   return (
     <Motion
-      className="max-w-5xl mx-auto py-10 space-y-10"
+      className="w-full max-w-7xl mx-auto py-10 space-y-10 px-4"
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
@@ -210,14 +210,14 @@ export default async function ClientsPage() {
             Noch keine Kunden vorhanden.
           </div>
         ) : (
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
         {clients.map((c: ClientData, idx: number) => (
           <Motion
             key={c.profile.id}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.05, duration: 0.3 }}
-            className="h-full"
+            className="h-auto"
           >
             <Card className="hover:shadow-lg border-border/60 bg-background/80 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 h-full flex flex-col">
               <CardHeader className="flex flex-row items-center gap-3 pb-3">
@@ -237,16 +237,16 @@ export default async function ClientsPage() {
                     </AvatarFallback>
                   )}
                 </Avatar>
-                <div>
-                  <h3 className="font-medium text-lg">
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-medium text-lg truncate">
                     {c.profile?.name || "Unbekannt"}
                   </h3>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground truncate">
                     {c.profile?.email || ""}
                   </p>
                 </div>
               </CardHeader>
-              <CardContent className="text-sm text-muted-foreground space-y-2">
+              <CardContent className="text-sm text-muted-foreground space-y-2 flex-1">
                 <div className="flex flex-col gap-1">
                   <p className="font-medium text-foreground mb-1">
                     Projekte:
@@ -290,7 +290,7 @@ export default async function ClientsPage() {
                   <p className="font-medium">{inv.email}</p>
                   <p className="text-sm text-muted-foreground truncate">
                     Eingeladen zu {Array.isArray(inv.projects) && inv.projects.length > 0 
-                      ? (inv.projects[0] as { name: string })?.name 
+                      ? inv.projects[0]?.name || "Unknown Project"
                       : "Unknown Project"}
                   </p>
                 </div>
@@ -305,7 +305,7 @@ export default async function ClientsPage() {
     console.error("Unexpected error in ClientsPage:", error);
     return (
       <Motion
-        className="max-w-3xl mx-auto py-10 text-center"
+        className="w-full max-w-6xl mx-auto py-10 text-center px-4"
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}

@@ -50,36 +50,38 @@ export function ClientsTab({
 
           {/* Accepted clients */}
           {clients.length > 0 && (
-            <div className="space-y-3">
-              <h4 className="font-medium text-sm uppercase tracking-wide text-muted-foreground">
-                Aktive Kunden
-              </h4>
-              {clients.map((c) => (
-                <div
-                  key={c.id}
-                  className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/40 transition"
+        <div className="space-y-3">
+          <h4 className="font-medium text-sm uppercase tracking-wide text-muted-foreground">
+            Aktive Kunden
+          </h4>
+          {clients.map((c) => (
+            <div
+              key={c.id}
+              className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/40 transition bg-card"
+            >
+              <div className="flex-1 min-w-0">
+                <span className="font-medium truncate block">{c.email}</span>
+              </div>
+              <div className="flex items-center gap-2 ml-4">
+                <span className="text-green-500 text-xs font-semibold bg-green-100 px-2 py-1 rounded-full">
+                  Angenommen
+                </span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleRevoke(c.id)}
+                  disabled={isPending}
                 >
-                  <span className="font-medium">{c.email}</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-green-500 text-xs font-semibold">
-                      Angenommen
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleRevoke(c.id)}
-                      disabled={isPending}
-                    >
-                      {isPending ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Trash2 className="h-4 w-4 text-red-600" />
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              ))}
+                  {isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-4 w-4 text-red-600" />
+                  )}
+                </Button>
+              </div>
             </div>
+          ))}
+        </div>
           )}
 
           {/* Pending invites */}
@@ -91,11 +93,13 @@ export function ClientsTab({
               {invites.map((i) => (
                 <div
                   key={i.id}
-                  className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/40 transition"
+                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/40 transition bg-card"
                 >
-                  <span className="font-medium">{i.email}</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-yellow-500 text-xs font-semibold">
+                  <div className="flex-1 min-w-0">
+                    <span className="font-medium truncate block">{i.email}</span>
+                  </div>
+                  <div className="flex items-center gap-2 ml-4">
+                    <span className="text-yellow-500 text-xs font-semibold bg-yellow-100 px-2 py-1 rounded-full">
                       Offen
                     </span>
                     <Button

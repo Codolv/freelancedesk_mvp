@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import { getDashboardData } from "./data";
+import Link from "next/link";
 
 export default async function DashboardPage() {
   const data = await getDashboardData();
@@ -29,9 +30,9 @@ export default async function DashboardPage() {
 
         <div className="flex items-center gap-2">
           <Button asChild>
-            <a href="/projects/new">
+            <Link href="/projects/new">
               <PlusCircle className="mr-2 h-4 w-4" /> Neues Projekt
-            </a>
+            </Link>
           </Button>
         </div>
       </div>

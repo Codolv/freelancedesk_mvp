@@ -19,7 +19,7 @@ export default function NewInvoiceForm({
 }) {
   return (
     <Motion
-      className="max-w-2xl mx-auto py-10"
+      className="w-full max-w-4xl mx-auto py-10 px-4"
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}

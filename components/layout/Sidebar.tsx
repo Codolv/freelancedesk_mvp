@@ -82,12 +82,12 @@ export default function Sidebar() {
 
   return (
     <motion.aside
-      animate={{ width: collapsed ? 80 : 240 }}
+      animate={{ width: collapsed ? 80 : 280 }}
       className={cn(
         "h-screen fixed left-0 top-0 z-40 flex flex-col border-r border-border/40 bg-background/80 backdrop-blur-sm transition-all duration-300 shadow-sm",
-        "max-w-[240px] min-w-[80px] overflow-visible"
+        "max-w-[280px] min-w-[80px] overflow-hidden"
       )}
-      style={{ width: collapsed ? 80 : 240 }}
+      style={{ width: collapsed ? 80 : 280 }}
     >
       {/* === Logo + Collapse Button === */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border/30">
@@ -131,13 +131,12 @@ export default function Sidebar() {
           return (
             <Link key={item.name} href={item.href} className="block">
               <motion.div
-                whileHover={{ scale: 1.02 }}
                 className={cn(
                   "flex items-center gap-3 px-4 py-2.5 text-sm transition-all duration-200 cursor-pointer",
                   "min-h-[44px]",
                   active
                     ? "bg-muted/60 text-foreground font-medium"
-                    : "text-muted-foreground hover:bg-muted/40"
+                    : "text-muted-foreground hover:bg-muted/40 hover:pl-6 transition-all duration-200"
                 )}
               >
                 <Icon size={18} className="flex-shrink-0" />
@@ -160,13 +159,13 @@ export default function Sidebar() {
       </nav>
 
       {/* === Quick Action Button === */}
-      <div className="p-4 border-t border-border/30 w-full">
+      <div className="p-4 border-t border-border/30 w-full overflow-hidden">
         <Button
           asChild
-          className="w-full justify-center"
+          className="w-full justify-center overflow-hidden"
           size={collapsed ? "icon" : "default"}
         >
-          <Link href="/projects/new" className="w-full">
+          <Link href="/projects/new" className="w-full overflow-hidden">
             <PlusCircle size={18} className={collapsed ? "" : "mr-2 flex-shrink-0"} />
             {!collapsed && <span className="truncate">Neues Projekt</span>}
           </Link>
@@ -177,7 +176,7 @@ export default function Sidebar() {
       <div className="p-4 border-t border-border/30 w-full">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-3 w-full hover:bg-muted/30 rounded-md p-2 transition min-w-0">
+            <button className="flex items-center gap-3 w-full hover:bg-muted/30 rounded-md p-2 transition min-w-0 overflow-hidden">
               {avatarUrl ? (
                 <motion.img
                       src={avatarUrl}
@@ -191,7 +190,7 @@ export default function Sidebar() {
               )}
 
               {!collapsed && (
-                <div className="flex-1 text-left min-w-0">
+                <div className="flex-1 text-left min-w-0 overflow-hidden">
                   <p className="text-sm font-medium truncate">
                     {user?.name || "Lädt..."}
                   </p>
