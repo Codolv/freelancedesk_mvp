@@ -7,6 +7,9 @@ import StatCard from "./components/StatCard";
 import RevenueChart from "./components/RevenueChart";
 import ProjectStatusChart from "./components/ProjectStatusChart";
 import ActivityFeed from "./components/ActivityFeed";
+import TodosCard from "./components/TodosCard";
+import DeadlinesCard from "./components/DeadlinesCard";
+import Link from "next/link";
 
 export default async function DashboardPage() {
   const supabase = await getServerSupabaseComponent();
@@ -48,12 +51,34 @@ export default async function DashboardPage() {
   const totalOpen = openInvoices.reduce((sum, i) => sum + i.amount_cents, 0) / 100;
 
   // === Nachrichten (Aktivitäten) ===
+  // Wenn der User Freelancer oder Client ist:
+  const { data: clientProjects } = await supabase
+    .from("project_clients")
+    .select("project_id")
+    .eq("client_id", user.id);
+
+  const projectIds = [
+    ...(projects?.map((p) => p.id) || []),
+    ...(clientProjects?.map((c) => c.project_id) || []),
+  ];
+
   const { data: messages } = await supabase
     .from("project_messages")
     .select("id, content, created_at, projects(name)")
-    .eq("user_id", user.id)
+    .in("project_id", projectIds)
     .order("created_at", { ascending: false })
     .limit(5);
+
+  // === Todos ===
+  const { data: todos } = await supabase
+    .from("project_todos")
+    .select(`
+      *,
+      projects (name)
+    `)
+    .in("project_id", projectIds)
+    .order("created_at", { ascending: false });
+
 
   // === Einnahmen-Chart (Demo basierend auf echten Daten) ===
   const groupedByMonth: Record<string, number> = {};
@@ -91,9 +116,9 @@ export default async function DashboardPage() {
           </p>
         </div>
         <Button asChild>
-          <a href="/projects/new">
+          <Link href="/projects/new">
             <PlusCircle className="mr-2 h-4 w-4" /> Neues Projekt
-          </a>
+          </Link>
         </Button>
       </div>
 
@@ -133,14 +158,18 @@ export default async function DashboardPage() {
 
       <Separator />
 
-      {/* Charts + Activity */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <div className="space-y-6">
+      {/* Charts + Activity + Todos + Deadlines */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="space-y-6 lg:col-span-2">
           <RevenueChart data={chartData} />
           <ProjectStatusChart data={projectStatusData} />
         </div>
 
-        <ActivityFeed messages={messages || []} />
+        <div className="space-y-6">
+          <DeadlinesCard projects={projects || []} />
+          <TodosCard todos={todos || []} />
+          <ActivityFeed messages={messages || []} />
+        </div>
       </div>
     </Motion>
   );
