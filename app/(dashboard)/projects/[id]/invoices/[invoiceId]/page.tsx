@@ -1,11 +1,12 @@
-import { getServerSupabaseComponent, getServerSupabaseAction } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+import { getServerSupabaseComponent } from "@/lib/supabase/server";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { ItemsField } from "@/components/invoices/ItemsField";
 import { Motion } from "@/components/custom/Motion";
+import { updateInvoiceAction } from "./actions";
+import Link from "next/link";
 
 export default async function EditInvoicePage({
   params,
@@ -25,6 +26,13 @@ export default async function EditInvoicePage({
     .select("*")
     .eq("invoice_id", params.invoiceId);
 
+  // Transform items to ensure proper types for the form
+  const transformedItems = items?.map(item => ({
+    description: item.description || "",
+    quantity: item.quantity || 0,
+    unit_price_cents: item.unit_price_cents || 0
+  })) || [];
+
   if (!invoice) {
     return (
       <div className="p-8 text-center text-muted-foreground">
@@ -35,49 +43,8 @@ export default async function EditInvoicePage({
 
   interface InvoiceItem {
     description: string;
-    qty: number;
+    quantity: number;
     unit_price_cents: number;
-  }
-
-  // ✅ Define local server action
-  async function updateInvoice(formData: FormData) {
-    "use server";
-    const supabase = await getServerSupabaseAction();
-
-    const title = formData.get("title")?.toString() || "";
-    const status = formData.get("status")?.toString() || "Open";
-    const itemsRaw = formData.get("items")?.toString() || "[]";
-    const parsedItems: InvoiceItem[] = JSON.parse(itemsRaw);
-    const amount_cents = parsedItems.reduce(
-      (sum: number, item: InvoiceItem) => sum + Math.round(item.qty * item.unit_price_cents),
-      0
-    );
-
-    await supabase
-      .from("project_invoices")
-      .update({
-        title,
-        status,
-        amount_cents,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", params.invoiceId);
-
-    await supabase
-      .from("project_invoice_items")
-      .delete()
-      .eq("invoice_id", params.invoiceId);
-
-    await supabase.from("project_invoice_items").insert(
-      parsedItems.map((i: InvoiceItem) => ({
-        invoice_id: params.invoiceId,
-        description: i.description,
-        qty: i.qty,
-        unit_price_cents: i.unit_price_cents,
-      }))
-    );
-
-    redirect(`/projects/${params.id}`);
   }
 
   return (
@@ -97,7 +64,10 @@ export default async function EditInvoicePage({
           </p>
         </CardHeader>
         <CardContent>
-          <form action={updateInvoice} className="grid gap-4">
+          <form action={async (formData: FormData) => {
+            'use server';
+            return updateInvoiceAction(params.id, params.invoiceId, formData);
+          }} className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="title">Titel</Label>
               <Input
@@ -121,13 +91,20 @@ export default async function EditInvoicePage({
               </select>
             </div>
 
-            <ItemsField />
+            <ItemsField initialItems={transformedItems} />
 
-            <div className="flex justify-end gap-3 mt-6">
+            <div className="flex justify-between gap-3 mt-6">
               <Button variant="outline" asChild>
                 <a href={`/projects/${params.id}`}>Abbrechen</a>
               </Button>
-              <Button type="submit">Änderungen speichern</Button>
+              <div className="flex gap-3">
+                <Button variant="outline" asChild>
+                  <Link href={`/projects/${params.id}/invoices/${params.invoiceId}/view`}>
+                    Anzeigen
+                  </Link>
+                </Button>
+                <Button type="submit">Änderungen speichern</Button>
+              </div>
             </div>
           </form>
         </CardContent>

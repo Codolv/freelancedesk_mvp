@@ -11,19 +11,21 @@ import { Plus, Trash2 } from "lucide-react";
 
 type Item = {
   description: string;
-  qty: number | null;
+  quantity: number | null;
   unit_price_cents: number | null;
 };
 
-export function ItemsField() {
-  const [items, setItems] = useState<Item[]>([
-    { description: "", qty: null, unit_price_cents: null },
-  ]);
-  const [total, setTotal] = useState(0);
+export function ItemsField({ initialItems }: { initialItems?: Item[] } = {}) {
+  const [items, setItems] = useState<Item[]>(
+    initialItems && initialItems.length > 0
+      ? initialItems
+      : [{ description: "", quantity: null, unit_price_cents: null }]
+  );
+ const [total, setTotal] = useState(0);
 
   useEffect(() => {
     const totalCents = items.reduce(
-      (sum, it) => sum + ((it.qty || 0) * (it.unit_price_cents || 0)),
+      (sum, it) => sum + ((it.quantity || 0) * (it.unit_price_cents || 0)),
       0
     );
     setTotal(totalCents);
@@ -31,7 +33,7 @@ export function ItemsField() {
 
   const handleItemChange = (index: number, field: keyof Item, value: string) => {
     const updated = [...items];
-    if (field === "qty") {
+    if (field === "quantity") {
       updated[index][field] = value === "" ? null : parseFloat(value);
     } else if (field === "unit_price_cents") {
       updated[index][field] =
@@ -43,7 +45,7 @@ export function ItemsField() {
   };
 
   const addItem = () =>
-    setItems([...items, { description: "", qty: null, unit_price_cents: null }]);
+    setItems([...items, { description: "", quantity: null, unit_price_cents: null }]);
   const removeItem = (index: number) =>
     setItems(items.filter((_, i) => i !== index));
 
@@ -80,9 +82,9 @@ export function ItemsField() {
                   <Input
                     type="number"
                     placeholder="Menge"
-                    value={item.qty === null ? "" : item.qty}
+                    value={item.quantity === null ? "" : item.quantity}
                     onChange={(e) =>
-                      handleItemChange(index, "qty", e.target.value)
+                      handleItemChange(index, "quantity", e.target.value)
                     }
                   />
                 </div>
@@ -106,8 +108,8 @@ export function ItemsField() {
 
                 {/* Einzel-Total */}
                 <div className="col-span-1 text-right text-sm font-medium">
-                  {item.qty && item.unit_price_cents
-                    ? ((item.qty * item.unit_price_cents) / 100).toLocaleString(
+                  {item.quantity && item.unit_price_cents
+                    ? ((item.quantity * item.unit_price_cents) / 100).toLocaleString(
                         "de-DE",
                         { style: "currency", currency: "EUR" }
                       )

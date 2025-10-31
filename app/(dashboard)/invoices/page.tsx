@@ -159,14 +159,14 @@ export default async function InvoicesPage() {
                   <div className="flex gap-3">
                     <Button variant="outline" size="sm" asChild>
                       <Link
-                        href={`/projects/${invoice.project_id}/invoices/${invoice.id}`}
+                        href={`/projects/${invoice.project_id}/invoices/${invoice.id}/view`}
                       >
                         Anzeigen
                       </Link>
                     </Button>
                     <Button variant="secondary" size="sm" asChild>
                       <Link
-                        href={`/projects/${invoice.project_id}/invoices/${invoice.id}/edit`}
+                        href={`/projects/${invoice.project_id}/invoices/${invoice.id}`}
                       >
                         Bearbeiten
                       </Link>

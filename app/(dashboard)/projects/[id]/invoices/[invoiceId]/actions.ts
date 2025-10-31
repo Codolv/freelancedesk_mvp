@@ -23,7 +23,7 @@ export async function updateInvoiceAction(
 
   let items: Array<{
     description: string;
-    qty: number;
+    quantity: number;
     unit_price_cents: number;
   }> = [];
 
@@ -39,7 +39,7 @@ export async function updateInvoiceAction(
 
   // Recalculate total amount
   const amount_cents = items.reduce(
-    (sum, item) => sum + Math.round(item.qty * item.unit_price_cents),
+    (sum, item) => sum + Math.round(item.quantity * item.unit_price_cents),
     0
   );
 
@@ -50,7 +50,6 @@ export async function updateInvoiceAction(
       title,
       amount_cents,
       status,
-      updated_at: new Date().toISOString(),
     })
     .eq("id", invoiceId)
     .eq("project_id", projectId);
@@ -70,7 +69,7 @@ export async function updateInvoiceAction(
       items.map((item) => ({
         invoice_id: invoiceId,
         description: item.description,
-        qty: item.qty,
+        quantity: item.quantity,
         unit_price_cents: item.unit_price_cents,
       }))
     );
@@ -78,5 +77,5 @@ export async function updateInvoiceAction(
   if (insertError) throw insertError;
 
   // Revalidate and redirect
-  redirect(`/projects/${projectId}/invoices/${invoiceId}`);
+  redirect(`/projects/${projectId}`);
 }
