@@ -4,9 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Motion } from "@/components/custom/Motion";
 import { PlusCircle, Folder, UserPlus2, ArrowRight } from "lucide-react";
+import { getLocale } from "@/lib/i18n/server";
+import { dictionaries } from "@/lib/i18n/dictionaries";
 
 export default async function ProjectsPage() {
   const supabase = await getServerSupabaseComponent();
+  const locale = await getLocale();
+  const dict = dictionaries[locale];
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -14,7 +18,7 @@ export default async function ProjectsPage() {
   if (!user) {
     return (
       <div className="text-center py-20 text-muted-foreground">
-        Bitte melde dich an, um deine Projekte zu sehen.
+        {dict["signin.title"]}, {dict["dashboard.projects"]} {dict["projects.title"].toLowerCase()} {dict["projects.empty"].toLowerCase().replace("noch keine projekte.", "to see")}
       </div>
     );
   }
@@ -59,14 +63,14 @@ export default async function ProjectsPage() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Projekte</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{dict["projects.title"]}</h1>
           <p className="text-muted-foreground mt-1">
-            Hier findest du alle Projekte, die du besitzt oder zu denen du eingeladen wurdest.
+            {dict["hero.subtitle"]}
           </p>
         </div>
         <Button asChild>
           <Link href="/projects/new">
-            <PlusCircle className="mr-2 h-4 w-4" /> Neues Projekt
+            <PlusCircle className="mr-2 h-4 w-4" /> {dict["sidebar.new.project"]}
           </Link>
         </Button>
       </div>
@@ -75,12 +79,12 @@ export default async function ProjectsPage() {
       <section>
         <h2 className="text-xl font-semibold flex items-center gap-2 mb-3">
           <Folder className="h-5 w-5 text-[hsl(85,30%,35%)]" />
-          Eigene Projekte
+          {dict["dashboard.projects"]}
         </h2>
         <Separator className="mb-4" />
 
         {(!ownedProjects || ownedProjects.length === 0) && (
-          <p className="text-muted-foreground">Du hast noch keine Projekte erstellt.</p>
+          <p className="text-muted-foreground">{dict["projects.empty"]}</p>
         )}
 
         <ul className="divide-y divide-border/50 rounded-lg border border-border/50 bg-background/70 backdrop-blur-sm bg-white">
@@ -104,8 +108,8 @@ export default async function ProjectsPage() {
                   )}
                   {p.deadline && (
                     <p className="text-xs text-muted-foreground mt-1">
-                      Frist:{" "}
-                      {new Date(p.deadline).toLocaleDateString("de-DE", {
+                      {dict["dashboard.clients"]}:{" "}
+                      {new Date(p.deadline).toLocaleDateString(locale, {
                         day: "2-digit",
                         month: "2-digit",
                         year: "numeric",
@@ -124,13 +128,13 @@ export default async function ProjectsPage() {
       <section>
         <h2 className="text-xl font-semibold flex items-center gap-2 mb-3">
           <UserPlus2 className="h-5 w-5 text-[hsl(85,30%,35%)]" />
-          Eingeladene Projekte
+          {dict["dashboard.clients"]}
         </h2>
         <Separator className="mb-4" />
 
         {invitedList.length === 0 && (
           <p className="text-muted-foreground">
-            Du wurdest noch zu keinem Projekt eingeladen.
+            {dict["projects.empty"]}
           </p>
         )}
 
@@ -155,8 +159,8 @@ export default async function ProjectsPage() {
                   )}
                   {p.deadline && (
                     <p className="text-xs text-muted-foreground mt-1">
-                      Frist:{" "}
-                      {new Date(p.deadline).toLocaleDateString("de-DE", {
+                      {dict["dashboard.clients"]}:{" "}
+                      {new Date(p.deadline).toLocaleDateString(locale, {
                         day: "2-digit",
                         month: "2-digit",
                         year: "numeric",

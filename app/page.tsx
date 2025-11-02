@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 export default function LandingPage() {
   // Animation variants for sections
@@ -53,6 +54,7 @@ export default function LandingPage() {
               <Link href="#preise" className="hover:text-primary transition-colors">
                 Preise
               </Link>
+              <ThemeToggle />
               <Button asChild variant="outline" className="rounded-lg">
                 <Link href="/signin">Login</Link>
               </Button>

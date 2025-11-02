@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useT } from "@/lib/i18n/client";
 
 interface Todo {
   id: string;
@@ -46,6 +47,7 @@ type FilterStatus = "all" | "pending" | "completed" | "overdue";
 type SortBy = "created" | "due_date" | "title";
 
 export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTabProps) {
+  const { t } = useT();
   const supabase = getBrowserSupabase();
   const [todos, setTodos] = useState<Todo[]>(initialTodos);
   const [loading, setLoading] = useState(!initialTodos.length);
@@ -139,7 +141,7 @@ export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTa
 
     } catch (err) {
       console.error("Error fetching todos:", err);
-      setError("Fehler beim Laden der Aufgaben. Bitte versuche es erneut.");
+      setError(t("project.todos.error.loading"));
     } finally {
       if (showLoading) setLoading(false);
       setIsRefreshing(false);
@@ -208,7 +210,7 @@ export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTa
       setShowAddForm(false);
     } catch (err) {
       console.error("Error adding todo:", err);
-      setError("Fehler beim Erstellen der Aufgabe. Bitte versuche es erneut.");
+      setError(t("project.todos.error.creating"));
     } finally {
       setIsCreating(false);
     }
@@ -225,7 +227,7 @@ export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTa
       await toggleTodoAction(todoId, completed);
     } catch (err) {
       console.error("Error toggling todo:", err);
-      setError("Fehler beim Aktualisieren der Aufgabe. Bitte versuche es erneut.");
+      setError(t("project.todos.error.updating"));
       // Revert optimistic update on error
       setTodos(prev => prev.map(todo =>
         todo.id === todoId ? { ...todo, completed: !completed } : todo
@@ -251,12 +253,12 @@ export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTa
       setEditingId(null);
     } catch (err) {
       console.error("Error updating todo:", err);
-      setError("Fehler beim Aktualisieren der Aufgabe. Bitte versuche es erneut.");
+      setError(t("project.todos.error.updating"));
     }
   };
 
   const handleDeleteTodo = async (todoId: string) => {
-    if (!confirm("Möchtest du diese Aufgabe wirklich löschen?")) return;
+    if (!confirm(t("project.todos.confirm.delete"))) return;
 
     try {
       setError(null);
@@ -266,7 +268,7 @@ export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTa
       await fetchTodos(false);
     } catch (err) {
       console.error("Error deleting todo:", err);
-      setError("Fehler beim Löschen der Aufgabe. Bitte versuche es erneut.");
+      setError(t("project.todos.error.deleting"));
     }
   };
 
@@ -289,13 +291,13 @@ export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTa
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "completed":
-        return <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">Erledigt</Badge>;
+        return <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">{t("project.todos.completed")}</Badge>;
       case "overdue":
-        return <Badge variant="secondary" className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100">Überfällig</Badge>;
+        return <Badge variant="secondary" className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100">{t("project.todos.overdue")}</Badge>;
       case "due-today":
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100">Heute fällig</Badge>;
+        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100">{t("project.todos.due.today")}</Badge>;
       default:
-        return <Badge variant="outline">Offen</Badge>;
+        return <Badge variant="outline">{t("project.todos.open")}</Badge>;
     }
   };
 
@@ -312,13 +314,13 @@ export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTa
     }
   };
 
-  if (loading) {
+   if (loading) {
     return (
       <Card className="shadow-sm border border-border/50 bg-background/80 backdrop-blur-sm">
         <CardHeader>
-          <h2 className="text-xl font-semibold">Aufgaben</h2>
+          <h2 className="text-xl font-semibold">{t("dashboard.todos")}</h2>
           <p className="text-sm text-muted-foreground">
-            Verwalte die Aufgaben für dieses Projekt.
+            {t("project.manage.todos")}
           </p>
         </CardHeader>
         <CardContent>
@@ -335,9 +337,9 @@ export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTa
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-semibold">Aufgaben</h2>
+            <h2 className="text-xl font-semibold">{t("dashboard.todos")}</h2>
             <p className="text-sm text-muted-foreground">
-              Verwalte die Aufgaben für dieses Projekt.
+              {t("project.manage.todos")}
             </p>
           </div>
           <div className="flex gap-2">
@@ -349,7 +351,7 @@ export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTa
               disabled={Boolean(isRefreshing)}
             >
               <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
-              {isRefreshing ? "Aktualisieren..." : "Aktualisieren"}
+              {isRefreshing ? t("project.refreshing") : t("project.refresh")}
             </Button>
             {isFreelancer && (
               <Button
@@ -359,7 +361,7 @@ export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTa
                 className="flex items-center gap-2"
               >
                 <Plus className="h-4 w-4" />
-                Neue Aufgabe
+                {t("project.new.todo")}
               </Button>
             )}
           </div>
@@ -380,7 +382,7 @@ export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTa
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Aufgaben suchen..."
+                placeholder={t("project.todos.search")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -389,23 +391,23 @@ export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTa
             <div className="flex gap-2">
               <Select value={filterStatus} onValueChange={(value: FilterStatus) => setFilterStatus(value)}>
                 <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Filter" />
+                  <SelectValue placeholder={t("project.filter.placeholder")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Alle</SelectItem>
-                  <SelectItem value="pending">Offen</SelectItem>
-                  <SelectItem value="completed">Erledigt</SelectItem>
-                  <SelectItem value="overdue">Überfällig</SelectItem>
+                  <SelectItem value="all">{t("project.filter.all")}</SelectItem>
+                  <SelectItem value="pending">{t("project.filter.pending")}</SelectItem>
+                  <SelectItem value="completed">{t("project.filter.completed")}</SelectItem>
+                  <SelectItem value="overdue">{t("project.filter.overdue")}</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={sortBy} onValueChange={(value: SortBy) => setSortBy(value)}>
                 <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Sortierung" />
+                  <SelectValue placeholder={t("project.sort.placeholder")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="created">Erstellt</SelectItem>
-                  <SelectItem value="due_date">Fälligkeitsdatum</SelectItem>
-                  <SelectItem value="title">Titel</SelectItem>
+                  <SelectItem value="created">{t("project.sort.created")}</SelectItem>
+                  <SelectItem value="due_date">{t("project.sort.due.date")}</SelectItem>
+                  <SelectItem value="title">{t("project.sort.title")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -424,29 +426,29 @@ export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTa
               className="mb-6 p-4 border rounded-lg bg-muted/30 space-y-4"
             >
               <div className="space-y-2">
-                <Label htmlFor="new-title">Titel *</Label>
+                <Label htmlFor="new-title">{t("project.todos.title.label")} *</Label>
                 <Input
                   id="new-title"
                   value={formData.title}
                   onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                  placeholder="Aufgabentitel..."
+                  placeholder={t("project.todos.title.placeholder")}
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="new-description">Beschreibung</Label>
+                <Label htmlFor="new-description">{t("project.todos.description.label")}</Label>
                 <Textarea
                   id="new-description"
                   value={formData.description}
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Beschreibung (optional)..."
+                  placeholder={t("project.todos.description.placeholder")}
                   rows={3}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label>Fälligkeitsdatum</Label>
+                <Label>{t("project.todos.due.date.label")}</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
@@ -459,7 +461,7 @@ export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTa
                       <CalendarIcon className="mr-2 h-4 w-4" />
                       {formData.due_date
                         ? format(new Date(formData.due_date), "PPP", { locale: de })
-                        : "Kein Datum festgelegt"}
+                        : t("project.todos.no.due.date")}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
@@ -478,7 +480,7 @@ export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTa
 
               <div className="flex gap-2">
                 <Button type="submit" size="sm" disabled={Boolean(isCreating)}>
-                  {isCreating ? "Wird erstellt..." : "Hinzufügen"}
+                  {isCreating ? t("project.todos.creating") : t("project.todos.add")}
                 </Button>
                 <Button
                   type="button"
@@ -490,7 +492,7 @@ export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTa
                   }}
                   disabled={Boolean(isCreating)}
                 >
-                  Abbrechen
+                  {t("project.cancel")}
                 </Button>
               </div>
             </motion.form>
@@ -501,9 +503,9 @@ export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTa
         <Motion layout className="space-y-3 max-h-[60vh] overflow-y-auto pr-2">
           {filteredAndSortedTodos.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">
-              <p>Keine Aufgaben gefunden.</p>
+              <p>{t("project.todos.none.found")}</p>
               {searchQuery && (
-                <p className="text-sm mt-1">Versuche es mit einem anderen Suchbegriff.</p>
+                <p className="text-sm mt-1">{t("project.todos.try.different.search")}</p>
               )}
               {filterStatus !== "all" && (
                 <Button
@@ -512,7 +514,7 @@ export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTa
                   onClick={() => setFilterStatus("all")}
                   className="mt-2"
                 >
-                  Alle Aufgaben anzeigen
+                  {t("project.todos.show.all")}
                 </Button>
               )}
             </div>
@@ -530,7 +532,7 @@ export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTa
                   transition={{ delay: index * 0.05 }}
                   className={cn(
                     "p-4 border rounded-lg bg-card hover:bg-muted/40 transition-all",
-                    status === "overdue" && "border-red-200 bg-red-50/50 dark:border-red-800 dark:bg-red-950/20",
+                    status === "overdue" && "border-red-20 bg-red-50/50 dark:border-red-800 dark:bg-red-950/20",
                     status === "due-today" && "border-yellow-200 bg-yellow-50/50 dark:border-yellow-800 dark:bg-yellow-950/20"
                   )}
                 >
@@ -538,7 +540,7 @@ export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTa
                     // Edit Mode
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor={`edit-title-${todo.id}`}>Titel *</Label>
+                        <Label htmlFor={`edit-title-${todo.id}`}>{t("project.todos.title.label")} *</Label>
                         <Input
                           id={`edit-title-${todo.id}`}
                           value={editFormData.title}
@@ -548,7 +550,7 @@ export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTa
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor={`edit-description-${todo.id}`}>Beschreibung</Label>
+                        <Label htmlFor={`edit-description-${todo.id}`}>{t("project.todos.description.label")}</Label>
                         <Textarea
                           id={`edit-description-${todo.id}`}
                           value={editFormData.description}
@@ -558,7 +560,7 @@ export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTa
                       </div>
 
                       <div className="space-y-2">
-                        <Label>Fälligkeitsdatum</Label>
+                        <Label>{t("project.todos.due.date.label")}</Label>
                         <Popover>
                           <PopoverTrigger asChild>
                             <Button
@@ -571,7 +573,7 @@ export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTa
                               <CalendarIcon className="mr-2 h-4 w-4" />
                               {editFormData.due_date
                                 ? format(new Date(editFormData.due_date), "PPP", { locale: de })
-                                : "Kein Datum festgelegt"}
+                                : t("project.todos.no.due.date")}
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-auto p-0">
@@ -593,7 +595,7 @@ export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTa
                           size="sm"
                           onClick={() => handleUpdateTodo(todo.id)}
                         >
-                          Speichern
+                          {t("project.save")}
                         </Button>
                         <Button
                           type="button"
@@ -601,7 +603,7 @@ export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTa
                           size="sm"
                           onClick={() => setEditingId(null)}
                         >
-                          Abbrechen
+                          {t("project.cancel")}
                         </Button>
                       </div>
                     </div>
@@ -611,7 +613,7 @@ export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTa
                       <button
                         onClick={() => handleToggleTodo(todo.id, !todo.completed)}
                         className="mt-1 flex-shrink-0"
-                        aria-label={todo.completed ? "Als unerledigt markieren" : "Als erledigt markieren"}
+                        aria-label={todo.completed ? t("project.todos.mark.uncompleted") : t("project.todos.mark.completed")}
                       >
                         {getStatusIcon(status)}
                       </button>
@@ -635,7 +637,7 @@ export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTa
                                 size="icon"
                                 className="h-8 w-8"
                                 onClick={() => startEditing(todo)}
-                                aria-label="Aufgabe bearbeiten"
+                                aria-label={t("project.todos.edit.label")}
                               >
                                 <Edit className="h-4 w-4" />
                               </Button>
@@ -644,7 +646,7 @@ export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTa
                                 size="icon"
                                 className="h-8 w-8 text-destructive"
                                 onClick={() => handleDeleteTodo(todo.id)}
-                                aria-label="Aufgabe löschen"
+                                aria-label={t("project.todos.delete.label")}
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -670,7 +672,7 @@ export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTa
                           )}
 
                           <span>
-                            Erstellt von {todo.profiles?.name || "Unbekannt"} am{" "}
+                            {t("project.todos.created.by")} {todo.profiles?.name || t("project.unknown")} {t("project.todos.on.date")}{" "}
                             {format(new Date(todo.created_at), "PPP", { locale: de })}
                           </span>
                         </div>

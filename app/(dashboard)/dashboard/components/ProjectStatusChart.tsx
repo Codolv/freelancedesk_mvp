@@ -2,15 +2,22 @@
 
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { useT } from "@/lib/i18n/client";
 
 const COLORS = ["#4d5d4b", "#a3b18a"];
 
-export default function ProjectStatusChart({ data }: { data: any[] }) {
+interface ChartData {
+  name: string;
+  value: number;
+}
+
+export default function ProjectStatusChart({ data }: { data: ChartData[] }) {
+  const { t } = useT();
   return (
     <Card className="bg-background/80 border-border/60 backdrop-blur-sm">
       <CardHeader>
-        <h3 className="text-lg font-semibold">Projektstatus</h3>
-        <p className="text-sm text-muted-foreground">Aufteilung der Projekte</p>
+        <h3 className="text-lg font-semibold">{t("dashboard.project.status")}</h3>
+        <p className="text-sm text-muted-foreground">{t("dashboard.project.distribution")}</p>
       </CardHeader>
       <CardContent className="h-64 flex items-center justify-center">
         <ResponsiveContainer width="80%" height="100%">

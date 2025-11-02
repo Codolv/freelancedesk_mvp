@@ -9,6 +9,7 @@ import { FilesTab } from "./components/FilesTab";
 import { InvoicesTab } from "./components/InvoicesTab";
 import { ClientsTab } from "./components/ClientsTab";
 import { TodosTab } from "./components/TodosTab";
+import { useT } from "@/lib/i18n/client";
 
 export default function ProjectTabsAnimated({
   projectId,
@@ -22,6 +23,7 @@ export default function ProjectTabsAnimated({
   user,
   todos
 }: any) {
+  const { t } = useT();
   const [value, setValue] = useState<string>("messages");
 
   // measured height of active content (px)
@@ -79,20 +81,20 @@ export default function ProjectTabsAnimated({
       <Tabs value={value} onValueChange={(v) => setValue(v)} className="w-full">
         <TabsList className="mb-4 flex flex-wrap">
           <TabsTrigger value="messages" className="flex items-center gap-2">
-            <MessageSquare className="h-4 w-4" /> Nachrichten
+            <MessageSquare className="h-4 w-4" /> {t("dashboard.messages")}
           </TabsTrigger>
           <TabsTrigger value="todos" className="flex items-center gap-2">
-            <CheckSquare className="h-4 w-4" /> Aufgaben
+            <CheckSquare className="h-4 w-4" /> {t("dashboard.todos")}
           </TabsTrigger>
           <TabsTrigger value="files" className="flex items-center gap-2">
-            <Folder className="h-4 w-4" /> Dateien
+            <Folder className="h-4 w-4" /> {t("dashboard.files")}
           </TabsTrigger>
           <TabsTrigger value="invoices" className="flex items-center gap-2">
-            <Wallet className="h-4 w-4" /> Rechnungen
+            <Wallet className="h-4 w-4" /> {t("dashboard.invoices")}
           </TabsTrigger>
           {isFreelancer && (
             <TabsTrigger value="clients" className="flex items-center gap-2">
-              <User className="h-4 w-4" /> Kunden
+              <User className="h-4 w-4" /> {t("dashboard.clients")}
             </TabsTrigger>
           )}
         </TabsList>

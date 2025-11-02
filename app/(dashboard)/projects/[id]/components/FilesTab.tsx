@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Motion } from "@/components/custom/Motion";
 import { Loader2, Trash2, Upload, FileIcon, Download } from "lucide-react";
+import { useT } from "@/lib/i18n/client";
 
 interface FileDownload {
   id: string;
@@ -33,6 +34,7 @@ interface DownloadInfo {
 }
 
 export function FilesTab({ files: initialFiles, projectId }: { files: FileItem[]; projectId: string }) {
+  const { t } = useT();
   const [files, setFiles] = useState<FileItem[]>(initialFiles || []);
   const [fileDownloads, setFileDownloads] = useState<Record<string, FileDownload[]>>({});
   const [isPending, startTransition] = useTransition();
@@ -90,9 +92,9 @@ export function FilesTab({ files: initialFiles, projectId }: { files: FileItem[]
   return (
     <Card className="shadow-sm border border-border/50 bg-background/80 backdrop-blur-sm">
       <CardHeader>
-        <h2 className="text-xl font-semibold">Dateien</h2>
+        <h2 className="text-xl font-semibold">{t("dashboard.files")}</h2>
         <p className="text-sm text-muted-foreground">
-          Lade Dateien hoch und teile sie mit deinem Kunden. Downloads werden verfolgt.
+          {t("project.files.description")}
         </p>
       </CardHeader>
       <CardContent>
@@ -109,11 +111,11 @@ export function FilesTab({ files: initialFiles, projectId }: { files: FileItem[]
           <Button type="submit" disabled={uploading || isPending}>
             {uploading ? (
               <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Hochladen...
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" /> {t("project.uploading")}
               </>
             ) : (
               <>
-                <Upload className="h-4 w-4 mr-2" /> Hochladen
+                <Upload className="h-4 w-4 mr-2" /> {t("project.upload")}
               </>
             )}
           </Button>
@@ -123,7 +125,7 @@ export function FilesTab({ files: initialFiles, projectId }: { files: FileItem[]
         <div className="rounded-md border border-border/50 divide-y divide-border/50">
           {files.length === 0 && (
             <div className="text-sm text-muted-foreground p-4 text-center">
-              Noch keine Dateien vorhanden.
+              {t("project.no.files")}
             </div>
           )}
 
@@ -143,16 +145,16 @@ export function FilesTab({ files: initialFiles, projectId }: { files: FileItem[]
                     <div className="font-medium truncate">{f.name}</div>
                     <div className="text-xs text-muted-foreground">
                       {f.last_modified
-                        ? new Date(f.last_modified).toLocaleDateString("de-DE")
+                        ? new Date(f.last_modified).toLocaleDateString()
                         : "–"}{" "}
                       • {formatSize(f.metadata?.size || f.size || 0)}
                       {downloadInfo.count > 0 && (
-                        <span className="ml-2 text-blue-600">
-                          • {downloadInfo.count}x herunterladen
+                        <span className="ml-2 text-blue-60">
+                          • {downloadInfo.count}x {t("project.downloads")}
                           {downloadInfo.lastDownloaded && (
                             <span className="block text-xs">
-                              Zuletzt: {new Date(downloadInfo.lastDownloaded).toLocaleDateString("de-DE")}{" "}
-                              {new Date(downloadInfo.lastDownloaded).toLocaleTimeString("de-DE", { hour: '2-digit', minute: '2-digit' })}
+                              {t("project.last.downloaded")}: {new Date(downloadInfo.lastDownloaded).toLocaleDateString()}{" "}
+                              {new Date(downloadInfo.lastDownloaded).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
                             </span>
                           )}
                         </span>
@@ -166,7 +168,7 @@ export function FilesTab({ files: initialFiles, projectId }: { files: FileItem[]
                     asChild
                     variant="ghost"
                     size="sm"
-                    className="text-blue-600 hover:text-blue-800"
+                    className="text-blue-600 hover:text-blue-80"
                   >
                     <a
                       href={`/api/files/${projectId}/${f.name}`}

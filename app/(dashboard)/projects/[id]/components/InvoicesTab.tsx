@@ -8,6 +8,7 @@ import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { FileEdit, FileText, Trash2, CheckCircle } from "lucide-react";
 import { deleteInvoice, markInvoicePaid } from "../actions";
+import { useT } from "@/lib/i18n/client";
 
 interface Invoice {
   id: string;
@@ -26,18 +27,19 @@ export function InvoicesTab({
   projectId: string; 
   isFreelancer: boolean; 
 }) {
+  const { t } = useT();
   return (
     <Card className="shadow-sm border border-border/50 bg-background/80 backdrop-blur-sm">
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold">Rechnungen</h2>
+          <h2 className="text-xl font-semibold">{t("dashboard.invoices")}</h2>
           <p className="text-sm text-muted-foreground">
-            Alle Rechnungen für dieses Projekt im Überblick.
+            {t("project.invoices.overview")}
           </p>
         </div>
         <Button asChild>
           <Link href={`/projects/${projectId}/invoices/new`}>
-            <FileText className="mr-2 h-4 w-4" /> Neue Rechnung
+            <FileText className="mr-2 h-4 w-4" /> {t("project.new.invoice")}
           </Link>
         </Button>
       </CardHeader>
@@ -45,7 +47,7 @@ export function InvoicesTab({
       <CardContent>
         {invoices.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            Noch keine Rechnungen vorhanden.
+            {t("project.invoices.none")}
           </p>
         ) : (
           <div className="space-y-3 bg-white">
@@ -68,9 +70,9 @@ export function InvoicesTab({
                     })}
                     {" • "}
                     {inv.status === "Paid" ? (
-                      <span className="text-green-600 font-medium">Bezahlt</span>
+                      <span className="text-green-600 font-medium">{t("project.invoices.paid")}</span>
                     ) : (
-                      <span className="text-yellow-600 font-medium">Offen</span>
+                      <span className="text-yellow-600 font-medium">{t("project.invoices.open")}</span>
                     )}
                   </p>
                 </div>
@@ -90,7 +92,7 @@ export function InvoicesTab({
                     asChild
                   >
                     <Link href={`/projects/${projectId}/invoices/${inv.id}/view`}>
-                      <FileText className="h-4 w-4 mr-1" /> Anzeigen
+                      <FileText className="h-4 w-4 mr-1" /> {t("project.view")}
                     </Link>
                   </Button>
 
@@ -101,7 +103,7 @@ export function InvoicesTab({
                     asChild
                   >
                     <Link href={`/projects/${projectId}/invoices/${inv.id}`}>
-                      <FileEdit className="h-4 w-4 mr-1" /> Bearbeiten
+                      <FileEdit className="h-4 w-4 mr-1" /> {t("project.edit")}
                     </Link>
                   </Button>
 
@@ -113,14 +115,14 @@ export function InvoicesTab({
                       type="submit"
                     >
                       <CheckCircle className="h-4 w-4 mr-1" />
-                      {inv.status === "Paid" ? "Offen" : "Bezahlt"}
+                      {inv.status === "Paid" ? t("project.invoices.mark.open") : t("project.invoices.mark.paid")}
                     </Button>
                   </form>
 
                   {/* Delete Button */}
                   <form action={deleteInvoice.bind(null, projectId, inv.id)}>
                     <Button variant="destructive" size="sm" type="submit">
-                      <Trash2 className="h-4 w-4 mr-1" /> Löschen
+                      <Trash2 className="h-4 w-4 mr-1" /> {t("project.delete")}
                     </Button>
                   </form>
                 </div>}

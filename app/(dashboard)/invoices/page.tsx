@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { Wallet, FileText, PlusCircle } from "lucide-react";
+import { getLocale } from "@/lib/i18n/server";
+import { dictionaries } from "@/lib/i18n/dictionaries";
 
 interface Invoice {
   id: string;
@@ -19,6 +21,8 @@ interface Invoice {
 
 export default async function InvoicesPage() {
   const supabase = await getServerSupabaseComponent();
+  const locale = await getLocale();
+  const dict = dictionaries[locale];
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -26,7 +30,7 @@ export default async function InvoicesPage() {
   if (!user) {
     return (
       <div className="flex items-center justify-center h-screen text-muted-foreground">
-        Bitte melde dich an.
+        {dict["signin.title"]}
       </div>
     );
   }
@@ -54,22 +58,22 @@ export default async function InvoicesPage() {
       transition={{ duration: 0.4 }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        <div className="flex items-center gap-3">
-          <Wallet className="h-6 w-6 text-muted-foreground" />
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Rechnungen</h1>
-            <p className="text-muted-foreground mt-1">
-              Überblick über alle Rechnungen deiner Projekte.
-            </p>
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <div className="flex items-center gap-3">
+            <Wallet className="h-6 w-6 text-muted-foreground" />
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">{dict["dashboard.invoices"]}</h1>
+              <p className="text-muted-foreground mt-1">
+                {dict["hero.subtitle"]}
+              </p>
+            </div>
           </div>
+          <Button asChild>
+            <Link href="/projects">
+              <PlusCircle className="mr-2 h-4 w-4" /> {dict["sidebar.new.project"]}
+            </Link>
+          </Button>
         </div>
-        <Button asChild>
-          <Link href="/projects">
-            <PlusCircle className="mr-2 h-4 w-4" /> Neue Rechnung
-          </Link>
-        </Button>
-      </div>
 
       <Separator />
 
@@ -83,14 +87,14 @@ export default async function InvoicesPage() {
         >
           <FileText className="h-10 w-10 mx-auto mb-3 opacity-60" />
           <p className="text-lg font-medium mb-1">
-            Noch keine Rechnungen vorhanden.
+            {dict["projects.empty"]}
           </p>
           <p className="text-sm mb-4">
-            Erstelle deine erste Rechnung über deine Projektübersicht.
+            {dict["hero.subtitle"]}
           </p>
           <Button variant="default" asChild>
             <Link href="/projects">
-              <PlusCircle className="mr-2 h-4 w-4" /> Projekt anzeigen
+              <PlusCircle className="mr-2 h-4 w-4" /> {dict["dashboard.projects"]}
             </Link>
           </Button>
         </Motion>
@@ -108,10 +112,10 @@ export default async function InvoicesPage() {
                 <CardHeader className="flex flex-row items-center justify-between">
                   <div>
                     <h2 className="font-semibold text-lg">
-                      {invoice.title || "Rechnung"}
+                      {invoice.title || dict["dashboard.invoices"]}
                     </h2>
                     <p className="text-sm text-muted-foreground">
-                      Projekt: {invoice.projects && !Array.isArray(invoice.projects) ? invoice.projects.name : Array.isArray(invoice.projects) ? invoice.projects[0]?.name : "Unbekannt"}
+                      {dict["invoice.project"]}: {invoice.projects && !Array.isArray(invoice.projects) ? invoice.projects.name : Array.isArray(invoice.projects) ? invoice.projects[0]?.name : dict["dashboard.settings"]}
                     </p>
                   </div>
 
@@ -128,18 +132,18 @@ export default async function InvoicesPage() {
                         invoice.status === "Paid"
                           ? "bg-olive-600 text-white"
                           : invoice.status === "Open"
-                          ? "bg-yellow-500/20 text-yellow-800 dark:text-yellow-300"
+                          ? "bg-yellow-50/20 text-yellow-800 dark:text-yellow-300"
                           : ""
                       }
                     >
                       {invoice.status === "Paid"
-                        ? "Bezahlt"
+                        ? dict["invoice.status.paid"]
                         : invoice.status === "Open"
-                        ? "Offen"
+                        ? dict["invoice.status.open"]
                         : invoice.status}
                     </Badge>
                     <p className="text-sm font-medium">
-                      {(invoice.amount_cents / 100).toLocaleString("de-DE", {
+                      {(invoice.amount_cents / 100).toLocaleString(locale, {
                         style: "currency",
                         currency: "EUR",
                       })}
@@ -149,8 +153,8 @@ export default async function InvoicesPage() {
 
                 <CardContent className="flex justify-between items-center text-sm text-muted-foreground">
                   <p>
-                    Erstellt am{" "}
-                    {new Date(invoice.created_at).toLocaleDateString("de-DE", {
+                    {dict["invoice.created"]}{" "}
+                    {new Date(invoice.created_at).toLocaleDateString(locale, {
                       day: "2-digit",
                       month: "2-digit",
                       year: "numeric",
@@ -161,14 +165,14 @@ export default async function InvoicesPage() {
                       <Link
                         href={`/projects/${invoice.project_id}/invoices/${invoice.id}/view`}
                       >
-                        Anzeigen
+                        {dict["invoice.view"]}
                       </Link>
                     </Button>
                     <Button variant="secondary" size="sm" asChild>
                       <Link
                         href={`/projects/${invoice.project_id}/invoices/${invoice.id}`}
                       >
-                        Bearbeiten
+                        {dict["invoice.edit"]}
                       </Link>
                     </Button>
                   </div>

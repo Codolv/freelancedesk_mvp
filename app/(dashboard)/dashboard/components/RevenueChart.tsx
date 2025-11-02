@@ -10,14 +10,21 @@ import {
   Tooltip,
 } from "recharts";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { useT } from "@/lib/i18n/client";
 
-export default function RevenueChart({ data }: { data: any[] }) {
+interface ChartData {
+  month: string;
+  value: number;
+}
+
+export default function RevenueChart({ data }: { data: ChartData[] }) {
+  const { t } = useT();
   return (
     <Card className="bg-background/80 border-border/60 backdrop-blur-sm">
       <CardHeader>
-        <h3 className="text-lg font-semibold">Einnahmenverlauf</h3>
+        <h3 className="text-lg font-semibold">{t("dashboard.revenue.chart")}</h3>
         <p className="text-sm text-muted-foreground">
-          Monatliche Einnahmen (letzte Zahlungen)
+          {t("dashboard.monthly.revenue")}
         </p>
       </CardHeader>
       <CardContent className="h-64">
@@ -26,7 +33,7 @@ export default function RevenueChart({ data }: { data: any[] }) {
             <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.06} />
             <XAxis dataKey="month" tick={{ fontSize: 12 }} />
             <YAxis tickFormatter={(v) => `${v}€`} />
-            <Tooltip formatter={(v: number) => `${v.toLocaleString("de-DE")} €`} />
+            <Tooltip formatter={(v: number) => `${v.toLocaleString()} €`} />
             <Line type="monotone" dataKey="value" stroke="#4d5d4b" strokeWidth={2} dot={{ r: 3 }} />
           </LineChart>
         </ResponsiveContainer>

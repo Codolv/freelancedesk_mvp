@@ -9,8 +9,10 @@ import { motion } from "framer-motion";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Motion } from "@/components/custom/Motion";
 import ReactMarkdown from "react-markdown";
+import { useT } from "@/lib/i18n/client";
 
 export function Comments({ messages: initialMessages, projectId }: any) {
+  const { t } = useT();
   const supabase = getBrowserSupabase();
   const [messages, setMessages] = useState(initialMessages || []);
   const [content, setContent] = useState("");
@@ -93,34 +95,34 @@ export function Comments({ messages: initialMessages, projectId }: any) {
   return (
     <Card className="shadow-sm border border-border/50 bg-background/80 backdrop-blur-sm">
       <CardHeader>
-        <h2 className="text-xl font-semibold">Nachrichten</h2>
+        <h2 className="text-xl font-semibold">{t("dashboard.messages")}</h2>
         <p className="text-sm text-muted-foreground">
-          Teile Updates und Fortschritte mit deinem Kunden.
+          {t("project.share.updates")}
         </p>
       </CardHeader>
 
       <CardContent>
         {/* === Post new message form === */}
         <form onSubmit={handlePost} className="space-y-3 mb-6">
-          <Label htmlFor="content">Nachricht (Markdown unterstützt)</Label>
+          <Label htmlFor="content">{t("project.message.label")}</Label>
           <Textarea
             id="content"
             name="content"
             rows={4}
-            placeholder="Update schreiben..."
+            placeholder={t("project.message.placeholder")}
             value={content}
             onChange={(e) => setContent(e.target.value)}
             disabled={posting}
           />
           <Button type="submit" disabled={posting}>
-            {posting ? "Posten..." : "Posten"}
+            {posting ? t("project.posting") : t("project.post")}
           </Button>
         </form>
 
         {/* === Messages List === */}
         <Motion layout className="space-y-4 overflow-y-auto max-h-[60vh] pr-2">
           {messages.length === 0 && (
-            <div className="text-sm text-muted-foreground">Noch keine Nachrichten.</div>
+            <div className="text-sm text-muted-foreground">{t("project.no.messages")}</div>
           )}
 
           {messages.map((m: any, idx: number) => (
@@ -146,9 +148,9 @@ export function Comments({ messages: initialMessages, projectId }: any) {
               )}
               <div className="flex-1">
                 <div className="flex items-center justify-between text-sm mb-1">
-                  <span className="font-medium">{m.profile?.name || "Unbekannt"}</span>
+                  <span className="font-medium">{m.profile?.name || t("project.unknown")}</span>
                   <span className="text-xs text-muted-foreground">
-                    {new Date(m.created_at).toLocaleString("de-DE")}
+                    {new Date(m.created_at).toLocaleString()}
                   </span>
                 </div>
                 <ReactMarkdown>{m.content}</ReactMarkdown>

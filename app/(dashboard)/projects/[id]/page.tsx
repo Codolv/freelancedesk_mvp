@@ -7,28 +7,33 @@ import { Button } from "@/components/ui/button";
 import { ClientInfoBar } from "./components/ClientInfoBar";
 import ProjectTabsAnimated from "./ProjectTabsAnimated";
 import { getAvatarUrl } from '../../../../lib/supabase/getAvatarUrl';
+import { MarkCompleteButton } from "./components/MarkCompleteButton";
+import { getLocale } from "@/lib/i18n/server";
+import { dictionaries } from "@/lib/i18n/dictionaries";
 
 export default async function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await getServerSupabaseComponent();
+  const locale = await getLocale();
+  const dict = dictionaries[locale];
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) return <div className="flex items-center justify-center h-screen text-muted-foreground">Bitte melde dich an.</div>;
+  if (!user) return <div className="flex items-center justify-center h-screen text-muted-foreground">{dict["signin.title"]}</div>;
 
-  const { data: user_profile } = await supabase.from("profiles").select("id, name, email, avatar_url").eq("id", user.id);
+ const { data: user_profile } = await supabase.from("profiles").select("id, name, email, avatar_url").eq("id", user.id);
 
   const { data: project } = await supabase.from("projects").select("*").eq("id", id).single();
-  if (!project) return <div className="flex items-center justify-center h-screen text-muted-foreground">Projekt nicht gefunden.</div>;
+  if (!project) return <div className="flex items-center justify-center h-screen text-muted-foreground">{dict["projects.title"]} {dict["projects.not.found"]}</div>;
 
   const isFreelancer = project.user_id === user.id;
   const { data: isClient } = await supabase.from("project_clients").select("id").eq("project_id", id).eq("client_id", user.id).maybeSingle();
 
-  if (!isFreelancer && !isClient) return <div className="flex items-center justify-center h-screen text-muted-foreground">Du hast keinen Zugriff auf dieses Projekt.</div>;
+   if (!isFreelancer && !isClient) return <div className="flex items-center justify-center h-screen text-muted-foreground">{dict["dashboard.clients"]} {dict["projects.title"].toLowerCase()} {dict["projects.no.access"]}</div>;
 
-  // fetch data for tabs
+ // fetch data for tabs
   const { data: messagesRaw, error: messagesError } = await supabase
   .from("project_messages")
   .select(`
@@ -144,14 +149,27 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
           <div>
             <h1 className="text-3xl font-bold tracking-tight">{project.name}</h1>
             {project.description && <p className="text-muted-foreground mt-1">{project.description}</p>}
-            {project.deadline && <p className="text-sm text-muted-foreground mt-1">Fällig am {new Date(project.deadline).toLocaleDateString("de-DE")}</p>}
+            {project.deadline && <p className="text-sm text-muted-foreground mt-1">{dict["invoice.created"]} {new Date(project.deadline).toLocaleDateString(locale)}</p>}
           </div>
 
           {isFreelancer && (
             <div className="flex gap-2">
-              <Button asChild variant="outline"><Link href={`/projects/${id}/edit`}>Projekt bearbeiten</Link></Button>
+              <MarkCompleteButton projectId={id} currentStatus={project.status} isFreelancer={isFreelancer} />
+              <Button asChild variant="outline"><Link href={`/projects/${id}/edit`}>{dict["invoice.edit"]} {dict["dashboard.projects"]}</Link></Button>
             </div>
           )}
+        </div>
+
+        {/* Project Status Badge */}
+        <div className="flex items-center gap-2">
+          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+            project.status === 'completed' ? 'bg-green-100 text-green-800' :
+            project.status === 'active' ? 'bg-blue-100 text-blue-800' :
+            'bg-gray-100 text-gray-800'
+          }`}>
+            {project.status === 'completed' ? dict["invoice.status.paid"] :
+             project.status === 'active' ? dict["dashboard.projects"] : dict["dashboard.settings"]}
+          </span>
         </div>
 
         {isFreelancer && <ClientInfoBar clients={acceptedClients || []} projectId={id} isFreelancer={true} />}

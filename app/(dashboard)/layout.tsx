@@ -1,6 +1,9 @@
 import Sidebar from "@/components/layout/Sidebar";
 import Footer from "@/components/layout/Footer";
 import "../globals.css";
+import { Toaster } from "sonner";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -9,11 +12,17 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Sidebar />
         <main className="w-full px-6 flex-1 overflow-y-visible ml-[280px]">
           <div className="min-h-[calc(100vh-120px)] p-8 flex flex-col">
+            {/* Top right controls */}
+            <div className="flex items-center justify-end gap-2 mb-6">
+              <LanguageSwitcher />
+              <ThemeToggle />
+            </div>
             {children}
           </div>
         </main>
       </div>
       <Footer />
+      <Toaster position="top-right" />
     </div>
   );
 }

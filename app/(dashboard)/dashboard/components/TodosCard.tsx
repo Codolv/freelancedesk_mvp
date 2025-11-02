@@ -5,10 +5,10 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Circle, AlertCircle, Clock, Plus } from "lucide-react";
 import { format } from "date-fns";
-import { de } from "date-fns/locale";
 import { isPast, isToday, startOfDay } from "date-fns";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useT } from "@/lib/i18n/client";
 
 interface Todo {
   id: string;
@@ -28,6 +28,7 @@ interface TodosCardProps {
 }
 
 export default function TodosCard({ todos }: TodosCardProps) {
+  const { t } = useT();
   const getTodoStatus = (todo: Todo) => {
     if (todo.completed) return "completed";
     if (todo.due_date && isPast(startOfDay(new Date(todo.due_date)))) return "overdue";
@@ -38,13 +39,13 @@ export default function TodosCard({ todos }: TodosCardProps) {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "completed":
-        return <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-10 text-xs">Erledigt</Badge>;
+        return <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-10 text-xs">{t("dashboard.completed")}</Badge>;
       case "overdue":
-        return <Badge variant="secondary" className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100 text-xs">Überfällig</Badge>;
+        return <Badge variant="secondary" className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100 text-xs">{t("dashboard.overdue")}</Badge>;
       case "due-today":
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100 text-xs">Heute fällig</Badge>;
+        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-10 text-xs">{t("dashboard.due.today")}</Badge>;
       default:
-        return <Badge variant="outline" className="text-xs">Offen</Badge>;
+        return <Badge variant="outline" className="text-xs">{t("dashboard.open")}</Badge>;
     }
   };
 
@@ -74,10 +75,10 @@ export default function TodosCard({ todos }: TodosCardProps) {
       <Card className="bg-background/80 border-border/60 backdrop-blur-sm h-full">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-sm text-muted-foreground">Aufgaben</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">{t("dashboard.tasks")}</CardTitle>
             <div className="flex items-center gap-2">
               <span className="text-xs text-muted-foreground">
-                {activeTodos.length} offen
+                {activeTodos.length} {t("dashboard.open.lowercase")}
               </span>
               {getStatusIcon("pending")}
             </div>
@@ -86,7 +87,7 @@ export default function TodosCard({ todos }: TodosCardProps) {
         <CardContent className="space-y-3">
           {todos.length === 0 ? (
             <div className="text-center py-4 text-muted-foreground">
-              <p className="text-sm">Keine Aufgaben</p>
+              <p className="text-sm">{t("dashboard.no.tasks")}</p>
             </div>
           ) : (
             <>
@@ -106,12 +107,12 @@ export default function TodosCard({ todos }: TodosCardProps) {
                         {todo.due_date && (
                           <span className="text-xs text-muted-foreground flex items-center gap-1">
                             <Clock className="h-3 w-3" />
-                            {format(new Date(todo.due_date), "dd.MM.yyyy", { locale: de })}
+                            {format(new Date(todo.due_date), "MM/dd/yyyy")}
                           </span>
                         )}
                         {todo.projects?.name && (
                           <span className="text-xs text-muted-foreground truncate">
-                            aus {todo.projects.name}
+                            {t("dashboard.from")} {todo.projects.name}
                           </span>
                         )}
                       </div>
@@ -124,7 +125,7 @@ export default function TodosCard({ todos }: TodosCardProps) {
               })}
               {activeTodos.length > 5 && (
                 <p className="text-xs text-muted-foreground text-center pt-2">
-                  +{activeTodos.length - 5} weitere
+                  +{activeTodos.length - 5} {t("dashboard.more")}
                 </p>
               )}
             </>
@@ -133,7 +134,7 @@ export default function TodosCard({ todos }: TodosCardProps) {
             <Button asChild variant="outline" size="sm" className="w-full">
               <Link href="/projects">
                 <Plus className="h-4 w-4 mr-2" />
-                Aufgaben verwalten
+                {t("dashboard.manage.tasks")}
               </Link>
             </Button>
           </div>

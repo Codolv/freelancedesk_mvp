@@ -10,9 +10,13 @@ import ActivityFeed from "./components/ActivityFeed";
 import TodosCard from "./components/TodosCard";
 import DeadlinesCard from "./components/DeadlinesCard";
 import Link from "next/link";
+import { getLocale } from "@/lib/i18n/server";
+import { dictionaries } from "@/lib/i18n/dictionaries";
 
 export default async function DashboardPage() {
   const supabase = await getServerSupabaseComponent();
+  const locale = await getLocale();
+  const dict = dictionaries[locale];
 
   const {
     data: { user },
@@ -21,20 +25,20 @@ export default async function DashboardPage() {
   if (!user) {
     return (
       <div className="flex items-center justify-center h-screen text-muted-foreground">
-        Bitte melde dich an.
+        {dict["signin.title"]}
       </div>
     );
   }
 
   // === Projekte ===
-  const { data: projects } = await supabase
+ const { data: projects } = await supabase
     .from("projects")
     .select("id, name, status, deadline, created_at, user_id")
     .eq("user_id", user.id);
 
   const totalProjects = projects?.length || 0;
   const completedProjects =
-    projects?.filter((p) => p.status === "Abgeschlossen").length || 0;
+    projects?.filter((p) => p.status === "Completed").length || 0;
   const activeProjects = totalProjects - completedProjects;
 
   // === Rechnungen ===
@@ -47,7 +51,7 @@ export default async function DashboardPage() {
   const openInvoices = invoices?.filter((i) => i.status === "Open") || [];
 
   const totalEarnings =
-    paidInvoices.reduce((sum, i) => sum + i.amount_cents, 0) / 100;
+    paidInvoices.reduce((sum, i) => sum + i.amount_cents, 0) / 10;
   const totalOpen = openInvoices.reduce((sum, i) => sum + i.amount_cents, 0) / 100;
 
   // === Nachrichten (Aktivitäten) ===
@@ -64,7 +68,12 @@ export default async function DashboardPage() {
 
   const { data: messages } = await supabase
     .from("project_messages")
-    .select("id, content, created_at, projects(name)")
+    .select(`
+      id, 
+      content, 
+      created_at, 
+      projects!inner (name)
+    `)
     .in("project_id", projectIds)
     .order("created_at", { ascending: false })
     .limit(5);
@@ -83,7 +92,7 @@ export default async function DashboardPage() {
   // === Einnahmen-Chart (Demo basierend auf echten Daten) ===
   const groupedByMonth: Record<string, number> = {};
   paidInvoices.forEach((inv) => {
-    const month = new Date(inv.created_at).toLocaleString("de-DE", {
+    const month = new Date(inv.created_at).toLocaleString(locale, {
       month: "short",
     });
     groupedByMonth[month] = (groupedByMonth[month] || 0) + inv.amount_cents / 100;
@@ -96,8 +105,8 @@ export default async function DashboardPage() {
 
   // === Projektstatus-Chart ===
   const projectStatusData = [
-    { name: "Aktiv", value: activeProjects },
-    { name: "Abgeschlossen", value: completedProjects },
+    { name: dict["dashboard.projects"], value: activeProjects },
+    { name: dict["dashboard.clients"], value: completedProjects },
   ];
 
   return (
@@ -110,14 +119,14 @@ export default async function DashboardPage() {
       {/* Header */}
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{dict["dashboard.overview"]}</h1>
           <p className="text-muted-foreground mt-1">
-            Überblick über Projekte, Einnahmen und aktuelle Aktivitäten.
+            {dict["hero.subtitle"]}
           </p>
         </div>
         <Button asChild>
           <Link href="/projects/new">
-            <PlusCircle className="mr-2 h-4 w-4" /> Neues Projekt
+            <PlusCircle className="mr-2 h-4 w-4" /> {dict["sidebar.new.project"]}
           </Link>
         </Button>
       </div>
@@ -125,33 +134,30 @@ export default async function DashboardPage() {
       {/* Overview Cards */}
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          label="Aktive Projekte"
+          labelKey="dashboard.projects"
           value={activeProjects}
-          hint={`von ${totalProjects} insgesamt`}
+          hintKey="dashboard.projects"
           icon="projects"
         />
         <StatCard
-          label="Abgeschlossene"
+          labelKey="dashboard.clients"
           value={completedProjects}
-          hint="Gesamt"
+          hintKey="dashboard.clients"
           icon="check"
         />
         <StatCard
-          label="Einnahmen"
-          value={`${totalEarnings.toLocaleString("de-DE", {
+          labelKey="dashboard.overview"
+          value={`${totalEarnings.toLocaleString(locale, {
             style: "currency",
             currency: "EUR",
           })}`}
-          hint="Bezahlt"
+          hintKey="dashboard.overview"
           icon="wallet"
         />
         <StatCard
-          label="Offene Rechnungen"
+          labelKey="dashboard.invoices"
           value={openInvoices.length}
-          hint={`${totalOpen.toLocaleString("de-DE", {
-            style: "currency",
-            currency: "EUR",
-          })}`}
+          hintKey="dashboard.invoices"
           icon="invoice"
         />
       </div>

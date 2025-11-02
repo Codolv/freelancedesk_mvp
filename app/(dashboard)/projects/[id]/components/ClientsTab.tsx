@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Loader2, Mail, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { resendInvite, revokeInvite } from "@/app/actions/inviteClient";
+import { useT } from "@/lib/i18n/client";
 
 export function ClientsTab({
   clients = [],
@@ -17,6 +18,7 @@ export function ClientsTab({
   invites: Array<{ id: string; email: string; accepted: boolean }>;
   projectId: string;
 }) {
+  const { t } = useT();
   const [isPending, startTransition] = useTransition();
 
   const handleResend = (inviteId: string) => {
@@ -41,9 +43,9 @@ export function ClientsTab({
       <Card className="bg-background/80 border-border/60 backdrop-blur-sm">
         <CardContent className="p-6 space-y-6">
           <div>
-            <h3 className="text-lg font-semibold mb-1">Kunden</h3>
+            <h3 className="text-lg font-semibold mb-1">{t("dashboard.clients")}</h3>
             <p className="text-sm text-muted-foreground">
-              Übersicht deiner eingeladenen Kunden und deren Status.
+              {t("project.clients.overview")}
             </p>
           </div>
           <Separator />
@@ -52,7 +54,7 @@ export function ClientsTab({
           {clients.length > 0 && (
         <div className="space-y-3">
           <h4 className="font-medium text-sm uppercase tracking-wide text-muted-foreground">
-            Aktive Kunden
+            {t("project.clients.active")}
           </h4>
           {clients.map((c) => (
             <div
@@ -64,7 +66,7 @@ export function ClientsTab({
               </div>
               <div className="flex items-center gap-2 ml-4">
                 <span className="text-green-500 text-xs font-semibold bg-green-100 px-2 py-1 rounded-full">
-                  Angenommen
+                  {t("project.clients.accepted")}
                 </span>
                 <Button
                   variant="ghost"
@@ -88,7 +90,7 @@ export function ClientsTab({
           {invites.length > 0 && (
             <div className="space-y-3">
               <h4 className="font-medium text-sm uppercase tracking-wide text-muted-foreground">
-                Ausstehende Einladungen
+                {t("project.clients.pending.invitations")}
               </h4>
               {invites.map((i) => (
                 <div
@@ -100,7 +102,7 @@ export function ClientsTab({
                   </div>
                   <div className="flex items-center gap-2 ml-4">
                     <span className="text-yellow-500 text-xs font-semibold bg-yellow-100 px-2 py-1 rounded-full">
-                      Offen
+                      {t("project.clients.pending")}
                     </span>
                     <Button
                       variant="ghost"
@@ -111,7 +113,7 @@ export function ClientsTab({
                       {isPending ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
-                        <Mail className="h-4 w-4" />
+                        <Mail className="h-4 w-4 text-blue-600" />
                       )}
                     </Button>
                     <Button
@@ -134,7 +136,7 @@ export function ClientsTab({
 
           {clients.length === 0 && invites.length === 0 && (
             <p className="text-sm text-muted-foreground text-center">
-              Noch keine Kunden eingeladen.
+              {t("project.clients.none.invited")}
             </p>
           )}
         </CardContent>

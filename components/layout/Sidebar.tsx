@@ -27,16 +27,20 @@ import {
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { getBrowserSupabase } from "@/lib/supabase/client";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { useT } from "@/lib/i18n/client";
 
 const navItems = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Projekte", href: "/projects", icon: FolderKanban },
-  { name: "Rechnungen", href: "/invoices", icon: FileText },
-  { name: "Kunden", href: "/clients", icon: Users },
+  { key: "sidebar.dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { key: "sidebar.projects", href: "/projects", icon: FolderKanban },
+  { key: "sidebar.invoices", href: "/invoices", icon: FileText },
+  { key: "sidebar.clients", href: "/clients", icon: Users },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { t } = useT();
   interface UserData {
     name: string;
     email: string;
@@ -64,8 +68,8 @@ export default function Sidebar() {
         .single();
 
       setUser({
-        name: profile?.name || "Unbekannter Nutzer",
-        email: user?.email || "Unbeannter Nutzer",
+        name: profile?.name || t("dashboard.settings"), // Changed to translation key
+        email: user?.email || t("dashboard.settings"), // Changed to translation key
       });
 
       if (profile?.avatar_url) {
@@ -78,39 +82,41 @@ export default function Sidebar() {
     };
 
     fetchUser();
-  }, []);
+  }, [t]);
 
   return (
     <motion.aside
       animate={{ width: collapsed ? 80 : 280 }}
       className={cn(
         "h-screen fixed left-0 top-0 z-40 flex flex-col border-r border-border/40 bg-background/80 backdrop-blur-sm transition-all duration-300 shadow-sm",
-        "max-w-[280px] min-w-[80px] overflow-hidden"
+        "max-w-[280px] min-w-[80px]"
       )}
       style={{ width: collapsed ? 80 : 280 }}
     >
       {/* === Logo + Collapse Button === */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border/30">
-        {!collapsed ? (
-          <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          {!collapsed ? (
+            <>
+              <Image
+                src="/logo.png"
+                alt="FreelanceDesk Logo"
+                width={28}
+                height={28}
+                className="rounded-sm flex-shrink-0"
+              />
+              <span className="font-semibold text-lg truncate">FreelanceDesk</span>
+            </>
+          ) : (
             <Image
               src="/logo.png"
-              alt="FreelanceDesk Logo"
+              alt="Logo"
               width={28}
               height={28}
-              className="rounded-sm"
+              className="rounded-sm mx-auto flex-shrink-0"
             />
-            <span className="font-semibold text-lg">FreelanceDesk</span>
-          </div>
-        ) : (
-          <Image
-            src="/logo.png"
-            alt="Logo"
-            width={28}
-            height={28}
-            className="rounded-sm mx-auto"
-          />
-        )}
+          )}
+        </div>
 
         <Button
           variant="ghost"
@@ -129,7 +135,7 @@ export default function Sidebar() {
           const Icon = item.icon;
 
           return (
-            <Link key={item.name} href={item.href} className="block">
+            <Link key={item.href} href={item.href} className="block">
               <motion.div
                 className={cn(
                   "flex items-center gap-3 px-4 py-2.5 text-sm transition-all duration-200 cursor-pointer",
@@ -148,7 +154,7 @@ export default function Sidebar() {
                       exit={{ opacity: 0, x: -10 }}
                       className="truncate"
                     >
-                      {item.name}
+                      {t(item.key)}
                     </motion.span>
                   )}
                 </AnimatePresence>
@@ -167,7 +173,7 @@ export default function Sidebar() {
         >
           <Link href="/projects/new" className="w-full overflow-hidden">
             <PlusCircle size={18} className={collapsed ? "" : "mr-2 flex-shrink-0"} />
-            {!collapsed && <span className="truncate">Neues Projekt</span>}
+            {!collapsed && <span className="truncate">{t("sidebar.new.project")}</span>}
           </Link>
         </Button>
       </div>
@@ -192,7 +198,7 @@ export default function Sidebar() {
               {!collapsed && (
                 <div className="flex-1 text-left min-w-0 overflow-hidden">
                   <p className="text-sm font-medium truncate">
-                    {user?.name || "Lädt..."}
+                    {user?.name || t("dashboard.settings")} {/* Changed to translation key */}
                   </p>
                   <p className="text-xs text-muted-foreground truncate">
                     {user?.email || ""}
@@ -205,17 +211,17 @@ export default function Sidebar() {
           <DropdownMenuContent side="right" align="end" className="w-48 ml-1">
             <DropdownMenuItem asChild>
               <Link href="/settings">
-                <User size={16} className="mr-2" /> Profil
+                <User size={16} className="mr-2" /> {t("sidebar.profile")}
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link href="/settings/billing">
-                <CreditCard size={16} className="mr-2" /> Abrechnung
+                <CreditCard size={16} className="mr-2" /> {t("sidebar.billing")}
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link href="/help">
-                <HelpCircle size={16} className="mr-2" /> Hilfe & Support
+                <HelpCircle size={16} className="mr-2" /> {t("sidebar.help")}
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem
@@ -225,11 +231,12 @@ export default function Sidebar() {
                 window.location.href = "/";
               }}
             >
-              <LogOut size={16} className="mr-2 text-destructive" /> Abmelden
+              <LogOut size={16} className="mr-2 text-destructive" /> {t("sidebar.logout")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
     </motion.aside>
   );
 }

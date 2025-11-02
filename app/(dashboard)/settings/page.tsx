@@ -12,13 +12,37 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Loader2 } from "lucide-react";
 import { getProfile, updateProfile } from "@/lib/supabase/profile";
+import { useT } from "@/lib/i18n/client";
+
+interface Profile {
+  avatar_url: string;
+  email: string;
+  phone: string;
+  linkedin: string;
+  twitter: string;
+  website: string;
+  name?: string;
+  signedAvatarUrl?: string;
+}
+
+interface ProfileUpdate {
+  avatar_url: string;
+  email: string;
+  phone: string;
+  linkedin: string;
+  twitter: string;
+  website: string;
+  name?: string;
+  signedAvatarUrl?: string;
+}
 
 export default function SettingsPage() {
   const router = useRouter();
+  const { t } = useT();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
-  const [profile, setProfile] = useState<any>({
+  const [profile, setProfile] = useState<Profile>({
     avatar_url: "",
     email: "",
     phone: "",
@@ -35,10 +59,10 @@ export default function SettingsPage() {
     setLoading(true);
     try {
       await updateProfile(profile);
-      setMessage("Profil wurde erfolgreich aktualisiert.");
+      setMessage(t("settings.logout.success"));
       setEditing(false);
     } catch (e) {
-      setMessage("Fehler beim Aktualisieren des Profils.");
+      setMessage(t("dashboard.settings"));
     } finally {
       setLoading(false);
     }
@@ -72,7 +96,7 @@ export default function SettingsPage() {
       .from("avatars")
       .upload(`${user.id}/${file.name}`, file, { upsert: true });
     if (error) return alert(error.message);
-    setProfile((p: any) => ({ ...p, avatar_url: `${user.id}/${file.name}` }));
+    setProfile((p: Profile) => ({ ...p, avatar_url: `${user.id}/${file.name}` }));
   };
 
   return (
@@ -82,18 +106,18 @@ export default function SettingsPage() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <h1 className="text-3xl font-bold tracking-tight mb-2">Einstellungen</h1>
+      <h1 className="text-3xl font-bold tracking-tight mb-2">{t("dashboard.settings")}</h1>
       <p className="text-muted-foreground mb-6">
-        Verwalte dein Profil und persönliche Informationen.
+        {t("hero.subtitle")}
       </p>
 
       <Card className="shadow-md border border-border/50 bg-background/80 backdrop-blur-sm">
         <CardHeader className="flex items-center justify-between">
-          <CardTitle>Profil</CardTitle>
+          <CardTitle>{t("dashboard.clients")}</CardTitle>
           {!editing && (
             <div className="flex justify-end gap-3 pt-4">
-              <Button onClick={() => setEditing(true)}>Profil bearbeiten</Button>
-              <Button variant="destructive" onClick={handleLogout}>Ausloggen</Button>
+              <Button onClick={() => setEditing(true)}>{t("invoice.edit")} {t("dashboard.clients")}</Button>
+              <Button variant="destructive" onClick={handleLogout}>{t("settings.logout")}</Button>
             </div>
           )}
         </CardHeader>
@@ -110,9 +134,9 @@ export default function SettingsPage() {
               >
                 {/* Avatar */}
                 <div className="flex items-center gap-4">
-                  {profile.singedAvatarUrl ? (
+                  {profile.signedAvatarUrl ? (
                     <motion.img
-                      src={profile.singedAvatarUrl}
+                      src={profile.signedAvatarUrl}
                       alt="Avatar"
                       className="w-20 h-20 rounded-full object-cover border"
                       initial={{ opacity: 0, scale: 0.9 }}
@@ -141,16 +165,16 @@ export default function SettingsPage() {
 
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <p className="text-muted-foreground">Telefon</p>
-                    <p>{profile.phone || "Nicht angegeben"}</p>
+                    <p className="text-muted-foreground">{t("dashboard.clients")}</p>
+                    <p>{profile.phone || t("dashboard.settings")}</p>
                   </div>
                   <div>
                     <p className="text-muted-foreground">LinkedIn</p>
-                    <p>{profile.linkedin || "Nicht angegeben"}</p>
+                    <p>{profile.linkedin || t("dashboard.settings")}</p>
                   </div>
                   <div>
                     <p className="text-muted-foreground">Twitter / X</p>
-                    <p>{profile.twitter || "Nicht angegeben"}</p>
+                    <p>{profile.twitter || t("dashboard.settings")}</p>
                   </div>
                 </div>
               </Motion>
@@ -166,9 +190,9 @@ export default function SettingsPage() {
                 {/* Editable Fields */}
 
                 <div className="flex items-center gap-4">
-                  {profile.singedAvatarUrl ? (
+                  {profile.signedAvatarUrl ? (
                     <motion.img
-                      src={profile.singedAvatarUrl}
+                      src={profile.signedAvatarUrl}
                       alt="Avatar"
                       className="w-20 h-20 rounded-full object-cover border"
                       initial={{ opacity: 0, scale: 0.9 }}
@@ -181,27 +205,27 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="grid gap-2">
-                  <Label>Email-Adresse</Label>
+                  <Label>{t("signin.email")}</Label>
                   <Input value={profile.email} disabled className="bg-muted" />
                 </div>
 
                 <div className="grid gap-2">
-                  <Label>Name</Label>
+                  <Label>{t("dashboard.clients")}</Label>
                   <Input
                     value={profile.name || ""}
                     onChange={(e) =>
-                      setProfile((p: any) => ({ ...p, name: e.target.value }))
+                      setProfile((p: Profile) => ({ ...p, name: e.target.value }))
                     }
-                    placeholder="Name"
+                    placeholder={t("dashboard.clients")}
                   />
                 </div>
 
                 <div className="grid gap-2">
-                  <Label>Telefonnummer</Label>
+                  <Label>{t("dashboard.clients")}</Label>
                   <Input
                     value={profile.phone || ""}
                     onChange={(e) =>
-                      setProfile((p: any) => ({ ...p, phone: e.target.value }))
+                      setProfile((p: Profile) => ({ ...p, phone: e.target.value }))
                     }
                     placeholder="+49 ..."
                   />
@@ -212,7 +236,7 @@ export default function SettingsPage() {
                   <Input
                     value={profile.linkedin || ""}
                     onChange={(e) =>
-                      setProfile((p: any) => ({
+                      setProfile((p: Profile) => ({
                         ...p,
                         linkedin: e.target.value,
                       }))
@@ -226,7 +250,7 @@ export default function SettingsPage() {
                   <Input
                     value={profile.twitter || ""}
                     onChange={(e) =>
-                      setProfile((p: any) => ({
+                      setProfile((p: Profile) => ({
                         ...p,
                         twitter: e.target.value,
                       }))
@@ -236,11 +260,11 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="grid gap-2">
-                  <Label>Website</Label>
+                  <Label>{t("invoice.project")}</Label>
                   <Input
                     value={profile.website || ""}
                     onChange={(e) =>
-                      setProfile((p: any) => ({
+                      setProfile((p: Profile) => ({
                         ...p,
                         website: e.target.value,
                       }))
@@ -256,22 +280,22 @@ export default function SettingsPage() {
                     onClick={() => setEditing(false)}
                     disabled={loading}
                   >
-                    Abbrechen
+                    {t("dashboard.settings")}
                   </Button>
                   <Button onClick={handleSave} disabled={loading}>
                     {loading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Speichern...
+                        {t("invoice.edit")}...
                       </>
                     ) : (
-                      "Speichern"
+                      t("invoice.edit")
                     )}
                   </Button>
                 </div>
 
                 {message && (
-                  <p className="text-sm text-green-600 dark:text-green-400">
+                  <p className="text-sm text-green-60 dark:text-green-400">
                     {message}
                   </p>
                 )}

@@ -8,10 +8,14 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Users, Mail, Folder } from "lucide-react";
+import { getLocale } from "@/lib/i18n/server";
+import { dictionaries } from "@/lib/i18n/dictionaries";
 
 export default async function ClientsPage() {
   try {
     const supabase = await getServerSupabaseComponent();
+    const locale = await getLocale();
+    const dict = dictionaries[locale];
     const {
       data: { user },
       error: userError,
@@ -23,14 +27,14 @@ export default async function ClientsPage() {
         <div className="flex items-center justify-center h-screen text-muted-foreground">
           <Card className="max-w-md">
             <CardHeader>
-              <h2 className="text-lg font-semibold text-destructive">Authentication Error</h2>
+              <h2 className="text-lg font-semibold text-destructive">{dict["dashboard.settings"]}</h2>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground mb-4">
-                Unable to authenticate. Please try signing in again.
+                {dict["hero.subtitle"]}
               </p>
               <Button asChild>
-                <Link href="/signin">Sign In</Link>
+                <Link href="/signin">{dict["nav.signin"]}</Link>
               </Button>
             </CardContent>
           </Card>
@@ -43,14 +47,14 @@ export default async function ClientsPage() {
         <div className="flex items-center justify-center h-screen text-muted-foreground">
           <Card className="max-w-md">
             <CardHeader>
-              <h2 className="text-lg font-semibold">Authentication Required</h2>
+              <h2 className="text-lg font-semibold">{dict["dashboard.settings"]}</h2>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground mb-4">
-                Please sign in to view your clients.
+                {dict["signin.title"]} {dict["dashboard.clients"]} {dict["projects.title"].toLowerCase()} {dict["projects.empty"].toLowerCase().replace("noch keine projekte.", "to see")}
               </p>
               <Button asChild>
-                <Link href="/signin">Sign In</Link>
+                <Link href="/signin">{dict["nav.signin"]}</Link>
               </Button>
             </CardContent>
           </Card>
@@ -73,12 +77,12 @@ export default async function ClientsPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <h1 className="text-3xl font-bold tracking-tight mb-4">Error Loading Projects</h1>
+          <h1 className="text-3xl font-bold tracking-tight mb-4">{dict["dashboard.settings"]}</h1>
           <p className="text-muted-foreground mb-4">
-            We encountered an error while loading your projects. Please try again.
+            {dict["hero.subtitle"]}
           </p>
           <Button onClick={() => window.location.reload()} variant="default">
-            Retry
+            {dict["dashboard.overview"]}
           </Button>
         </Motion>
       );
@@ -94,16 +98,16 @@ export default async function ClientsPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <h1 className="text-3xl font-bold tracking-tight mb-4">Kunden</h1>
+        <h1 className="text-3xl font-bold tracking-tight mb-4">{dict["dashboard.clients"]}</h1>
         <p className="text-muted-foreground mb-8">
-          Du hast noch keine Projekte – dadurch sind auch keine Kunden vorhanden.
+          {dict["projects.empty"]}
         </p>
         <Button asChild>
           <Link
             href="/projects/new"
             className="inline-flex items-center gap-2"
           >
-            Neues Projekt erstellen
+            {dict["sidebar.new.project"]}
           </Link>
         </Button>
       </Motion>
@@ -154,7 +158,7 @@ export default async function ClientsPage() {
       const profile =
         profiles.find((p: { id: string; name: string; email: string; avatar_url: string | null }) => p.id === cid) || {
           id: cid,
-          name: "Unbekannt",
+          name: dict["dashboard.settings"],
           email: "—",
           avatar_url: null,
         };
@@ -173,7 +177,7 @@ export default async function ClientsPage() {
     accepted: boolean;
     project_id: string;
     projects: Array<{ name: string }> | null;
-  }
+ }
 
   const { data: invites } = await supabase
     .from("project_invites")
@@ -190,9 +194,9 @@ export default async function ClientsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Kunden</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{dict["dashboard.clients"]}</h1>
           <p className="text-muted-foreground mt-1">
-            Alle deine Kunden aus Projekten und Einladungen im Überblick.
+            {dict["hero.subtitle"]}
           </p>
         </div>
       </div>
@@ -202,12 +206,12 @@ export default async function ClientsPage() {
       {/* Active Clients */}
       <div className="space-y-6">
         <h2 className="text-xl font-semibold flex items-center gap-2">
-          <Users className="h-5 w-5 text-muted-foreground" /> Aktive Kunden
+          <Users className="h-5 w-5 text-muted-foreground" /> {dict["dashboard.clients"]}
         </h2>
 
         {clients.length === 0 ? (
           <div className="text-muted-foreground text-center py-16">
-            Noch keine Kunden vorhanden.
+            {dict["invoice.no.invoices"]}
           </div>
         ) : (
       <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
@@ -239,7 +243,7 @@ export default async function ClientsPage() {
                 </Avatar>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-medium text-lg truncate">
-                    {c.profile?.name || "Unbekannt"}
+                    {c.profile?.name || dict["dashboard.settings"]}
                   </h3>
                   <p className="text-sm text-muted-foreground truncate">
                     {c.profile?.email || ""}
@@ -249,7 +253,7 @@ export default async function ClientsPage() {
               <CardContent className="text-sm text-muted-foreground space-y-2 flex-1">
                 <div className="flex flex-col gap-1">
                   <p className="font-medium text-foreground mb-1">
-                    Projekte:
+                    {dict["dashboard.projects"]}:
                   </p>
                   {c.projects.map((p: { id: string; name: string }) => (
                     <Link
@@ -274,8 +278,7 @@ export default async function ClientsPage() {
       {invites && invites.length > 0 && (
         <div className="space-y-6">
           <h2 className="text-xl font-semibold flex items-center gap-2">
-            <Mail className="h-5 w-5 text-muted-foreground" /> Ausstehende
-            Einladungen
+            <Mail className="h-5 w-5 text-muted-foreground" /> {dict["invoice.status.open"]} {dict["invoice.new"]}
           </h2>
           <div className="space-y-2">
             {invites?.map((inv: InviteData, idx: number) => (
@@ -289,9 +292,9 @@ export default async function ClientsPage() {
                 <div>
                   <p className="font-medium">{inv.email}</p>
                   <p className="text-sm text-muted-foreground truncate">
-                    Eingeladen zu {Array.isArray(inv.projects) && inv.projects.length > 0 
-                      ? inv.projects[0]?.name || "Unknown Project"
-                      : "Unknown Project"}
+                    {dict["invoice.project"]} {Array.isArray(inv.projects) && inv.projects.length > 0 
+                      ? inv.projects[0]?.name || dict["dashboard.settings"]
+                      : dict["dashboard.settings"]}
                   </p>
                 </div>
               </Motion>
@@ -303,6 +306,9 @@ export default async function ClientsPage() {
   );
   } catch (error) {
     console.error("Unexpected error in ClientsPage:", error);
+    // Get locale for error messages
+    const locale = await getLocale();
+    const dict = dictionaries[locale];
     return (
       <Motion
         className="w-full max-w-6xl mx-auto py-10 text-center px-4"
@@ -310,12 +316,12 @@ export default async function ClientsPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <h1 className="text-3xl font-bold tracking-tight mb-4">Unexpected Error</h1>
+        <h1 className="text-3xl font-bold tracking-tight mb-4">{dict["dashboard.settings"]}</h1>
         <p className="text-muted-foreground mb-4">
-          We encountered an unexpected error while loading your clients. Please try again.
+          {dict["hero.subtitle"]}
         </p>
         <Button onClick={() => window.location.reload()} variant="default">
-          Retry
+          {dict["dashboard.overview"]}
         </Button>
       </Motion>
     );

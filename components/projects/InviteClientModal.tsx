@@ -14,12 +14,14 @@ import {
 import { Loader2, Mail } from "lucide-react";
 import { motion } from "framer-motion";
 import { createProjectInvite } from "@/app/actions/inviteClient";
+import { useT } from "@/lib/i18n/client";
 
 export default function InviteClientModal({
   projectId,
 }: {
   projectId: string;
 }) {
+  const { t } = useT();
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [pending, startTransition] = useTransition();
@@ -43,7 +45,7 @@ export default function InviteClientModal({
         onClick={() => setOpen(true)}
       >
         <Mail className="mr-2 h-4 w-4" />
-        Kunden einladen
+        {t("project.invite.client.button")}
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
@@ -55,13 +57,13 @@ export default function InviteClientModal({
           >
             <DialogHeader>
               <DialogTitle className="text-lg font-semibold">
-                Kunden per E-Mail einladen
+                {t("project.invite.client.title")}
               </DialogTitle>
             </DialogHeader>
 
             <form action={handleSubmit} className="space-y-4 mt-4">
               <div className="grid gap-2">
-                <Label htmlFor="invite-email">E-Mail-Adresse</Label>
+                <Label htmlFor="invite-email">{t("project.invite.email.label")}</Label>
                 <Input
                   id="invite-email"
                   name="email"
@@ -72,7 +74,7 @@ export default function InviteClientModal({
                   required
                 />
                 <p className="text-sm text-muted-foreground">
-                  Der Kunde erhält eine E-Mail mit einem Einladungslink (gültig 14 Tage).
+                  {t("project.invite.email.description")}
                 </p>
               </div>
 
@@ -82,7 +84,7 @@ export default function InviteClientModal({
                   variant="outline"
                   onClick={() => setOpen(false)}
                 >
-                  Abbrechen
+                  {t("project.invite.cancel")}
                 </Button>
 
                 <Button
@@ -93,7 +95,7 @@ export default function InviteClientModal({
                   {pending && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
-                  {pending ? "Senden..." : "Einladung senden"}
+                  {pending ? t("project.invite.sending") : t("project.invite.send.button")}
                 </Button>
               </DialogFooter>
             </form>

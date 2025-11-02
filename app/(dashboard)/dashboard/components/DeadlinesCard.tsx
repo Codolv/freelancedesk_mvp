@@ -5,10 +5,10 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, AlertCircle, CheckCircle2 } from "lucide-react";
 import { format } from "date-fns";
-import { de } from "date-fns/locale";
 import { isPast, isToday, isFuture, addDays } from "date-fns";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useT } from "@/lib/i18n/client";
 
 interface Project {
   id: string;
@@ -24,6 +24,7 @@ interface DeadlinesCardProps {
 }
 
 export default function DeadlinesCard({ projects }: DeadlinesCardProps) {
+  const { t } = useT();
   const now = new Date();
   const twoWeeksFromNow = addDays(now, 14);
 
@@ -58,15 +59,15 @@ export default function DeadlinesCard({ projects }: DeadlinesCardProps) {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "overdue":
-        return <Badge variant="secondary" className="bg-red-100 text-red-800 dark:bg-red-90 dark:text-red-100 text-xs">Überfällig</Badge>;
+        return <Badge variant="secondary" className="bg-red-100 text-red-800 dark:bg-red-90 dark:text-red-100 text-xs">{t("dashboard.overdue")}</Badge>;
       case "due-today":
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100 text-xs">Heute fällig</Badge>;
+        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100 text-xs">{t("dashboard.due.today")}</Badge>;
       case "due-soon":
-        return <Badge variant="secondary" className="bg-orange-100 text-orange-800 dark:bg-orange-90 dark:text-orange-100 text-xs">Bald fällig</Badge>;
+        return <Badge variant="secondary" className="bg-orange-100 text-orange-800 dark:bg-orange-90 dark:text-orange-100 text-xs">{t("dashboard.due.soon")}</Badge>;
       case "due-later":
-        return <Badge variant="outline" className="text-xs">Fällig</Badge>;
+        return <Badge variant="outline" className="text-xs">{t("dashboard.due.later")}</Badge>;
       default:
-        return <Badge variant="outline" className="text-xs">Kein Datum</Badge>;
+        return <Badge variant="outline" className="text-xs">{t("dashboard.no.date")}</Badge>;
     }
   };
 
@@ -93,10 +94,10 @@ export default function DeadlinesCard({ projects }: DeadlinesCardProps) {
       <Card className="bg-background/80 border-border/60 backdrop-blur-sm h-full">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-sm text-muted-foreground">Fristen</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">{t("dashboard.deadlines")}</CardTitle>
             <div className="flex items-center gap-2">
               <span className="text-xs text-muted-foreground">
-                {sortedDeadlines.length} in 2 Wochen
+                {sortedDeadlines.length} {t("dashboard.in.2.weeks")}
               </span>
               {getStatusIcon("due-soon")}
             </div>
@@ -105,7 +106,7 @@ export default function DeadlinesCard({ projects }: DeadlinesCardProps) {
         <CardContent className="space-y-3">
           {sortedDeadlines.length === 0 ? (
             <div className="text-center py-4 text-muted-foreground">
-              <p className="text-sm">Keine Fristen in den nächsten 2 Wochen</p>
+              <p className="text-sm">{t("dashboard.no.deadlines.2.weeks")}</p>
             </div>
           ) : (
             <>
@@ -127,7 +128,7 @@ export default function DeadlinesCard({ projects }: DeadlinesCardProps) {
                         {deadlineDate && (
                           <span className="text-xs text-muted-foreground flex items-center gap-1">
                             <Calendar className="h-3 w-3" />
-                            {format(deadlineDate, "dd.MM.yyyy", { locale: de })}
+                            {format(deadlineDate, "MM/dd/yyyy")}
                           </span>
                         )}
                         <span className="text-xs text-muted-foreground">
@@ -143,7 +144,7 @@ export default function DeadlinesCard({ projects }: DeadlinesCardProps) {
               })}
               {sortedDeadlines.length > 5 && (
                 <p className="text-xs text-muted-foreground text-center pt-2">
-                  +{sortedDeadlines.length - 5} weitere
+                  +{sortedDeadlines.length - 5} {t("dashboard.more")}
                 </p>
               )}
             </>
@@ -152,7 +153,7 @@ export default function DeadlinesCard({ projects }: DeadlinesCardProps) {
             <Button asChild variant="outline" size="sm" className="w-full">
               <Link href="/projects">
                 <Calendar className="h-4 w-4 mr-2" />
-                Projekte verwalten
+                {t("dashboard.manage.projects")}
               </Link>
             </Button>
           </div>

@@ -8,18 +8,20 @@ import {
   Wallet,
   FileText,
 } from "lucide-react";
+import { useT } from "@/lib/i18n/client";
 
 export default function StatCard({
-  label,
+  labelKey,
   value,
-  hint,
+  hintKey,
   icon,
 }: {
-  label: string;
+  labelKey: string;
   value: string | number;
-  hint?: string;
+  hintKey?: string;
   icon?: "projects" | "check" | "wallet" | "invoice";
 }) {
+  const { t } = useT();
   const Icon = (() => {
     switch (icon) {
       case "projects":
@@ -43,12 +45,12 @@ export default function StatCard({
     >
       <Card className="bg-background/80 border-border/60 backdrop-blur-sm">
         <CardHeader className="flex items-start justify-between pb-2">
-          <CardTitle className="text-sm text-muted-foreground">{label}</CardTitle>
+          <CardTitle className="text-sm text-muted-foreground">{t(labelKey)}</CardTitle>
           <div className="text-muted-foreground">{Icon}</div>
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{value}</div>
-          {hint && <div className="text-xs text-muted-foreground mt-1">{hint}</div>}
+          {hintKey && <div className="text-xs text-muted-foreground mt-1">{t(hintKey)}</div>}
         </CardContent>
       </Card>
     </Motion>
