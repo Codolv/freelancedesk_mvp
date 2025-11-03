@@ -11,9 +11,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <div className="flex flex-1">
         <Sidebar />
         <main className="w-full px-6 flex-1 overflow-y-visible ml-[280px]">
-          <div className="min-h-[calc(100vh-120px)] p-8 flex flex-col">
+          <div className="min-h-[calc(100vh-120px)] p-4 flex flex-col">
             {/* Top right controls */}
-            <div className="flex items-center justify-end gap-2 mb-6">
+            <div className="flex items-center justify-end gap-2 mb-4">
               <LanguageSwitcher />
               <ThemeToggle />
             </div>

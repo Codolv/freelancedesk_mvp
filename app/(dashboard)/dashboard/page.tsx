@@ -111,7 +111,7 @@ export default async function DashboardPage() {
 
   return (
     <Motion
-      className="max-w-6xl mx-auto py-10 space-y-10"
+      className="py-10 space-y-10"
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35 }}

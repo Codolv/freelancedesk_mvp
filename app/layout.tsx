@@ -15,7 +15,7 @@ export default async function RootLayout({
       <body className="flex flex-col min-h-screen bg-background text-foreground">
         <ThemeProvider defaultTheme="light">
           <I18nProvider initialLocale={locale}>
-            <main className="flex-1 w-full max-w-7xl mx-auto px-6">
+            <main className="flex-1 w-full px-6">
               {children}
             </main>
           </I18nProvider>
