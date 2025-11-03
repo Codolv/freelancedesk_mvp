@@ -29,9 +29,20 @@ export default function RevenueChart({ data }: { data: ChartData[] }) {
       </CardHeader>
       <CardContent className="h-64">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+          <LineChart data={data} margin={{ top: 8, right: 8, left: 8, bottom: 30 }}>
             <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.06} />
-            <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+            <XAxis 
+              dataKey="month" 
+              tick={{ fontSize: 12 }}
+              tickMargin={10}
+              tickFormatter={(value) => {
+                // Truncate long month names if needed
+                return value.length > 10 ? value.substring(0, 10) + '...' : value;
+              }}
+              angle={-45}
+              textAnchor="end"
+              height={60}
+            />
             <YAxis tickFormatter={(v) => `${v}€`} />
             <Tooltip formatter={(v: number) => `${v.toLocaleString()} €`} />
             <Line type="monotone" dataKey="value" stroke="#4d5d4b" strokeWidth={2} dot={{ r: 3 }} />
