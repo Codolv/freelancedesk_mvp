@@ -19,7 +19,15 @@ interface FileDownload {
 }
 
 interface FileItem {
+  id: string;
   name: string;
+  size_bytes?: number;
+  mime_type?: string;
+  description?: string;
+  uploaded_by: string;
+  version?: number;
+  created_at: string;
+  updated_at: string;
   size?: number;
   last_modified?: number;
   metadata?: {
@@ -69,12 +77,18 @@ export function FilesTab({ files: initialFiles, projectId, canUpload = true }: {
     });
   };
 
-  // Utility for formatting file size
+   // Utility for formatting file size
   const formatSize = (bytes: number) => {
     if (!bytes) return "-";
     const units = ["B", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(1024));
     return `${(bytes / Math.pow(1024, i)).toFixed(1)} ${units[i]}`;
+  };
+
+  // Format date for display
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "–";
+    return new Date(dateString).toLocaleDateString();
   };
 
   // Format download information
@@ -146,10 +160,12 @@ export function FilesTab({ files: initialFiles, projectId, canUpload = true }: {
                   <div className="truncate">
                     <div className="font-medium truncate">{f.name}</div>
                     <div className="text-xs text-muted-foreground">
-                      {f.last_modified
+                      {f.created_at
+                        ? formatDate(f.created_at)
+                        : f.last_modified
                         ? new Date(f.last_modified).toLocaleDateString()
                         : "–"}{" "}
-                      • {formatSize(f.metadata?.size || f.size || 0)}
+                      • {formatSize(f.size_bytes || f.metadata?.size || f.size || 0)}
                       {downloadInfo.count > 0 && (
                         <span className="ml-2 text-blue-60">
                           • {downloadInfo.count}x {t("project.downloads")}

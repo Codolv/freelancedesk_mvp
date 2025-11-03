@@ -124,13 +124,25 @@ export async function deleteFile(projectId: string, fileName: string) {
     }
 
     // Delete file from Supabase storage
-    const { error } = await supabase
+    const { error: storageError } = await supabase
       .storage
       .from('files')
-      .remove([`${projectId}/${fileName}`])
+      .remove([`${projectId}/${fileName}`]);
 
-    if (error) {
-      throw new Error(error.message)
+    if (storageError) {
+      throw new Error(storageError.message)
+    }
+
+    // Delete file record from database
+    const { error: dbError } = await supabase
+      .from('project_files')
+      .delete()
+      .eq('project_id', projectId)
+      .eq('name', fileName);
+
+    if (dbError) {
+      console.error('Database delete error:', dbError);
+      // Don't throw here as the file was already deleted from storage
     }
 
     // Revalidate the project page
@@ -149,15 +161,39 @@ export async function uploadFile(projectId: string, formData: FormData) {
   const file = formData.get("file") as File;
   if (!file) return;
 
+  // Upload file to Supabase storage
   const { data, error } = await supabase.storage
     .from("files")
     .upload(`${projectId}/${file.name}`, file, { upsert: true });
 
   if (error) throw error;
 
+  // Get the user who uploaded the file
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Nicht eingeloggt");
+
+  // Insert file metadata into the database
+  const { error: dbError } = await supabase
+    .from("project_files")
+    .insert({
+      project_id: projectId,
+      name: file.name,
+      path: `${projectId}/${file.name}`,
+      size_bytes: file.size,
+      mime_type: file.type || "",
+      uploaded_by: user.id,
+    });
+
+  if (dbError) throw dbError;
+
   return { 
+    id: "", // Supabase storage doesn't return an ID for uploads
     name: file.name,
-    size: file.size,
+    size_bytes: file.size,
+    mime_type: file.type || "",
+    uploaded_by: user.id,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
     last_modified: file.lastModified,
   };
 }
