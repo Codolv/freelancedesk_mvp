@@ -21,11 +21,13 @@ interface Invoice {
 export function InvoicesTab({ 
   invoices, 
   projectId, 
-  isFreelancer 
+  isFreelancer,
+  canManage = true
 }: { 
   invoices: Invoice[]; 
   projectId: string; 
   isFreelancer: boolean; 
+  canManage?: boolean; 
 }) {
   const { t } = useT();
   return (
@@ -84,7 +86,7 @@ export function InvoicesTab({
                   })}
                 </div>
 
-                {isFreelancer && <div className="flex items-center gap-2">
+                {canManage && <div className="flex items-center gap-2">
                   {/* View Button */}
                   <Button
                     variant="outline"

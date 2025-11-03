@@ -10,8 +10,10 @@ import { motion } from "framer-motion";
 import { Motion } from "@/components/custom/Motion";
 import Image from "next/image";
 import Footer from "@/components/layout/Footer";
+import { useT } from "@/lib/i18n/client";
 
 export default function SignInClient() {
+  const { t } = useT();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,11 +27,11 @@ export default function SignInClient() {
     setError(null);
 
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError("Bitte gib eine gültige E-Mail-Adresse ein.");
+      setError(t("auth.email.required"));
       return;
     }
     if (!password || password.length < 6) {
-      setError("Das Passwort muss mindestens 6 Zeichen lang sein.");
+      setError(t("auth.password.min"));
       return;
     }
 
@@ -45,7 +47,7 @@ export default function SignInClient() {
       } else if (data.session) {
         router.replace("/dashboard");
       } else {
-        setMessage("Erfolgreich angemeldet! Weiterleitung...");
+        setMessage(t("auth.signin.success"));
         router.replace("/dashboard");
       }
     } finally {
@@ -79,7 +81,7 @@ export default function SignInClient() {
               />
             </div>
             <p className="text-muted-foreground mt-2 text-sm">
-              Willkommen zurück! Melde dich an, um fortzufahren.
+              {t("hero.subtitle")}
             </p>
           </Motion>
 
@@ -92,7 +94,7 @@ export default function SignInClient() {
             transition={{ delay: 0.3 }}
           >
             <div className="grid gap-1.5">
-              <Label htmlFor="email">E-Mail-Adresse</Label>
+              <Label htmlFor="email">{t("signin.email")}</Label>
               <Input
                 id="email"
                 type="email"
@@ -105,7 +107,7 @@ export default function SignInClient() {
             </div>
 
             <div className="grid gap-1.5">
-              <Label htmlFor="password">Passwort</Label>
+              <Label htmlFor="password">{t("signin.password")}</Label>
               <Input
                 id="password"
                 type="password"
@@ -122,7 +124,7 @@ export default function SignInClient() {
               type="submit"
               className="w-full mt-3 bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200 rounded-lg"
             >
-              {loading ? "Wird angemeldet..." : "Anmelden"}
+              {loading ? t("auth.signin.loading") : t("nav.signin")}
             </Button>
 
             {message && (
@@ -131,7 +133,7 @@ export default function SignInClient() {
               </div>
             )}
             {error && (
-              <div className="text-sm text-red-600 dark:text-red-40 text-center">
+              <div className="text-sm text-red-600 dark:text-red-400 text-center">
                 {error}
               </div>
             )}
@@ -144,17 +146,17 @@ export default function SignInClient() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
           >
-            Noch kein Konto?{" "}
+            {t("auth.no.account")}{" "}
             <button
               onClick={() => router.push("/signup")}
               className="text-primary hover:underline font-medium"
             >
-              Jetzt registrieren
+              {t("auth.account.create")}
             </button>
           </Motion>
         </Motion>
       </div>
       <Footer />
     </div>
- );
+  );
 }

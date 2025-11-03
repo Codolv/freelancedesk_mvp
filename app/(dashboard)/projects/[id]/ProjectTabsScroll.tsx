@@ -52,7 +52,7 @@ export default function ProjectTabsScroll({
           </div>
 
           <div style={{ display: value === "invoices" ? "block" : "none" }}>
-            <InvoicesTab invoices={invoices} projectId={projectId} canManage={isFreelancer} />
+            <InvoicesTab invoices={invoices} projectId={projectId} isFreelancer={isFreelancer} canManage={isFreelancer} />
           </div>
 
           {isFreelancer && (

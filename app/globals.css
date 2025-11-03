@@ -49,10 +49,16 @@ html {
   --popover-foreground: #fbfdf7;
   --primary: #9ebf6d;
   --primary-foreground: #1a1a1a;
-  --secondary: #3f4a36;
-  --secondary-foreground: #fbfdf7;
-  --muted: #343c33;
-  --muted-foreground: #aebfa8;
+  /* --- Improve badge readability --- */
+  --secondary: oklch(0.35 0.04 260); /* dunkler Hintergrund */
+  --secondary-foreground: oklch(0.96 0.02 250); /* heller Text */
+
+  /* Optional: leicht wärmerer Ton für "bald fällig" */
+  --warning: oklch(0.65 0.18 70); /* gelblicher Akzent */
+  --warning-foreground: oklch(0.1 0.02 250);
+  
+  --muted: oklch(0.23 0.03 260);
+  --muted-foreground: oklch(0.85 0.02 260);
   --accent: #3B4B2F;
   --accent-foreground: #fbfdf7;
   --destructive: #924c4c;

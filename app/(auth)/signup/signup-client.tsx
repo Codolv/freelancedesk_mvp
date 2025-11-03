@@ -10,8 +10,10 @@ import { motion } from "framer-motion";
 import { Motion } from "@/components/custom/Motion";
 import Image from "next/image";
 import Footer from "@/components/layout/Footer";
+import { useT } from "@/lib/i18n/client";
 
 export default function SignUpClient() {
+  const { t } = useT();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,15 +28,15 @@ export default function SignUpClient() {
     setError(null);
 
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError("Bitte gib eine gültige E-Mail-Adresse ein.");
+      setError(t("auth.email.required"));
       return;
     }
     if (!password || password.length < 6) {
-      setError("Das Passwort muss mindestens 6 Zeichen lang sein.");
+      setError(t("auth.password.min"));
       return;
     }
     if (!name.trim()) {
-      setError("Bitte gib deinen Namen ein.");
+      setError(t("auth.name.required"));
       return;
     }
 
@@ -53,7 +55,7 @@ export default function SignUpClient() {
       if (err) {
         setError(err.message);
       } else {
-        setMessage("Registrierung erfolgreich! Bitte überprüfe deine E-Mails zur Bestätigung.");
+        setMessage(t("auth.signup.success"));
         setTimeout(() => router.replace("/dashboard"), 2500);
       }
     } finally {
@@ -87,7 +89,7 @@ export default function SignUpClient() {
               />
             </div>
             <p className="text-muted-foreground mt-2 text-sm">
-              Erstelle dein Konto, um mit FreelanceDesk zu starten.
+              {t("hero.subtitle")}
             </p>
           </Motion>
 
@@ -100,7 +102,7 @@ export default function SignUpClient() {
             transition={{ delay: 0.3 }}
           >
             <div className="grid gap-1.5">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t("auth.name.label")}</Label>
               <Input
                 id="name"
                 type="text"
@@ -113,7 +115,7 @@ export default function SignUpClient() {
             </div>
 
             <div className="grid gap-1.5">
-              <Label htmlFor="email">E-Mail-Adresse</Label>
+              <Label htmlFor="email">{t("signin.email")}</Label>
               <Input
                 id="email"
                 type="email"
@@ -126,7 +128,7 @@ export default function SignUpClient() {
             </div>
 
             <div className="grid gap-1.5">
-              <Label htmlFor="password">Passwort</Label>
+              <Label htmlFor="password">{t("signin.password")}</Label>
               <Input
                 id="password"
                 type="password"
@@ -143,7 +145,7 @@ export default function SignUpClient() {
               type="submit"
               className="w-full mt-3 bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200 rounded-lg"
             >
-              {loading ? "Wird registriert..." : "Registrieren"}
+              {loading ? t("auth.signup.loading") : t("auth.signup")}
             </Button>
 
             {message && (
@@ -165,12 +167,12 @@ export default function SignUpClient() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
           >
-            Bereits ein Konto?{" "}
+            {t("auth.has.account")}{" "}
             <button
               onClick={() => router.push("/signin")}
               className="text-primary hover:underline font-medium"
             >
-              Jetzt anmelden
+              {t("auth.account.signin")}
             </button>
           </Motion>
         </Motion>

@@ -7,16 +7,17 @@ import fontkit from '@pdf-lib/fontkit';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await context.params;
     const supabase = await getServerSupabaseComponent();
     
     // Fetch invoice data
     const { data: invoice } = await supabase
       .from('project_invoices')
       .select('*, projects(name)')
-      .eq('id', params.id)
+      .eq('id', id)
       .single();
 
     if (!invoice) {
@@ -27,7 +28,7 @@ export async function GET(
     const { data: items } = await supabase
       .from('project_invoice_items')
       .select('*')
-      .eq('invoice_id', params.id);
+      .eq('invoice_id', id);
 
     if (!items) {
       return new Response('Invoice items not found', { status: 404 });

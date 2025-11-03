@@ -148,7 +148,7 @@ export default function ProjectTabsAnimated({
             ref={refs.invoices}
             style={{ display: value === "invoices" ? "block" : "none" }}
           >
-            <InvoicesTab invoices={invoices || []} projectId={projectId} isFreelancer={isFreelancer} />
+            <InvoicesTab invoices={invoices || []} projectId={projectId} isFreelancer={isFreelancer} canManage={isFreelancer} />
           </div>
 
           {/* Clients panel */}

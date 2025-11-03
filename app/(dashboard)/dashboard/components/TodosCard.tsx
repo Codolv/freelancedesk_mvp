@@ -39,13 +39,13 @@ export default function TodosCard({ todos }: TodosCardProps) {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "completed":
-        return <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-10 text-xs">{t("dashboard.completed")}</Badge>;
+        return <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-foreground text-xs">{t("dashboard.completed")}</Badge>;
       case "overdue":
-        return <Badge variant="secondary" className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100 text-xs">{t("dashboard.overdue")}</Badge>;
+        return <Badge variant="secondary" className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-foreground text-xs">{t("dashboard.overdue")}</Badge>;
       case "due-today":
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-10 text-xs">{t("dashboard.due.today")}</Badge>;
+        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-foreground text-xs">{t("dashboard.due.today")}</Badge>;
       default:
-        return <Badge variant="outline" className="text-xs">{t("dashboard.open")}</Badge>;
+        return <Badge variant="outline" className="dark:bg-muted dark:text-foreground text-xs">{t("dashboard.open")}</Badge>;
     }
   };
 

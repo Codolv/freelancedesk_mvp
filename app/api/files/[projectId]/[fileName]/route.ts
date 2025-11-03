@@ -3,9 +3,9 @@ import { getServerSupabaseAction } from "@/lib/supabase/server";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { projectId: string; fileName: string } }
+  context: { params: Promise<{ projectId: string; fileName: string }> }
 ) {
-  const { projectId, fileName } = params;
+  const { projectId, fileName } = await context.params;
   
   try {
     const supabase = await getServerSupabaseAction();

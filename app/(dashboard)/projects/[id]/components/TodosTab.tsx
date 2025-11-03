@@ -291,13 +291,13 @@ export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTa
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "completed":
-        return <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">{t("project.todos.completed")}</Badge>;
+        return <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-foreground">{t("project.todos.completed")}</Badge>;
       case "overdue":
-        return <Badge variant="secondary" className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100">{t("project.todos.overdue")}</Badge>;
+        return <Badge variant="secondary" className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-foreground">{t("project.todos.overdue")}</Badge>;
       case "due-today":
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100">{t("project.todos.due.today")}</Badge>;
+        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-foreground">{t("project.todos.due.today")}</Badge>;
       default:
-        return <Badge variant="outline">{t("project.todos.open")}</Badge>;
+        return <Badge variant="outline" className="dark:bg-muted dark:text-foreground">{t("project.todos.open")}</Badge>;
     }
   };
 

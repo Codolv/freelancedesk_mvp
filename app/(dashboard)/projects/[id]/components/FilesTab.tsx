@@ -33,7 +33,7 @@ interface DownloadInfo {
   hasDownloads: boolean;
 }
 
-export function FilesTab({ files: initialFiles, projectId }: { files: FileItem[]; projectId: string }) {
+export function FilesTab({ files: initialFiles, projectId, canUpload = true }: { files: FileItem[]; projectId: string; canUpload?: boolean }) {
   const { t } = useT();
   const [files, setFiles] = useState<FileItem[]>(initialFiles || []);
   const [fileDownloads, setFileDownloads] = useState<Record<string, FileDownload[]>>({});
@@ -99,27 +99,29 @@ export function FilesTab({ files: initialFiles, projectId }: { files: FileItem[]
       </CardHeader>
       <CardContent>
         {/* Upload form */}
-        <form
-          action={handleUpload}
-          className="flex items-center gap-3 mb-6"
-        >
-          <Input
-            type="file"
-            name="file"
-            disabled={uploading || isPending}
-          />
-          <Button type="submit" disabled={uploading || isPending}>
-            {uploading ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" /> {t("project.uploading")}
-              </>
-            ) : (
-              <>
-                <Upload className="h-4 w-4 mr-2" /> {t("project.upload")}
-              </>
-            )}
-          </Button>
-        </form>
+        {canUpload && (
+          <form
+            action={handleUpload}
+            className="flex items-center gap-3 mb-6"
+          >
+            <Input
+              type="file"
+              name="file"
+              disabled={uploading || isPending}
+            />
+            <Button type="submit" disabled={uploading || isPending}>
+              {uploading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" /> {t("project.uploading")}
+                </>
+              ) : (
+                <>
+                  <Upload className="h-4 w-4 mr-2" /> {t("project.upload")}
+                </>
+              )}
+            </Button>
+          </form>
+        )}
 
         {/* File list */}
         <div className="rounded-md border border-border/50 divide-y divide-border/50">

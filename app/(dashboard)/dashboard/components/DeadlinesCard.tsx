@@ -59,15 +59,15 @@ export default function DeadlinesCard({ projects }: DeadlinesCardProps) {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "overdue":
-        return <Badge variant="secondary" className="bg-red-100 text-red-800 dark:bg-red-90 dark:text-red-100 text-xs">{t("dashboard.overdue")}</Badge>;
+        return <Badge variant="secondary" className="bg-red-100 text-red-800 dark:bg-red-90 dark:text-foreground text-xs">{t("dashboard.overdue")}</Badge>;
       case "due-today":
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100 text-xs">{t("dashboard.due.today")}</Badge>;
+        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-foreground text-xs">{t("dashboard.due.today")}</Badge>;
       case "due-soon":
-        return <Badge variant="secondary" className="bg-orange-100 text-orange-800 dark:bg-orange-90 dark:text-orange-100 text-xs">{t("dashboard.due.soon")}</Badge>;
+        return <Badge variant="secondary" className="bg-orange-100 text-orange-800 dark:bg-orange-90 dark:text-foreground text-xs">{t("dashboard.due.soon")}</Badge>;
       case "due-later":
-        return <Badge variant="outline" className="text-xs">{t("dashboard.due.later")}</Badge>;
+        return <Badge variant="outline" className="dark:bg-muted dark:text-foreground text-xs">{t("dashboard.due.later")}</Badge>;
       default:
-        return <Badge variant="outline" className="text-xs">{t("dashboard.no.date")}</Badge>;
+        return <Badge variant="outline" className="dark:bg-muted dark:text-foreground text-xs">{t("dashboard.no.date")}</Badge>;
     }
   };
 
