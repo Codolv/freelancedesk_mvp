@@ -10,6 +10,7 @@ import { getAvatarUrl } from '../../../../lib/supabase/getAvatarUrl';
 import { MarkCompleteButton } from "./components/MarkCompleteButton";
 import { getLocale } from "@/lib/i18n/server";
 import { dictionaries } from "@/lib/i18n/dictionaries";
+import { formatDate } from "@/lib/i18n/date-format";
 
 export default async function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -157,7 +158,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
           <div>
             <h1 className="text-3xl font-bold tracking-tight">{project.name}</h1>
             {project.description && <p className="text-muted-foreground mt-1">{project.description}</p>}
-            {project.deadline && <p className="text-sm text-muted-foreground mt-1">{dict["invoice.created"]} {new Date(project.deadline).toLocaleDateString(locale)}</p>}
+            {project.deadline && <p className="text-sm text-muted-foreground mt-1">{dict["invoice.created"]} {formatDate(project.deadline, locale)}</p>}
           </div>
 
           {isFreelancer && (
@@ -175,8 +176,8 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
             project.status === 'active' ? 'bg-blue-100 text-blue-800' :
             'bg-gray-100 text-gray-800'
           }`}>
-            {project.status === 'completed' ? dict["invoice.status.paid"] :
-             project.status === 'active' ? dict["dashboard.projects"] : dict["dashboard.settings"]}
+            {project.status === 'completed' ? dict["projects.completed"] :
+             project.status === 'active' ? dict["projects.active"] : dict["dashboard.settings"]}
           </span>
         </div>
 

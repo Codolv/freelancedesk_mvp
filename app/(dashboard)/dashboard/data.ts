@@ -1,6 +1,7 @@
 "use server";
 
 import { getServerSupabaseComponent } from "@/lib/supabase/server";
+import { getLocale } from "@/lib/i18n/server";
 
 export interface DashboardData {
   activeProjects: number;
@@ -14,6 +15,7 @@ export interface DashboardData {
 
 export async function getDashboardData(): Promise<DashboardData> {
   const supabase = await getServerSupabaseComponent();
+  const locale = await getLocale();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -60,7 +62,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     const value = monthInvoices.reduce((sum, inv) => sum + (inv.amount || 0), 0);
     
     return {
-      month: month.toLocaleDateString('de-DE', { month: 'short' }),
+      month: month.toLocaleDateString(locale, { month: 'short' }),
       value
     };
   });

@@ -6,6 +6,7 @@ import { Motion } from "@/components/custom/Motion";
 import { PlusCircle, Folder, UserPlus2, ArrowRight } from "lucide-react";
 import { getLocale } from "@/lib/i18n/server";
 import { dictionaries } from "@/lib/i18n/dictionaries";
+import { formatDate } from "@/lib/i18n/date-format";
 
 export default async function ProjectsPage() {
   const supabase = await getServerSupabaseComponent();
@@ -87,7 +88,7 @@ export default async function ProjectsPage() {
           <p className="text-muted-foreground">{dict["projects.empty"]}</p>
         )}
 
-        <ul className="divide-y divide-border/50 rounded-lg border border-border/50 bg-background/70 backdrop-blur-sm bg-white">
+        <ul className="divide-y divide-border/50 rounded-lg border border-border/50 bg-background/70 backdrop-blur-sm">
           {ownedProjects?.map((p, i) => (
             <Motion
               key={p.id}
@@ -109,7 +110,7 @@ export default async function ProjectsPage() {
                   {p.deadline && (
                     <p className="text-xs text-muted-foreground mt-1">
                       {dict["dashboard.clients"]}:{" "}
-                      {new Date(p.deadline).toLocaleDateString(locale, {
+                      {formatDate(p.deadline, locale, {
                         day: "2-digit",
                         month: "2-digit",
                         year: "numeric",
@@ -160,7 +161,7 @@ export default async function ProjectsPage() {
                   {p.deadline && (
                     <p className="text-xs text-muted-foreground mt-1">
                       {dict["dashboard.clients"]}:{" "}
-                      {new Date(p.deadline).toLocaleDateString(locale, {
+                      {formatDate(p.deadline, locale, {
                         day: "2-digit",
                         month: "2-digit",
                         year: "numeric",

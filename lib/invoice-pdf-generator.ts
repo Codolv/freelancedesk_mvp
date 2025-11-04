@@ -1,6 +1,7 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { format } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enUS } from "date-fns/locale";
+import { getDateLocale } from "@/lib/i18n/date-format";
 
 interface InvoiceItem {
   description: string;
@@ -20,6 +21,7 @@ interface InvoiceData {
 export async function generateEnhancedInvoicePDF(
   invoice: InvoiceData,
   items: InvoiceItem[],
+  locale: "de" | "en" = "de",
   companyInfo?: {
     name?: string;
     email?: string;
@@ -94,7 +96,9 @@ export async function generateEnhancedInvoicePDF(
 
   page.drawText(`Rechnungsnummer: ${invoice.id.slice(0, 8)}`, { x: 50, y, size: 11, font: helvetica, color: text });
   y -= 15;
-  page.drawText(`Datum: ${format(new Date(invoice.created_at), "dd.MM.yyyy", { locale: de })}`, { x: 50, y, size: 11, font: helvetica, color: text });
+  const dateLocale = getDateLocale(locale);
+  const dateFormat = locale === "de" ? "dd.MM.yyyy" : "MM/dd/yyyy";
+  page.drawText(`Datum: ${format(new Date(invoice.created_at), dateFormat, { locale: dateLocale })}`, { x: 50, y, size: 11, font: helvetica, color: text });
   y -= 15;
   page.drawText(`Projekt: ${invoice.projects?.name || "Unbekannt"}`, { x: 50, y, size: 11, font: helvetica, color: text });
   y -= 25;

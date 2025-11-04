@@ -3,6 +3,7 @@
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import ReactMarkdown from "react-markdown";
 import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNowLocalized } from "@/lib/i18n/date-format";
 import { useT } from "@/lib/i18n/client";
 
 interface Message {
@@ -35,9 +36,7 @@ export default function ActivityFeed({ messages }: { messages: Message[] }) {
               {m.projects?.[0]?.name
                 ? `${t("dashboard.project")}: ${m.projects[0].name} • `
                 : ""}
-              {formatDistanceToNow(new Date(m.created_at), {
-                addSuffix: true,
-              })}
+              {formatDistanceToNowLocalized(m.created_at, "de") /* Using "de" as fallback for now */}
             </div>
           </div>
         ))}

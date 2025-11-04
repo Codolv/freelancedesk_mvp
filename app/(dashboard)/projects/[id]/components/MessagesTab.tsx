@@ -10,10 +10,24 @@ import { Motion } from "@/components/custom/Motion";
 import ReactMarkdown from "react-markdown";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatDateTime } from "@/lib/i18n/date-format";
+import { useT } from "@/lib/i18n/client";
 
-export function MessagesTab({ messages, projectId, userRole }: { messages: any[]; projectId: string; userRole: "freelancer" | "client" }) {
+interface Message {
+  id: string;
+  content: string;
+  created_at: string;
+  sender_role: "freelancer" | "client";
+  profiles?: {
+    name: string;
+    avatar_url: string | null;
+  } | null;
+}
+
+export function MessagesTab({ messages, projectId, userRole }: { messages: Message[]; projectId: string; userRole: "freelancer" | "client" }) {
   const [content, setContent] = useState("");
   const [isPending, startTransition] = useTransition();
+  const { t, locale } = useT();
 
   const handleSubmit = async (formData: FormData) => {
     const message = formData.get("content")?.toString().trim();
@@ -94,7 +108,7 @@ export function MessagesTab({ messages, projectId, userRole }: { messages: any[]
                 </div>
                 <div className="text-xs text-muted-foreground mt-1">
                   {isFreelancer ? "Freelancer" : "Kunde"} •{" "}
-                  {new Date(m.created_at).toLocaleString("de-DE")}
+                  {formatDateTime(m.created_at, locale)}
                 </div>
               </Motion>
             );

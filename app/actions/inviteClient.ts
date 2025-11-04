@@ -4,6 +4,8 @@
 import { getServerSupabaseAction } from "@/lib/supabase/server";
 import { v4 as uuidv4 } from "uuid";
 import { Resend } from 'resend';
+import { formatDate } from "@/lib/i18n/date-format";
+import { getLocale } from "@/lib/i18n/server";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -28,6 +30,7 @@ export async function revokeInvite(inviteId: string) {
 }
 
 async function sendInviteEmail(email: string, token: string, expires_at: string) {
+  const locale = await getLocale();
   await resend.emails.send({
     from: process.env.FROM_EMAIL!,
     to: email,
@@ -35,7 +38,7 @@ async function sendInviteEmail(email: string, token: string, expires_at: string)
     html: `
       <p>Sie wurden eingeladen, das Projekt auf <strong>FreelanceDesk</strong> anzusehen.</p>
         <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/invite/${token}">Einladung annehmen</a></p>
-        <p>Der Link ist bis ${new Date(expires_at).toLocaleDateString("de-DE")} gültig.</p>
+        <p>Der Link ist bis ${formatDate(new Date(expires_at), locale)} gültig.</p>
     `,
   });
 }

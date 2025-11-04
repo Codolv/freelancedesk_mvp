@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Motion } from '@/components/custom/Motion';
 import { Download, Clock, User, FileIcon } from 'lucide-react';
 import { useT } from '@/lib/i18n/client';
+import { formatFileDate } from '@/lib/i18n/date-format';
 
 interface FileVersion {
   id: string;
@@ -65,7 +66,7 @@ export function FileVersionHistory({ projectId, fileName, currentVersion }: File
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString();
+    return formatFileDate(dateString, "de"); // Using "de" as fallback for now
   };
 
   if (loading) {

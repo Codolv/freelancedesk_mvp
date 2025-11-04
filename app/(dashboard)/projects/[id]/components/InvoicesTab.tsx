@@ -6,9 +6,10 @@ import { Motion } from "@/components/custom/Motion";
 import Link from "next/link";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
+import { formatInvoiceDate } from "@/lib/i18n/date-format";
+import { useT } from "@/lib/i18n/client";
 import { FileEdit, FileText, Trash2, CheckCircle } from "lucide-react";
 import { deleteInvoice, markInvoicePaid } from "../actions";
-import { useT } from "@/lib/i18n/client";
 
 interface Invoice {
   id: string;
@@ -52,7 +53,7 @@ export function InvoicesTab({
             {t("project.invoices.none")}
           </p>
         ) : (
-          <div className="space-y-3 bg-white">
+          <div className="space-y-3">
             {invoices.map((inv, idx: number) => (
               <Motion
                 key={inv.id}
@@ -67,9 +68,7 @@ export function InvoicesTab({
                     <p className="font-medium truncate">{inv.title}</p>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    {format(new Date(inv.created_at), "dd.MM.yyyy", {
-                      locale: de,
-                    })}
+                    {formatInvoiceDate(inv.created_at, "de") /* Using "de" as fallback for now */}
                     {" • "}
                     {inv.status === "Paid" ? (
                       <span className="text-green-600 font-medium">{t("project.invoices.paid")}</span>

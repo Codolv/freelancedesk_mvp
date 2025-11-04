@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { getServerSupabaseComponent } from '@/lib/supabase/server';
 import { generateEnhancedInvoicePDF } from '@/lib/invoice-pdf-generator';
+import { getLocale } from '@/lib/i18n/server';
 
 export async function GET(
   request: NextRequest,
@@ -31,8 +32,10 @@ export async function GET(
       return new Response('Invoice items not found', { status: 404 });
     }
 
+    // Get locale for date formatting
+    const locale = await getLocale();
     // Generate enhanced PDF
-    const pdfBytes = await generateEnhancedInvoicePDF(invoice, items);
+    const pdfBytes = await generateEnhancedInvoicePDF(invoice, items, locale);
     
     // Convert to Buffer for Next.js response
     const buffer = Buffer.from(pdfBytes);

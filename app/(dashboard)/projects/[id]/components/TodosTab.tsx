@@ -12,6 +12,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { CalendarIcon, Edit, Trash2, Plus, Clock, Search, Filter, CheckCircle2, Circle, AlertCircle, RefreshCw } from "lucide-react";
 import { format, isToday, isPast, isFuture, startOfDay } from "date-fns";
 import { de } from "date-fns/locale";
+import { formatTodoDate } from "@/lib/i18n/date-format";
+import { useT } from "@/lib/i18n/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { Motion } from "@/components/custom/Motion";
 import { addTodoAction, toggleTodoAction, updateTodoAction, deleteTodoAction } from "../actions/todos";
@@ -19,7 +21,6 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useT } from "@/lib/i18n/client";
 
 interface Todo {
   id: string;
@@ -460,7 +461,7 @@ export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTa
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
                       {formData.due_date
-                        ? format(new Date(formData.due_date), "PPP", { locale: de })
+                        ? formatTodoDate(formData.due_date, "de") // Using "de" as fallback, will be updated later
                         : t("project.todos.no.due.date")}
                     </Button>
                   </PopoverTrigger>
@@ -572,7 +573,7 @@ export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTa
                             >
                               <CalendarIcon className="mr-2 h-4 w-4" />
                               {editFormData.due_date
-                                ? format(new Date(editFormData.due_date), "PPP", { locale: de })
+                                ? formatTodoDate(editFormData.due_date, "de") // Using "de" as fallback, will be updated later
                                 : t("project.todos.no.due.date")}
                             </Button>
                           </PopoverTrigger>
@@ -667,13 +668,13 @@ export function TodosTab({ projectId, isFreelancer, initialTodos = [] }: TodosTa
                           {todo.due_date && (
                             <div className="flex items-center gap-1">
                               <Clock className="h-3 w-3" />
-                              {format(new Date(todo.due_date), "PPP", { locale: de })}
+                              {formatTodoDate(todo.due_date, "de")}
                             </div>
                           )}
 
                           <span>
                             {t("project.todos.created.by")} {todo.profiles?.name || t("project.unknown")} {t("project.todos.on.date")}{" "}
-                            {format(new Date(todo.created_at), "PPP", { locale: de })}
+                            {formatTodoDate(todo.created_at, "de")}
                           </span>
                         </div>
                       </div>

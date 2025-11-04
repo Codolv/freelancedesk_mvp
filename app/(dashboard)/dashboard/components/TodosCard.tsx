@@ -4,8 +4,8 @@ import { Motion } from "@/components/custom/Motion";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Circle, AlertCircle, Clock, Plus } from "lucide-react";
-import { format } from "date-fns";
 import { isPast, isToday, startOfDay } from "date-fns";
+import { formatTodoDate } from "@/lib/i18n/date-format";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useT } from "@/lib/i18n/client";
@@ -107,7 +107,7 @@ export default function TodosCard({ todos }: TodosCardProps) {
                         {todo.due_date && (
                           <span className="text-xs text-muted-foreground flex items-center gap-1">
                             <Clock className="h-3 w-3" />
-                            {format(new Date(todo.due_date), "MM/dd/yyyy")}
+                            {formatTodoDate(todo.due_date, "de") /* Using "de" as fallback for now */}
                           </span>
                         )}
                         {todo.projects?.name && (

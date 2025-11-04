@@ -8,6 +8,7 @@ import Link from "next/link";
 import { Wallet, FileText, PlusCircle } from "lucide-react";
 import { getLocale } from "@/lib/i18n/server";
 import { dictionaries } from "@/lib/i18n/dictionaries";
+import { formatDate } from "@/lib/i18n/date-format";
 
 interface Invoice {
   id: string;
@@ -154,11 +155,7 @@ export default async function InvoicesPage() {
                 <CardContent className="flex justify-between items-center text-sm text-muted-foreground">
                   <p>
                     {dict["invoice.created"]}{" "}
-                    {new Date(invoice.created_at).toLocaleDateString(locale, {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                    })}
+                    {formatDate(invoice.created_at, locale)}
                   </p>
                   <div className="flex gap-3">
                     <Button variant="outline" size="sm" asChild>

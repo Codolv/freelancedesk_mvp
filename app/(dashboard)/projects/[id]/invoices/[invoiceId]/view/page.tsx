@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Motion } from "@/components/custom/Motion";
 import Link from "next/link";
 import { format } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enUS } from "date-fns/locale";
+import { getDateLocale, formatInvoiceDate } from "@/lib/i18n/date-format";
+import { getLocale } from "@/lib/i18n/server";
 import { ArrowLeft, FileText, Download, Edit } from "lucide-react";
 
 export default async function InvoiceViewPage({
@@ -14,6 +16,7 @@ export default async function InvoiceViewPage({
   params: { id: string; invoiceId: string };
 }) {
   const supabase = await getServerSupabaseComponent();
+  const locale = await getLocale();
 
   const { data: invoice } = await supabase
     .from("project_invoices")
@@ -67,7 +70,7 @@ export default async function InvoiceViewPage({
                 invoice.status === "Paid"
                   ? "bg-olive-600 text-white"
                   : invoice.status === "Open"
-                  ? "bg-yellow-500/20 text-yellow-800 dark:text-yellow-300"
+                  ? "bg-yellow-500/20 text-yellow-80 dark:text-yellow-300"
                   : ""
               }
             >
@@ -89,9 +92,7 @@ export default async function InvoiceViewPage({
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Erstellt:</span>
                   <span>
-                    {format(new Date(invoice.created_at), "dd.MM.yyyy", {
-                      locale: de,
-                    })}
+                    {formatInvoiceDate(invoice.created_at, locale)}
                   </span>
                 </div>
                 <div className="flex justify-between">

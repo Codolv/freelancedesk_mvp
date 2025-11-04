@@ -4,11 +4,11 @@ import { Motion } from "@/components/custom/Motion";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, AlertCircle, CheckCircle2 } from "lucide-react";
-import { format } from "date-fns";
 import { isPast, isToday, isFuture, addDays } from "date-fns";
+import { formatTodoDate } from "@/lib/i18n/date-format";
+import { useT } from "@/lib/i18n/client";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useT } from "@/lib/i18n/client";
 
 interface Project {
   id: string;
@@ -61,9 +61,9 @@ export default function DeadlinesCard({ projects }: DeadlinesCardProps) {
       case "overdue":
         return <Badge variant="secondary" className="bg-red-100 text-red-800 dark:bg-red-90 dark:text-foreground text-xs">{t("dashboard.overdue")}</Badge>;
       case "due-today":
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-foreground text-xs">{t("dashboard.due.today")}</Badge>;
+        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-background text-xs">{t("dashboard.due.today")}</Badge>;
       case "due-soon":
-        return <Badge variant="secondary" className="bg-orange-100 text-orange-800 dark:bg-orange-90 dark:text-foreground text-xs">{t("dashboard.due.soon")}</Badge>;
+        return <Badge variant="secondary" className="bg-orange-100 text-orange-800 dark:bg-orange-90 dark:text-background text-xs">{t("dashboard.due.soon")}</Badge>;
       case "due-later":
         return <Badge variant="outline" className="dark:bg-muted dark:text-foreground text-xs">{t("dashboard.due.later")}</Badge>;
       default:
@@ -125,10 +125,10 @@ export default function DeadlinesCard({ projects }: DeadlinesCardProps) {
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{project.name}</p>
                       <div className="flex items-center gap-2 mt-1">
-                        {deadlineDate && (
+                        {project.deadline && (
                           <span className="text-xs text-muted-foreground flex items-center gap-1">
                             <Calendar className="h-3 w-3" />
-                            {format(deadlineDate, "MM/dd/yyyy")}
+                            {formatTodoDate(project.deadline, "de") /* Using "de" as fallback for now */}
                           </span>
                         )}
                         <span className="text-xs text-muted-foreground">

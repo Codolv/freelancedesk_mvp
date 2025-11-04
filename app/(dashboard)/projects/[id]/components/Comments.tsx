@@ -10,6 +10,7 @@ import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Motion } from "@/components/custom/Motion";
 import ReactMarkdown from "react-markdown";
 import { useT } from "@/lib/i18n/client";
+import { formatTodoDate } from "@/lib/i18n/date-format";
 
 export function Comments({ messages: initialMessages, projectId }: any) {
   const { t } = useT();
@@ -150,7 +151,7 @@ export function Comments({ messages: initialMessages, projectId }: any) {
                 <div className="flex items-center justify-between text-sm mb-1">
                   <span className="font-medium">{m.profile?.name || t("project.unknown")}</span>
                   <span className="text-xs text-muted-foreground">
-                    {new Date(m.created_at).toLocaleString()}
+                    {formatTodoDate(m.created_at, "de")}
                   </span>
                 </div>
                 <ReactMarkdown>{m.content}</ReactMarkdown>

@@ -10,6 +10,7 @@ import { Loader2, Trash2, Upload, FileIcon, Download, Eye, History } from "lucid
 import { useT } from "@/lib/i18n/client";
 import { PreviewModal } from "@/components/ui/PreviewModal";
 import { FileVersionHistory } from "./FileVersionHistory";
+import { formatFileDate, formatTodoDate } from "@/lib/i18n/date-format";
 
 interface FileDownload {
   id: string;
@@ -89,7 +90,7 @@ export function FilesTab({ files: initialFiles, projectId, canUpload = true }: {
   // Format date for display
   const formatDate = (dateString: string) => {
     if (!dateString) return "–";
-    return new Date(dateString).toLocaleDateString();
+    return formatFileDate(dateString, "de"); // Using "de" as fallback for now
   };
 
   // Format download information
@@ -162,7 +163,7 @@ export function FilesTab({ files: initialFiles, projectId, canUpload = true }: {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.05 }}
-                    className="flex items-center justify-between px-4 py-3 hover:bg-muted/40 transition-colors bg-white"
+                    className="flex items-center justify-between px-4 py-3 hover:bg-muted/40 transition-colors"
                   >
                     <div className="flex items-center gap-3 truncate">
                       <FileIcon className="h-5 w-5 text-muted-foreground flex-shrink-0" />
@@ -176,7 +177,7 @@ export function FilesTab({ files: initialFiles, projectId, canUpload = true }: {
                         </div>
                         <div className="text-xs text-muted-foreground">
                           {f.created_at
-                            ? formatDate(f.created_at)
+                            ? formatTodoDate(f.created_at, "de")
                             : "–"}{" "}
                           • {formatSize(f.size_bytes || 0)}
                           {downloadInfo.count > 0 && (
@@ -184,7 +185,7 @@ export function FilesTab({ files: initialFiles, projectId, canUpload = true }: {
                               • {downloadInfo.count}x {t("project.downloads")}
                               {downloadInfo.lastDownloaded && (
                                 <span className="block text-xs">
-                                  {t("project.last.downloaded")}: {new Date(downloadInfo.lastDownloaded).toLocaleDateString()}{" "}
+                                  {t("project.last.downloaded")}: {formatFileDate(downloadInfo.lastDownloaded, "de")}{" "}
                                   {new Date(downloadInfo.lastDownloaded).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
                                 </span>
                               )}
