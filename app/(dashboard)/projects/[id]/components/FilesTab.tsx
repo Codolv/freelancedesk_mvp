@@ -6,9 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Motion } from "@/components/custom/Motion";
-import { Loader2, Trash2, Upload, FileIcon, Download, Eye } from "lucide-react";
+import { Loader2, Trash2, Upload, FileIcon, Download, Eye, History } from "lucide-react";
 import { useT } from "@/lib/i18n/client";
 import { PreviewModal } from "@/components/ui/PreviewModal";
+import { FileVersionHistory } from "./FileVersionHistory";
 
 interface FileDownload {
   id: string;
@@ -46,6 +47,7 @@ export function FilesTab({ files: initialFiles, projectId, canUpload = true }: {
   const [uploading, setUploading] = useState(false);
   const [previewFile, setPreviewFile] = useState<FileItem | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [showVersionHistory, setShowVersionHistory] = useState<{[key: string]: boolean}>({});
 
   // Handle upload
   const handleUpload = async (formData: FormData) => {
@@ -102,6 +104,13 @@ export function FilesTab({ files: initialFiles, projectId, canUpload = true }: {
     return { count: downloads.length, lastDownloaded: lastDownload.downloaded_at, hasDownloads: true };
   };
 
+  const toggleVersionHistory = (fileName: string) => {
+    setShowVersionHistory(prev => ({
+      ...prev,
+      [fileName]: !prev[fileName]
+    }));
+  };
+
   return (
     <>
       <Card className="shadow-sm border border-border/50 bg-background/80 backdrop-blur-sm">
@@ -148,73 +157,99 @@ export function FilesTab({ files: initialFiles, projectId, canUpload = true }: {
             {files.map((f: FileItem, idx: number) => {
               const downloadInfo = getDownloadInfo(f.name);
               return (
-                <Motion
-                  key={f.name}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.05 }}
-                  className="flex items-center justify-between px-4 py-3 hover:bg-muted/40 transition-colors bg-white"
-                >
-                  <div className="flex items-center gap-3 truncate">
-                    <FileIcon className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                    <div className="truncate">
-                      <div className="font-medium truncate">{f.name}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {f.created_at
-                          ? formatDate(f.created_at)
-                          : "–"}{" "}
-                        • {formatSize(f.size_bytes || 0)}
-                        {downloadInfo.count > 0 && (
-                          <span className="ml-2 text-blue-600">
-                            • {downloadInfo.count}x {t("project.downloads")}
-                            {downloadInfo.lastDownloaded && (
-                              <span className="block text-xs">
-                                {t("project.last.downloaded")}: {new Date(downloadInfo.lastDownloaded).toLocaleDateString()}{" "}
-                                {new Date(downloadInfo.lastDownloaded).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
-                              </span>
-                            )}
-                          </span>
-                        )}
+                <div key={f.name}>
+                  <Motion
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                    className="flex items-center justify-between px-4 py-3 hover:bg-muted/40 transition-colors bg-white"
+                  >
+                    <div className="flex items-center gap-3 truncate">
+                      <FileIcon className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                      <div className="truncate">
+                        <div className="font-medium truncate">{f.name}
+                          {f.version && f.version > 1 && (
+                            <span className="ml-2 text-xs text-muted-foreground">
+                              v{f.version}
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {f.created_at
+                            ? formatDate(f.created_at)
+                            : "–"}{" "}
+                          • {formatSize(f.size_bytes || 0)}
+                          {downloadInfo.count > 0 && (
+                            <span className="ml-2 text-blue-600">
+                              • {downloadInfo.count}x {t("project.downloads")}
+                              {downloadInfo.lastDownloaded && (
+                                <span className="block text-xs">
+                                  {t("project.last.downloaded")}: {new Date(downloadInfo.lastDownloaded).toLocaleDateString()}{" "}
+                                  {new Date(downloadInfo.lastDownloaded).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                              )}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="flex gap-2 items-center">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="text-blue-600 hover:text-blue-800"
-                      onClick={() => {
-                        setPreviewFile(f);
-                        setPreviewOpen(true);
-                      }}
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      asChild
-                      variant="ghost"
-                      size="sm"
-                      className="text-blue-600 hover:text-blue-800"
-                    >
-                      <a
-                        href={`/api/files/${projectId}/${f.name}`}
-                        target="_blank"
-                        rel="noreferrer"
+                    <div className="flex gap-2 items-center">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-blue-600 hover:text-blue-800"
+                        onClick={() => {
+                          setPreviewFile(f);
+                          setPreviewOpen(true);
+                        }}
                       >
-                        <Download className="h-4 w-4" />
-                      </a>
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="text-destructive hover:text-destructive/90"
-                      onClick={() => handleDelete(f.name)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </Motion>
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-blue-600 hover:text-blue-800"
+                        onClick={() => toggleVersionHistory(f.name)}
+                      >
+                        <History className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        asChild
+                        variant="ghost"
+                        size="sm"
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        <a
+                          href={`/api/files/${projectId}/${f.name}`}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <Download className="h-4 w-4" />
+                        </a>
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-destructive hover:text-destructive/90"
+                        onClick={() => handleDelete(f.name)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </Motion>
+                  
+                  {/* Version History Section */}
+                  {showVersionHistory[f.name] && (
+                    <div className="px-4 py-3 bg-muted/20 border-t border-border/50">
+                      <FileVersionHistory
+                        projectId={projectId}
+                        fileName={f.name}
+                        currentVersion={f.version || 1}
+                      />
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>

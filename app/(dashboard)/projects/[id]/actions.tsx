@@ -155,40 +155,114 @@ export async function deleteFile(projectId: string, fileName: string) {
   }
 }
 
-// Upload file to Supabase storage
+// Upload file to Supabase storage with versioning support
 export async function uploadFile(projectId: string, formData: FormData) {
   const supabase = await getServerSupabaseAction();
   const file = formData.get("file") as File;
   if (!file) return;
 
-  // Upload file to Supabase storage
-  const { data, error } = await supabase.storage
-    .from("files")
-    .upload(`${projectId}/${file.name}`, file, { upsert: true });
-
-  if (error) throw error;
-
   // Get the user who uploaded the file
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Nicht eingeloggt");
 
-  // Insert file metadata into the database and return the inserted record
-  const { data: insertedFile, error: dbError } = await supabase
+  // Check if a file with this name already exists in the project
+ const { data: existingFile, error: existingFileError } = await supabase
     .from("project_files")
+    .select("*")
+    .eq("project_id", projectId)
+    .eq("name", file.name)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .single();
+
+  let projectFileId: string;
+  let versionNumber: number;
+
+  if (existingFile) {
+    // File already exists, increment version number
+    versionNumber = existingFile.version ? existingFile.version + 1 : 2;
+    projectFileId = existingFile.id;
+
+    // Update the existing file record
+    const { error: updateError } = await supabase
+      .from("project_files")
+      .update({
+        path: `${projectId}/${file.name}`,
+        size_bytes: file.size,
+        mime_type: file.type || "",
+        updated_at: new Date().toISOString(),
+        version: versionNumber,
+      })
+      .eq("id", existingFile.id);
+
+    if (updateError) throw updateError;
+  } else {
+    // New file, create project_files record
+    const { data: newFile, error: insertError } = await supabase
+      .from("project_files")
+      .insert({
+        project_id: projectId,
+        name: file.name,
+        path: `${projectId}/${file.name}`,
+        size_bytes: file.size,
+        mime_type: file.type || "",
+        uploaded_by: user.id,
+        version: 1,
+      })
+      .select()
+      .single();
+
+    if (insertError) throw insertError;
+    projectFileId = newFile.id;
+    versionNumber = 1;
+  }
+
+  // Create a unique filename for this version to avoid conflicts
+  const versionFileName = versionNumber === 1 
+    ? file.name 
+    : `${file.name.split('.')[0]}_v${versionNumber}.${file.name.split('.').pop() || ''}`;
+  
+  // Upload file to Supabase storage with version-specific name
+  const { data, error } = await supabase.storage
+    .from("files")
+    .upload(`${projectId}/${versionFileName}`, file, { upsert: true });
+
+  if (error) throw error;
+
+  // Insert version record
+  const { data: fileVersion, error: versionError } = await supabase
+    .from("file_versions")
     .insert({
-      project_id: projectId,
-      name: file.name,
-      path: `${projectId}/${file.name}`,
+      project_file_id: projectFileId,
+      version_number: versionNumber,
+      file_path: `${projectId}/${versionFileName}`,
       size_bytes: file.size,
       mime_type: file.type || "",
-      uploaded_by: user.id,
+      created_by: user.id,
     })
     .select()
     .single();
 
-  if (dbError) throw dbError;
+  if (versionError) throw versionError;
 
-  return insertedFile;
+  // Update the current_version_id in project_files
+  const { error: updateCurrentVersionError } = await supabase
+    .from("project_files")
+    .update({ current_version_id: fileVersion.id })
+    .eq("id", projectFileId);
+
+  if (updateCurrentVersionError) throw updateCurrentVersionError;
+
+  // Return the updated file info
+  const { data: finalFile, error: finalError } = await supabase
+    .from("project_files")
+    .select("*")
+    .eq("id", projectFileId)
+    .single();
+
+  if (finalError) throw finalError;
+
+  return finalFile;
 }
 
 // Get file URL
