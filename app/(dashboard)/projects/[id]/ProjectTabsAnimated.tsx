@@ -3,13 +3,119 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageSquare, Folder, Wallet, User, CheckSquare } from "lucide-react";
+import { MessageSquare, Folder, Wallet, User, CheckSquare, Flag } from "lucide-react";
 import { Comments } from "./components/Comments";
 import { FilesTab } from "./components/FilesTab";
 import { InvoicesTab } from "./components/InvoicesTab";
 import { ClientsTab } from "./components/ClientsTab";
 import { TodosTab } from "./components/TodosTab";
+import { MilestonesTab } from "./components/MilestonesTab";
 import { useT } from "@/lib/i18n/client";
+
+interface MessageProfile {
+  id: string;
+  name: string;
+  email: string;
+  avatar_url: string | null;
+}
+
+interface MessageWithAvatar {
+  id: string;
+  content: string;
+  created_at: string;
+  user_id: string;
+  profiles: (MessageProfile & { signedAvatarUrl: string | null }) | null;
+}
+
+interface File {
+  id: string;
+  project_id: string;
+  name: string;
+  path: string;
+  size_bytes: number;
+  mime_type: string;
+  description: string;
+  uploaded_by: string;
+  version: number;
+  created_at: string;
+  updated_at: string;
+}
+
+interface Invoice {
+  id: string;
+  project_id: string;
+  title: string;
+  status: string;
+  amount_cents: number;
+  currency: string;
+  due_date: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  avatar_url: string | null;
+}
+
+interface ProjectInvite {
+  id: string;
+  email: string;
+  accepted: boolean;
+}
+
+interface Todo {
+  id: string;
+  title: string;
+  description: string | null;
+  completed: boolean;
+  due_date: string | null;
+  created_at: string;
+  created_by: string;
+  profiles: {
+    id: string;
+    name: string;
+    email: string;
+    avatar_url: string | null;
+  } | null;
+}
+
+interface MilestoneProfile {
+  id: string;
+  name: string;
+  email: string;
+  avatar_url: string | null;
+}
+
+interface Milestone {
+ id: string;
+  title: string;
+  description: string | null;
+  status: 'pending' | 'in_progress' | 'completed' | 'overdue';
+  due_date: string | null;
+  target_date: string | null;
+  actual_completion_date: string | null;
+  order_number: number;
+  created_at: string;
+  created_by: string;
+  profiles: MilestoneProfile | null;
+}
+
+interface ProjectTabsAnimatedProps {
+  projectId: string;
+  isFreelancer: boolean;
+  isClient: boolean;
+  messages: MessageWithAvatar[];
+  files: File[];
+  invoices: Invoice[];
+  acceptedClients: UserProfile[];
+  pendingInvites: ProjectInvite[];
+  user: UserProfile | null;
+  todos: Todo[];
+  milestones: Milestone[];
+}
 
 export default function ProjectTabsAnimated({
   projectId,
@@ -21,8 +127,9 @@ export default function ProjectTabsAnimated({
   acceptedClients,
   pendingInvites,
   user,
-  todos
-}: any) {
+  todos,
+  milestones
+}: ProjectTabsAnimatedProps) {
   const { t } = useT();
   const [value, setValue] = useState<string>("messages");
 
@@ -31,16 +138,17 @@ export default function ProjectTabsAnimated({
 
   // refs for each content panel so we can measure
   const refs = {
-    messages: useRef<HTMLDivElement | null>(null),
-    todos: useRef<HTMLDivElement | null>(null),
-    files: useRef<HTMLDivElement | null>(null),
-    invoices: useRef<HTMLDivElement | null>(null),
-    clients: useRef<HTMLDivElement | null>(null),
+    messages: useRef<HTMLDivElement>(null),
+    todos: useRef<HTMLDivElement>(null),
+    milestones: useRef<HTMLDivElement>(null),
+    files: useRef<HTMLDivElement>(null),
+    invoices: useRef<HTMLDivElement>(null),
+    clients: useRef<HTMLDivElement>(null),
   };
 
   // helper to measure active panel
-  const measure = useCallback((key: string) => {
-    const el = (refs as any)[key]?.current as HTMLDivElement | null;
+  const measure = useCallback((key: keyof typeof refs) => {
+    const el = refs[key]?.current;
     if (!el) {
       setHeight("auto");
       return;
@@ -49,20 +157,20 @@ export default function ProjectTabsAnimated({
     setHeight(Math.ceil(rect.height));
   }, []);
 
-  // measure on mount and when value changes
+ // measure on mount and when value changes
   useEffect(() => {
     // small timeout to allow children to mount and images/fonts to paint
-    const t = setTimeout(() => measure(value), 40);
+    const t = setTimeout(() => measure(value as keyof typeof refs), 40);
     return () => clearTimeout(t);
   }, [value, measure]);
 
   // observe size changes inside the active panel (handles images, late content, markdown)
   useEffect(() => {
-    const el = (refs as any)[value]?.current as HTMLDivElement | null;
+    const el = refs[value as keyof typeof refs]?.current;
     if (!el) return;
 
     const ro = new ResizeObserver(() => {
-      measure(value);
+      measure(value as keyof typeof refs);
     });
     ro.observe(el);
     return () => ro.disconnect();
@@ -85,6 +193,9 @@ export default function ProjectTabsAnimated({
           </TabsTrigger>
           <TabsTrigger value="todos" className="flex items-center gap-2">
             <CheckSquare className="h-4 w-4" /> {t("dashboard.todos")}
+          </TabsTrigger>
+          <TabsTrigger value="milestones" className="flex items-center gap-2">
+            <Flag className="h-4 w-4" /> {t("dashboard.milestones")}
           </TabsTrigger>
           <TabsTrigger value="files" className="flex items-center gap-2">
             <Folder className="h-4 w-4" /> {t("dashboard.files")}
@@ -132,6 +243,18 @@ export default function ProjectTabsAnimated({
               projectId={projectId}
               isFreelancer={isFreelancer}
               initialTodos={todos}
+            />
+          </div>
+
+          {/* Milestones panel */}
+          <div
+            ref={refs.milestones}
+            style={{ display: value === "milestones" ? "block" : "none" }}
+          >
+            <MilestonesTab
+              projectId={projectId}
+              isFreelancer={isFreelancer}
+              initialMilestones={milestones}
             />
           </div>
 

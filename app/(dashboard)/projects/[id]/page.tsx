@@ -24,7 +24,8 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
 
   if (!user) return <div className="flex items-center justify-center h-screen text-muted-foreground">{dict["signin.title"]}</div>;
 
- const { data: user_profile } = await supabase.from("profiles").select("id, name, email, avatar_url").eq("id", user.id);
+  const { data: userProfileRaw } = await supabase.from("profiles").select("id, name, email, avatar_url").eq("id", user.id);
+  const userProfile = userProfileRaw?.[0] || null;
 
   const { data: project } = await supabase.from("projects").select("*").eq("id", id).single();
   if (!project) return <div className="flex items-center justify-center h-screen text-muted-foreground">{dict["projects.title"]} {dict["projects.not.found"]}</div>;
@@ -67,20 +68,41 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
     profiles: MessageProfile[];
   }
 
-  interface TodoProfile {
+  interface Todo {
+    id: string;
+    title: string;
+    description: string | null;
+    completed: boolean;
+    due_date: string | null;
+    created_at: string;
+    created_by: string;
+    profiles: {
+      id: string;
+      name: string;
+      email: string;
+      avatar_url: string | null;
+    } | null;
+  }
+
+  interface MilestoneProfile {
     id: string;
     name: string;
     email: string;
     avatar_url: string | null;
   }
 
-  interface Todo {
+  interface Milestone {
     id: string;
     title: string;
-    completed: boolean;
+    description: string | null;
+    status: 'pending' | 'in_progress' | 'completed' | 'overdue';
+    due_date: string | null;
+    target_date: string | null;
+    actual_completion_date: string | null;
+    order_number: number;
     created_at: string;
-    assigned_to: string | null;
-    profiles: TodoProfile[];
+    created_by: string;
+    profiles: MilestoneProfile | null;
   }
 
   interface ProjectClient {
@@ -100,9 +122,17 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
     avatar_url: string | null;
   }
 
+  interface MessageWithAvatar {
+    id: string;
+    content: string;
+    created_at: string;
+    user_id: string;
+    profiles: (MessageProfile & { signedAvatarUrl: string | null }) | null;
+  }
+
   const messages = await Promise.all(
     (messagesRaw || []).map(async (m: Message) => {
-      const firstProfile = m.profiles[0] || null;
+      const firstProfile = m.profiles?.[0] || null;
       return {
         ...m,
         profiles: firstProfile ? {
@@ -111,7 +141,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         } : null,
       };
     })
-  );
+  ) as MessageWithAvatar[];
 
   // Fetch files directly from the database using the same Supabase client
   const { data: files, error: filesError } = await supabase
@@ -138,6 +168,26 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
     `)
     .eq("project_id", id)
     .order("created_at", { ascending: false });
+
+  // Fetch milestones
+  const { data: milestones } = await supabase
+    .from("project_milestones")
+    .select(`
+      *,
+      profiles (
+        id,
+        name,
+        email,
+        avatar_url
+      )
+    `)
+    .eq("project_id", id)
+    .order("order_number", { ascending: true })
+    .order("created_at", { ascending: false });
+
+  interface ProjectClient {
+    client_id: string;
+  }
 
   // accepted clients (robust, no join)
   const { data: projectClients } = await supabase.from("project_clients").select("client_id").eq("project_id", id);
@@ -195,9 +245,10 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         files={filesData}
         invoices={invoices || []}
         todos={todos || []}
+        milestones={milestones || []}
         acceptedClients={acceptedClients || []}
         pendingInvites={pendingInvites || []}
-        user={user_profile}
+        user={userProfile || null}
       />
     </Motion>
   );
