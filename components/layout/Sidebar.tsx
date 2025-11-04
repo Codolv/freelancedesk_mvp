@@ -88,7 +88,7 @@ export default function Sidebar() {
     <motion.aside
       animate={{ width: collapsed ? 80 : 280 }}
       className={cn(
-        "h-screen fixed left-0 top-0 z-40 flex flex-col border-r border-border/40 bg-background/80 backdrop-blur-sm transition-all duration-300 shadow-sm",
+        "h-screen fixed left-0 top-0 z-40 flex flex-col border-r border-border/40 bg-background transition-all duration-300 shadow-sm",
         "max-w-[280px] min-w-[80px]"
       )}
       style={{ width: collapsed ? 80 : 280 }}

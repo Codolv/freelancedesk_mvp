@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { useState, useTransition } from "react";
 import { uploadFile, deleteFile } from "../actions";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Motion } from "@/components/custom/Motion";
-import { Loader2, Trash2, Upload, FileIcon, Download } from "lucide-react";
+import { Loader2, Trash2, Upload, FileIcon, Download, Eye } from "lucide-react";
 import { useT } from "@/lib/i18n/client";
+import { PreviewModal } from "@/components/ui/PreviewModal";
 
 interface FileDownload {
   id: string;
@@ -21,6 +22,7 @@ interface FileDownload {
 interface FileItem {
   id: string;
   name: string;
+  path: string;
   size_bytes?: number;
   mime_type?: string;
   description?: string;
@@ -28,11 +30,6 @@ interface FileItem {
   version?: number;
   created_at: string;
   updated_at: string;
-  size?: number;
-  last_modified?: number;
-  metadata?: {
-    size?: number;
-  };
 }
 
 interface DownloadInfo {
@@ -47,6 +44,8 @@ export function FilesTab({ files: initialFiles, projectId, canUpload = true }: {
   const [fileDownloads, setFileDownloads] = useState<Record<string, FileDownload[]>>({});
   const [isPending, startTransition] = useTransition();
   const [uploading, setUploading] = useState(false);
+  const [previewFile, setPreviewFile] = useState<FileItem | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   // Handle upload
   const handleUpload = async (formData: FormData) => {
@@ -104,112 +103,134 @@ export function FilesTab({ files: initialFiles, projectId, canUpload = true }: {
   };
 
   return (
-    <Card className="shadow-sm border border-border/50 bg-background/80 backdrop-blur-sm">
-      <CardHeader>
-        <h2 className="text-xl font-semibold">{t("dashboard.files")}</h2>
-        <p className="text-sm text-muted-foreground">
-          {t("project.files.description")}
-        </p>
-      </CardHeader>
-      <CardContent>
-        {/* Upload form */}
-        {canUpload && (
-          <form
-            action={handleUpload}
-            className="flex items-center gap-3 mb-6"
-          >
-            <Input
-              type="file"
-              name="file"
-              disabled={uploading || isPending}
-            />
-            <Button type="submit" disabled={uploading || isPending}>
-              {uploading ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" /> {t("project.uploading")}
-                </>
-              ) : (
-                <>
-                  <Upload className="h-4 w-4 mr-2" /> {t("project.upload")}
-                </>
-              )}
-            </Button>
-          </form>
-        )}
-
-        {/* File list */}
-        <div className="rounded-md border border-border/50 divide-y divide-border/50">
-          {files.length === 0 && (
-            <div className="text-sm text-muted-foreground p-4 text-center">
-              {t("project.no.files")}
-            </div>
+    <>
+      <Card className="shadow-sm border border-border/50 bg-background/80 backdrop-blur-sm">
+        <CardHeader>
+          <h2 className="text-xl font-semibold">{t("dashboard.files")}</h2>
+          <p className="text-sm text-muted-foreground">
+            {t("project.files.description")}
+          </p>
+        </CardHeader>
+        <CardContent>
+          {/* Upload form */}
+          {canUpload && (
+            <form
+              action={handleUpload}
+              className="flex items-center gap-3 mb-6"
+            >
+              <Input
+                type="file"
+                name="file"
+                disabled={uploading || isPending}
+              />
+              <Button type="submit" disabled={uploading || isPending}>
+                {uploading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" /> {t("project.uploading")}
+                  </>
+                ) : (
+                  <>
+                    <Upload className="h-4 w-4 mr-2" /> {t("project.upload")}
+                  </>
+                )}
+              </Button>
+            </form>
           )}
 
-          {files.map((f: FileItem, idx: number) => {
-            const downloadInfo = getDownloadInfo(f.name);
-            return (
-              <Motion
-                key={f.name}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.05 }}
-                className="flex items-center justify-between px-4 py-3 hover:bg-muted/40 transition-colors bg-white"
-              >
-                <div className="flex items-center gap-3 truncate">
-                  <FileIcon className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                  <div className="truncate">
-                    <div className="font-medium truncate">{f.name}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {f.created_at
-                        ? formatDate(f.created_at)
-                        : f.last_modified
-                        ? new Date(f.last_modified).toLocaleDateString()
-                        : "–"}{" "}
-                      • {formatSize(f.size_bytes || f.metadata?.size || f.size || 0)}
-                      {downloadInfo.count > 0 && (
-                        <span className="ml-2 text-blue-60">
-                          • {downloadInfo.count}x {t("project.downloads")}
-                          {downloadInfo.lastDownloaded && (
-                            <span className="block text-xs">
-                              {t("project.last.downloaded")}: {new Date(downloadInfo.lastDownloaded).toLocaleDateString()}{" "}
-                              {new Date(downloadInfo.lastDownloaded).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
-                            </span>
-                          )}
-                        </span>
-                      )}
+          {/* File list */}
+          <div className="rounded-md border border-border/50 divide-y divide-border/50">
+            {files.length === 0 && (
+              <div className="text-sm text-muted-foreground p-4 text-center">
+                {t("project.no.files")}
+              </div>
+            )}
+
+            {files.map((f: FileItem, idx: number) => {
+              const downloadInfo = getDownloadInfo(f.name);
+              return (
+                <Motion
+                  key={f.name}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.05 }}
+                  className="flex items-center justify-between px-4 py-3 hover:bg-muted/40 transition-colors bg-white"
+                >
+                  <div className="flex items-center gap-3 truncate">
+                    <FileIcon className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                    <div className="truncate">
+                      <div className="font-medium truncate">{f.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {f.created_at
+                          ? formatDate(f.created_at)
+                          : "–"}{" "}
+                        • {formatSize(f.size_bytes || 0)}
+                        {downloadInfo.count > 0 && (
+                          <span className="ml-2 text-blue-600">
+                            • {downloadInfo.count}x {t("project.downloads")}
+                            {downloadInfo.lastDownloaded && (
+                              <span className="block text-xs">
+                                {t("project.last.downloaded")}: {new Date(downloadInfo.lastDownloaded).toLocaleDateString()}{" "}
+                                {new Date(downloadInfo.lastDownloaded).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            )}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="flex gap-2 items-center">
-                  <Button
-                    asChild
-                    variant="ghost"
-                    size="sm"
-                    className="text-blue-600 hover:text-blue-80"
-                  >
-                    <a
-                      href={`/api/files/${projectId}/${f.name}`}
-                      target="_blank"
-                      rel="noreferrer"
+                  <div className="flex gap-2 items-center">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-blue-600 hover:text-blue-800"
+                      onClick={() => {
+                        setPreviewFile(f);
+                        setPreviewOpen(true);
+                      }}
                     >
-                      <Download className="h-4 w-4" />
-                    </a>
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="text-destructive hover:text-destructive/90"
-                    onClick={() => handleDelete(f.name)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </Motion>
-            );
-          })}
-        </div>
-      </CardContent>
-    </Card>
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      asChild
+                      variant="ghost"
+                      size="sm"
+                      className="text-blue-600 hover:text-blue-800"
+                    >
+                      <a
+                        href={`/api/files/${projectId}/${f.name}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <Download className="h-4 w-4" />
+                      </a>
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-destructive hover:text-destructive/90"
+                      onClick={() => handleDelete(f.name)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </Motion>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+      
+      {previewFile && (
+        <PreviewModal
+          isOpen={previewOpen}
+          onClose={() => setPreviewOpen(false)}
+          fileName={previewFile.name}
+          projectId={projectId}
+          fileSize={previewFile.size_bytes || 0}
+          mimeType={previewFile.mime_type}
+        />
+      )}
+    </>
   );
 }

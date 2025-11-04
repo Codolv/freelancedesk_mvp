@@ -112,25 +112,14 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
     })
   );
 
-  // Fetch files from the database instead of storage
-  let files = [];
-  try {
-    // Since this is server-side code, we can call the API route directly
-    // The API route will handle authentication using the current session context
-    const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/files/${id}`, {
-      cache: 'no-store'
-    });
-    
-    if (response.ok) {
-      const filesData = await response.json();
-      files = filesData.files || [];
-    } else {
-      console.error('Failed to fetch files:', response.status, await response.text());
-    }
-  } catch (error) {
-    console.error('Error fetching files:', error);
-    files = []; // Fallback to empty array if API call fails
-  }
+  // Fetch files directly from the database using the same Supabase client
+  const { data: files, error: filesError } = await supabase
+    .from("project_files")
+    .select("*")
+    .eq("project_id", id)
+    .order("created_at", { ascending: false });
+
+  const filesData = filesError ? [] : files || [];
 
   const { data: invoices } = await supabase.from("project_invoices").select("*").eq("project_id", id).order("created_at", { ascending: false });
 
@@ -202,7 +191,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         isFreelancer={isFreelancer}
         isClient={!!isClient}
         messages={messages || []}
-        files={files || []}
+        files={filesData}
         invoices={invoices || []}
         todos={todos || []}
         acceptedClients={acceptedClients || []}

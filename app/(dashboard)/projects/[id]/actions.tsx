@@ -172,8 +172,8 @@ export async function uploadFile(projectId: string, formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Nicht eingeloggt");
 
-  // Insert file metadata into the database
-  const { error: dbError } = await supabase
+  // Insert file metadata into the database and return the inserted record
+  const { data: insertedFile, error: dbError } = await supabase
     .from("project_files")
     .insert({
       project_id: projectId,
@@ -182,20 +182,13 @@ export async function uploadFile(projectId: string, formData: FormData) {
       size_bytes: file.size,
       mime_type: file.type || "",
       uploaded_by: user.id,
-    });
+    })
+    .select()
+    .single();
 
   if (dbError) throw dbError;
 
-  return { 
-    id: "", // Supabase storage doesn't return an ID for uploads
-    name: file.name,
-    size_bytes: file.size,
-    mime_type: file.type || "",
-    uploaded_by: user.id,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    last_modified: file.lastModified,
-  };
+  return insertedFile;
 }
 
 // Get file URL
