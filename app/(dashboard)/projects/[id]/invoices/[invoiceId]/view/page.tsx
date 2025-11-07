@@ -4,11 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Motion } from "@/components/custom/Motion";
 import Link from "next/link";
-import { format } from "date-fns";
-import { de, enUS } from "date-fns/locale";
-import { getDateLocale, formatInvoiceDate } from "@/lib/i18n/date-format";
+import { formatInvoiceDate } from "@/lib/i18n/date-format";
 import { getLocale } from "@/lib/i18n/server";
-import { ArrowLeft, FileText, Download, Edit } from "lucide-react";
+import { ArrowLeft, Download, Edit } from "lucide-react";
 
 export default async function InvoiceViewPage({
   params,
@@ -37,10 +35,16 @@ export default async function InvoiceViewPage({
     );
   }
 
-  const totalAmount = items?.reduce(
-    (sum, item) => sum + Math.round(item.quantity * item.unit_price_cents),
-    0
-  ) || 0;
+  // === Beträge berechnen ===
+  const subtotal =
+    items?.reduce(
+      (sum, item) => sum + item.quantity * item.unit_price_cents,
+      0
+    ) || 0;
+
+  const taxRate = 0.19; // Standard MwSt 19 %
+  const tax = subtotal * taxRate;
+  const total = subtotal + tax;
 
   return (
     <Motion
@@ -70,7 +74,7 @@ export default async function InvoiceViewPage({
                 invoice.status === "Paid"
                   ? "bg-olive-600 text-white"
                   : invoice.status === "Open"
-                  ? "bg-yellow-500/20 text-yellow-80 dark:text-yellow-300"
+                  ? "bg-yellow-500/20 text-yellow-800 dark:text-yellow-300"
                   : ""
               }
             >
@@ -85,15 +89,13 @@ export default async function InvoiceViewPage({
 
         <CardContent className="py-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Invoice Details */}
+            {/* Rechnungsdetails */}
             <div>
               <h3 className="font-medium mb-3">Rechnungsdetails</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Erstellt:</span>
-                  <span>
-                    {formatInvoiceDate(invoice.created_at, locale)}
-                  </span>
+                  <span>{formatInvoiceDate(invoice.created_at, locale)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Projekt:</span>
@@ -108,22 +110,45 @@ export default async function InvoiceViewPage({
               </div>
             </div>
 
-            {/* Total Amount */}
+            {/* Summen */}
             <div className="text-right">
-              <h3 className="font-medium mb-3">Gesamtbetrag</h3>
-              <p className="text-3xl font-bold text-foreground">
-                {(totalAmount / 100).toLocaleString("de-DE", {
-                  style: "currency",
-                  currency: "EUR",
-                })}
-              </p>
+              <h3 className="font-medium mb-3">Beträge</h3>
+              <div className="space-y-1 text-sm">
+                <div className="flex justify-between md:justify-end gap-8">
+                  <span className="text-muted-foreground">Zwischensumme:</span>
+                  <span>
+                    {(subtotal / 100).toLocaleString("de-DE", {
+                      style: "currency",
+                      currency: "EUR",
+                    })}
+                  </span>
+                </div>
+                <div className="flex justify-between md:justify-end gap-8">
+                  <span className="text-muted-foreground">zzgl. 19 % MwSt.:</span>
+                  <span>
+                    {(tax / 100).toLocaleString("de-DE", {
+                      style: "currency",
+                      currency: "EUR",
+                    })}
+                  </span>
+                </div>
+                <div className="flex justify-between md:justify-end gap-8 font-semibold border-t border-border/40 pt-2 mt-2 text-lg">
+                  <span>Gesamtbetrag:</span>
+                  <span className="text-foreground">
+                    {(total / 100).toLocaleString("de-DE", {
+                      style: "currency",
+                      currency: "EUR",
+                    })}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Invoice Items */}
+          {/* Positionen */}
           <div className="mt-8">
             <h3 className="font-medium mb-4">Positionen</h3>
-            <div className="border border-border/60 rounded-md">
+            <div className="border border-border/60 rounded-md overflow-hidden">
               <div className="grid grid-cols-12 gap-4 p-4 border-b border-border/60 bg-muted/20 font-medium">
                 <div className="col-span-6">Beschreibung</div>
                 <div className="col-span-2 text-center">Menge</div>
@@ -153,6 +178,11 @@ export default async function InvoiceViewPage({
               ))}
             </div>
           </div>
+
+          {/* Rechtlicher Hinweis */}
+          <p className="text-xs text-muted-foreground mt-6">
+            Hinweis gemäß § 14 UStG: Diese Rechnung enthält 19 % Umsatzsteuer.
+          </p>
         </CardContent>
 
         <CardFooter className="border-t border-border/60 flex justify-between">
@@ -170,7 +200,9 @@ export default async function InvoiceViewPage({
               </Link>
             </Button>
             <Button asChild>
-              <Link href={`/projects/${params.id}/invoices/${params.invoiceId}`}>
+              <Link
+                href={`/projects/${params.id}/invoices/${params.invoiceId}/edit`}
+              >
                 <Edit className="mr-2 h-4 w-4" />
                 Bearbeiten
               </Link>
