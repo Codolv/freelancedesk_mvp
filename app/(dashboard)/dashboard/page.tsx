@@ -22,7 +22,8 @@ export default async function DashboardPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
+   if (!user) {
+    // This should not happen if middleware is working correctly, but as a fallback
     return (
       <div className="flex items-center justify-center h-screen text-muted-foreground">
         {dict["signin.title"]}
