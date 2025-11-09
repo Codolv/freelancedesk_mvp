@@ -2,7 +2,6 @@
 
 import { getBrowserSupabase } from "@/lib/supabase/client";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Motion } from "@/components/custom/Motion"
 import { Button } from "@/components/ui/button";
@@ -25,19 +24,8 @@ interface Profile {
   signedAvatarUrl?: string;
 }
 
-interface ProfileUpdate {
-  avatar_url: string;
-  email: string;
-  phone: string;
-  linkedin: string;
-  twitter: string;
-  website: string;
-  name?: string;
-  signedAvatarUrl?: string;
-}
 
 export default function SettingsPage() {
-  const router = useRouter();
   const { t } = useT();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -68,16 +56,6 @@ export default function SettingsPage() {
     }
   };
 
-  const handleLogout = async () => {
-    setLoading(true);
-    const supabase = getBrowserSupabase();
-    await supabase.auth.signOut();
-    setLoading(false);
-    setTimeout(() => {
-      router.replace("/");
-    }, 1000);
-  };
-
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -86,7 +64,7 @@ export default function SettingsPage() {
     const user = userData.data.user;
     if (!user) return alert("Not authenticated");
 
-    const { data: list, error: listError } = await supabase.storage.from("avatars").list(user.id);
+    const { data: list } = await supabase.storage.from("avatars").list(user.id);
     if (list) {
       const filesToRemove = list.map((x) => `${user.id}/${x.name}`);
       await supabase.storage.from("avatars").remove(filesToRemove);
@@ -116,8 +94,7 @@ export default function SettingsPage() {
           <CardTitle>{t("dashboard.clients")}</CardTitle>
           {!editing && (
             <div className="flex justify-end gap-3 pt-4">
-              <Button onClick={() => setEditing(true)}>{t("invoice.edit")} {t("dashboard.clients")}</Button>
-              <Button variant="destructive" onClick={handleLogout}>{t("settings.logout")}</Button>
+              <Button onClick={() => setEditing(true)}>{t("settings.edit.profile")}</Button>
             </div>
           )}
         </CardHeader>
@@ -165,15 +142,15 @@ export default function SettingsPage() {
 
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <p className="text-muted-foreground">{t("dashboard.clients")}</p>
+                    <p className="text-muted-foreground">{t("settings.phonenumber")}</p>
                     <p>{profile.phone || t("dashboard.settings")}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">LinkedIn</p>
+                    <p className="text-muted-foreground">{t("settings.linkedin")}</p>
                     <p>{profile.linkedin || t("dashboard.settings")}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">Twitter / X</p>
+                    <p className="text-muted-foreground">{t("settings.twitter")}</p>
                     <p>{profile.twitter || t("dashboard.settings")}</p>
                   </div>
                 </div>
@@ -210,18 +187,18 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="grid gap-2">
-                  <Label>{t("dashboard.clients")}</Label>
+                  <Label>{t("auth.name.label")}</Label>
                   <Input
                     value={profile.name || ""}
                     onChange={(e) =>
                       setProfile((p: Profile) => ({ ...p, name: e.target.value }))
                     }
-                    placeholder={t("dashboard.clients")}
+                    placeholder={t("auth.name.label")}
                   />
                 </div>
 
                 <div className="grid gap-2">
-                  <Label>{t("dashboard.clients")}</Label>
+                  <Label>{t("settings.phonenumber")}</Label>
                   <Input
                     value={profile.phone || ""}
                     onChange={(e) =>
@@ -232,7 +209,7 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="grid gap-2">
-                  <Label>LinkedIn</Label>
+                  <Label>{t("settings.linkedin")}</Label>
                   <Input
                     value={profile.linkedin || ""}
                     onChange={(e) =>
@@ -246,7 +223,7 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="grid gap-2">
-                  <Label>Twitter / X</Label>
+                  <Label>{t("settings.twitter")}</Label>
                   <Input
                     value={profile.twitter || ""}
                     onChange={(e) =>
@@ -260,7 +237,7 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="grid gap-2">
-                  <Label>{t("invoice.project")}</Label>
+                  <Label>{t("settings.website")}</Label>
                   <Input
                     value={profile.website || ""}
                     onChange={(e) =>
@@ -280,7 +257,7 @@ export default function SettingsPage() {
                     onClick={() => setEditing(false)}
                     disabled={loading}
                   >
-                    {t("dashboard.settings")}
+                    {t("settings.cancel")}
                   </Button>
                   <Button onClick={handleSave} disabled={loading}>
                     {loading ? (
@@ -289,7 +266,7 @@ export default function SettingsPage() {
                         {t("invoice.edit")}...
                       </>
                     ) : (
-                      t("invoice.edit")
+                      t("settings.save")
                     )}
                   </Button>
                 </div>

@@ -10,7 +10,7 @@ CREATE TABLE project_milestones (
     target_date TIMESTAMP WITH TIME ZONE,
     actual_completion_date TIMESTAMP WITH TIME ZONE,
     order_number INTEGER DEFAULT 0,
-    created_by UUID NOT NULL REFERENCES auth.users(id),
+    profile_id UUID NOT NULL REFERENCES public.profiles(id),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -19,7 +19,7 @@ CREATE TABLE project_milestones (
 CREATE INDEX idx_project_milestones_project_id ON project_milestones(project_id);
 CREATE INDEX idx_project_milestones_status ON project_milestones(status);
 CREATE INDEX idx_project_milestones_due_date ON project_milestones(due_date);
-CREATE INDEX idx_project_milestones_created_by ON project_milestones(created_by);
+CREATE INDEX idx_project_milestones_profile_id ON project_milestones(profile_id);
 
 -- RLS policy for project_milestones
 CREATE POLICY "Project members can manage milestones" ON project_milestones FOR ALL USING (
