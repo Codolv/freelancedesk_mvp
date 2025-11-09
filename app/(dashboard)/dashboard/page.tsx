@@ -9,6 +9,7 @@ import ProjectStatusChart from "./components/ProjectStatusChart";
 import ActivityFeed from "./components/ActivityFeed";
 import TodosCard from "./components/TodosCard";
 import DeadlinesCard from "./components/DeadlinesCard";
+import MilestonesOverview from "./components/MilestonesOverview";
 import Link from "next/link";
 import { getLocale } from "@/lib/i18n/server";
 import { dictionaries } from "@/lib/i18n/dictionaries";
@@ -52,7 +53,7 @@ export default async function DashboardPage() {
   const openInvoices = invoices?.filter((i) => i.status === "Open") || [];
 
   const totalEarnings =
-    paidInvoices.reduce((sum, i) => sum + i.amount_cents, 0) / 10;
+    paidInvoices.reduce((sum, i) => sum + i.amount_cents, 0) / 100;
   const totalOpen = openInvoices.reduce((sum, i) => sum + i.amount_cents, 0) / 100;
 
   // === Nachrichten (Aktivitäten) ===
@@ -88,6 +89,16 @@ export default async function DashboardPage() {
     `)
     .in("project_id", projectIds)
     .order("created_at", { ascending: false });
+
+  // === Milestones ===
+  const { data: milestones } = await supabase
+    .from("project_milestones")
+    .select(`
+      *,
+      projects (id, name)
+    `)
+    .in("project_id", projectIds)
+    .order("due_date", { ascending: true });
 
 
   // === Einnahmen-Chart (Demo basierend auf echten Daten) ===
@@ -165,7 +176,7 @@ export default async function DashboardPage() {
 
       <Separator />
 
-      {/* Charts + Activity + Todos + Deadlines */}
+      {/* Charts + Activity + Todos + Deadlines + Milestones */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <RevenueChart data={chartData} />
@@ -174,6 +185,7 @@ export default async function DashboardPage() {
 
         <div className="space-y-6">
           <DeadlinesCard projects={projects || []} />
+          <MilestonesOverview milestones={milestones || []} />
           <TodosCard todos={todos || []} />
           <ActivityFeed messages={messages || []} />
         </div>

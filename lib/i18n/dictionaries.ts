@@ -145,6 +145,12 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
 		"dashboard.messages": "Nachrichten",
 		"dashboard.todos": "Aufgaben",
 		"dashboard.milestones": "Meilensteine",
+		"dashboard.upcoming.milestones": "Bevorstehende Meilensteine",
+		"dashboard.recent.milestones": "Kürzliche Meilensteine",
+		"dashboard.no.upcoming.milestones": "Keine bevorstehenden Meilensteine",
+		"dashboard.total": "gesamt",
+		"dashboard.manage.milestones": "Meilensteine verwalten",
+		"dashboard.view.all.milestones": "Alle Meilensteine anzeigen",
 		"project.manage.todos": "Aufgaben verwalten",
 		"project.manage.milestones": "Meilensteine verwalten",
 		"project.refresh": "Aktualisieren",
@@ -152,7 +158,7 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
 		"project.new.todo": "Neue Aufgabe",
 		"project.new.milestone": "Neuer Meilenstein",
 		"project.uploading": "Hochladen...",
-	"project.upload": "Hochladen",
+		"project.upload": "Hochladen",
 		"project.no.files": "Noch keine Dateien vorhanden.",
 		"project.downloads": "Downloads",
 		"project.last.downloaded": "Zuletzt heruntergeladen",
@@ -165,9 +171,25 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
 		"project.share.updates": "Teile Updates und Fortschritte mit deinem Kunden.",
 		"project.message.label": "Nachricht (Markdown unterstützt)",
 		"project.message.placeholder": "Update schreiben...",
-	"project.posting": "Posten...",
+		"project.posting": "Posten...",
 		"project.post": "Posten",
 		"project.no.messages": "Noch keine Nachrichten vorhanden.",
+		"project.message.edit": "Bearbeiten",
+		"project.message.delete": "Löschen",
+		"project.message.save": "Speichern",
+		"project.message.cancel": "Abbrechen",
+		"project.message.posted": "Nachricht gesendet",
+		"project.message.posted.description": "Deine Nachricht wurde erfolgreich gesendet.",
+		"project.message.updated": "Nachricht aktualisiert",
+		"project.message.updated.description": "Deine Nachricht wurde erfolgreich aktualisiert.",
+		"project.message.deleted": "Nachricht gelöscht",
+		"project.message.deleted.description": "Die Nachricht wurde erfolgreich gelöscht.",
+		"project.message.error": "Fehler",
+		"project.message.post.error": "Fehler beim Senden der Nachricht.",
+		"project.message.edit.error": "Fehler beim Bearbeiten der Nachricht.",
+		"project.message.delete.error": "Fehler beim Löschen der Nachricht.",
+		"project.message.delete.confirm.title": "Nachricht löschen",
+		"project.message.delete.confirm.description": "Bist du sicher, dass du diese Nachricht löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.",
 		"project.clients.label": "Kunden:",
 		"project.no.clients.added": "Keine Kunden hinzugefügt.",
 		"project.invite.client.button": "Kunden einladen",
@@ -188,7 +210,7 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
 		"project.milestones.due.today": "Heute fällig",
 		"project.milestones.pending": "Ausstehend",
 		"project.milestones.search": "Meilensteine suchen...",
-	"project.milestones.title.label": "Titel *",
+		"project.milestones.title.label": "Titel *",
 		"project.milestones.title.placeholder": "Meilensteintitel...",
 		"project.milestones.description.label": "Beschreibung",
 		"project.milestones.description.placeholder": "Beschreibung (optional)...",
@@ -214,7 +236,7 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
 		"project.milestones.status.label": "Status",
 		"auth.email.required": "Bitte gib eine gültige E-Mail-Adresse ein.",
 		"auth.password.min": "Das Passwort muss mindestens 6 Zeichen lang sein.",
-			"auth.name.required": "Bitte gib deinen Namen ein.",
+		"auth.name.required": "Bitte gib deinen Namen ein.",
 		"auth.signin.success": "Erfolgreich angemeldet! Weiterleitung...",
 		"auth.signup.success": "Registrierung erfolgreich! Bitte überprüfe deine E-Mails zur Bestätigung.",
 		"auth.signin.loading": "Wird angemeldet...",
@@ -229,7 +251,7 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
 		"auth.or.continue.with": "oder fortfahren mit",
 		"auth.google.signin": "Mit Google anmelden",
 		"auth.google.signup": "Mit Google registrieren",
-		
+
 		// Branding/Whitelabeling
 		"branding.title": "Branding & Whitelabeling",
 		"branding.description": "Passen Sie Branding, Domain, E-Mail-Einstellungen und rechtliche Inhalte Ihrer Organisation an.",
@@ -237,7 +259,7 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
 		"branding.tabs.domains": "Domains",
 		"branding.tabs.email": "E-Mail",
 		"branding.tabs.legal": "Rechtliches",
-		
+
 		// Branding Settings
 		"branding.company.name": "Firmenname",
 		"branding.company.name.placeholder": "Ihr Firmenname",
@@ -245,7 +267,7 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
 		"branding.accent.color": "Akzentfarbe",
 		"branding.logo": "Logo",
 		"branding.save.branding": "Branding-Einstellungen speichern",
-		
+
 		// Domain Settings
 		"branding.domains.title": "Benutzerdefinierte Domains",
 		"branding.domains.description": "Fügen Sie benutzerdefinierte Domains für Ihre Organisation hinzu und verifizieren Sie diese",
@@ -254,7 +276,7 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
 		"branding.domain.verified": "✓ Verifiziert",
 		"branding.domain.add.txt.record": "TXT-Eintrag hinzufügen: freelancedesk-verify=",
 		"branding.domain.verification.token": "Verifizierungstoken",
-		
+
 		// Email Settings
 		"branding.email.title": "E-Mail-Einstellungen",
 		"branding.email.description": "Konfigurieren Sie benutzerdefinierte SMTP-Einstellungen für den Versand von E-Mails",
@@ -271,7 +293,7 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
 		"branding.from.email": "Absender-E-Mail",
 		"branding.from.email.placeholder": "noreply@ihredomain.de",
 		"branding.save.email": "E-Mail-Einstellungen speichern",
-		
+
 		// Legal Settings
 		"branding.legal.title": "Rechtliche Inhalte",
 		"branding.legal.description": "Fügen Sie Ihre Impressum- und Datenschutzrichtlinien-Inhalte hinzu",
@@ -280,7 +302,7 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
 		"branding.privacy.policy.html": "Datenschutzerklärung (HTML)",
 		"branding.privacy.policy.placeholder": "<h2>Datenschutzerklärung</h2>...",
 		"branding.save.legal": "Rechtliche Inhalte speichern",
-		
+
 		// Success/Error Messages
 		"branding.success": "Erfolg",
 		"branding.error": "Fehler",
@@ -437,6 +459,12 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
 		"dashboard.messages": "Messages",
 		"dashboard.todos": "Tasks",
 		"dashboard.milestones": "Milestones",
+		"dashboard.upcoming.milestones": "Upcoming Milestones",
+		"dashboard.recent.milestones": "Recent Milestones",
+		"dashboard.no.upcoming.milestones": "No upcoming milestones",
+		"dashboard.total": "total",
+		"dashboard.manage.milestones": "Manage milestones",
+		"dashboard.view.all.milestones": "View all milestones",
 		"project.manage.todos": "Manage tasks",
 		"project.manage.milestones": "Manage milestones",
 		"project.refresh": "Refresh",
@@ -459,6 +487,22 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
 		"project.posting": "Posting...",
 		"project.post": "Post",
 		"project.no.messages": "No messages yet.",
+		"project.message.edit": "Edit",
+		"project.message.delete": "Delete",
+		"project.message.save": "Save",
+		"project.message.cancel": "Cancel",
+		"project.message.posted": "Message posted",
+		"project.message.posted.description": "Your message has been successfully posted.",
+		"project.message.updated": "Message updated",
+		"project.message.updated.description": "Your message has been successfully updated.",
+		"project.message.deleted": "Message deleted",
+		"project.message.deleted.description": "The message has been successfully deleted.",
+		"project.message.error": "Error",
+		"project.message.post.error": "Error posting the message.",
+		"project.message.edit.error": "Error editing the message.",
+		"project.message.delete.error": "Error deleting the message.",
+		"project.message.delete.confirm.title": "Delete Message",
+		"project.message.delete.confirm.description": "Are you sure you want to delete this message? This action cannot be undone.",
 		"project.clients.label": "Clients:",
 		"project.no.clients.added": "No clients added.",
 		"project.invite.client.button": "Invite client",
@@ -520,7 +564,7 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
 		"auth.or.continue.with": "or continue with",
 		"auth.google.signin": "Sign in with Google",
 		"auth.google.signup": "Sign up with Google",
-		
+
 		// Branding/Whitelabeling
 		"branding.title": "Branding & Whitelabeling",
 		"branding.description": "Customize your organization's branding, domain, email settings, and legal content.",
@@ -528,7 +572,7 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
 		"branding.tabs.domains": "Domains",
 		"branding.tabs.email": "Email",
 		"branding.tabs.legal": "Legal",
-		
+
 		// Branding Settings
 		"branding.company.name": "Company Name",
 		"branding.company.name.placeholder": "Your Company Name",
@@ -536,7 +580,7 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
 		"branding.accent.color": "Accent Color",
 		"branding.logo": "Logo",
 		"branding.save.branding": "Save Branding Settings",
-		
+
 		// Domain Settings
 		"branding.domains.title": "Custom Domains",
 		"branding.domains.description": "Add and verify custom domains for your organization",
@@ -545,7 +589,7 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
 		"branding.domain.verified": "✓ Verified",
 		"branding.domain.add.txt.record": "Add TXT record: freelancedesk-verify=",
 		"branding.domain.verification.token": "Verification Token",
-		
+
 		// Email Settings
 		"branding.email.title": "Email Settings",
 		"branding.email.description": "Configure custom SMTP settings for sending emails",
@@ -562,7 +606,7 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
 		"branding.from.email": "From Email",
 		"branding.from.email.placeholder": "noreply@yourdomain.com",
 		"branding.save.email": "Save Email Settings",
-		
+
 		// Legal Settings
 		"branding.legal.title": "Legal Content",
 		"branding.legal.description": "Add your imprint and privacy policy content",
@@ -571,7 +615,7 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
 		"branding.privacy.policy.html": "Privacy Policy (HTML)",
 		"branding.privacy.policy.placeholder": "<h2>Privacy Policy</h2>...",
 		"branding.save.legal": "Save Legal Content",
-		
+
 		// Success/Error Messages
 		"branding.success": "Success",
 		"branding.error": "Error",

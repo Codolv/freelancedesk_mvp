@@ -122,7 +122,7 @@ export function InvoicesTab({
 
                   {/* Delete Button */}
                   <form action={deleteInvoice.bind(null, projectId, inv.id)}>
-                    <Button variant="destructive" size="sm" type="submit">
+                    <Button variant="destructive" size="sm" type="submit" className="text-red">
                       <Trash2 className="h-4 w-4 mr-1" /> {t("project.delete")}
                     </Button>
                   </form>
