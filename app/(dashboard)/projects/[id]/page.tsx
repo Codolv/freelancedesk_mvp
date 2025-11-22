@@ -124,6 +124,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
 
   interface MessageWithAvatar {
     id: string;
+    project_id: string;
     content: string;
     created_at: string;
     user_id: string;
@@ -135,6 +136,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
       const firstProfile = m.profiles?.[0] || null;
       return {
         ...m,
+        project_id: id, // Add the project_id property
         profiles: firstProfile ? {
           ...firstProfile,
           signedAvatarUrl: await getAvatarUrl(firstProfile.avatar_url ?? null)
