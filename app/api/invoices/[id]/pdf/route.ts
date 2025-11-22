@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { getServerSupabaseComponent } from '@/lib/supabase/server';
+import { getServerSupabaseAction } from '@/lib/supabase/server';
 import { generateEnhancedInvoicePDF } from '@/lib/invoice-pdf-generator';
 import { getLocale } from '@/lib/i18n/server';
 
@@ -9,7 +9,7 @@ export async function GET(
 ) {
   try {
     const { id } = await context.params;
-    const supabase = await getServerSupabaseComponent();
+    const supabase = await getServerSupabaseAction();
     
     // Fetch invoice data
     const { data: invoice } = await supabase

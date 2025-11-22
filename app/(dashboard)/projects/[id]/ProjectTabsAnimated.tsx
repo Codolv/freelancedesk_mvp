@@ -21,6 +21,7 @@ interface MessageProfile {
 
 interface MessageWithAvatar {
   id: string;
+  project_id: string;
   content: string;
   created_at: string;
   user_id: string;
@@ -230,7 +231,6 @@ export default function ProjectTabsAnimated({
             <Comments
               projectId={projectId}
               messages={messages}
-              user={user}
             />
           </div>
 
