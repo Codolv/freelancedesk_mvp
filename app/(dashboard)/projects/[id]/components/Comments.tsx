@@ -300,41 +300,43 @@ export function Comments({ messages: initialMessages, projectId }: CommentsProps
                     <div className="flex-1 min-w-0">
                       {/* Header */}
                       <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold text-gray-900 dark:text-gray-100">
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          <span className="font-semibold text-gray-900 dark:text-gray-100 truncate">
                             {message.profile?.name || t("project.unknown")}
                           </span>
-                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                          <span className="text-xs text-gray-50 dark:text-gray-400 whitespace-nowrap hidden sm:block">
                             {formatTodoDate(message.created_at, "de")}
                           </span>
                         </div>
 
                         {/* Actions Menu - Only show for message owner */}
                         {currentUserId === message.user_id && (
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-8 w-8 p-0"
-                              >
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-32">
-                              <DropdownMenuItem onClick={() => startEditing(message)} className="cursor-pointer">
-                                <Edit2 className="mr-2 h-4 w-4" />
-                                {t("project.message.edit")}
-                              </DropdownMenuItem>
-                              <DropdownMenuItem 
-                                onClick={() => setDeletingMessageId(message.id)} 
-                                className="cursor-pointer text-red-600 focus:text-red-600"
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                {t("project.message.delete")}
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                          <div className="flex-shrink-0 ml-2">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0"
+                                >
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-32">
+                                <DropdownMenuItem onClick={() => startEditing(message)} className="cursor-pointer">
+                                  <Edit2 className="mr-2 h-4 w-4" />
+                                  {t("project.message.edit")}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem 
+                                  onClick={() => setDeletingMessageId(message.id)} 
+                                  className="cursor-pointer text-red-600 focus:text-red-600"
+                                >
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  {t("project.message.delete")}
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
                         )}
                       </div>
 

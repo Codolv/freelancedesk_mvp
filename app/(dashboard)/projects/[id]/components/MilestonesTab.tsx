@@ -394,7 +394,7 @@ export function MilestonesTab({ projectId, isFreelancer, initialMilestones = [] 
   }
 
   return (
-    <Card className="shadow-sm border border-border/50 bg-background/80 backdrop-blur-sm">
+    <Card className="shadow-sm border border-border/50 bg-background/80 backdrop-blur-sm mx-0 sm:mx-0">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
@@ -406,7 +406,7 @@ export function MilestonesTab({ projectId, isFreelancer, initialMilestones = [] 
               {t("project.manage.milestones")}
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <Button
               onClick={() => fetchMilestones(false)}
               variant="outline"
@@ -514,7 +514,7 @@ export function MilestonesTab({ projectId, isFreelancer, initialMilestones = [] 
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div className="space-y-2">
                   <Label>{t("project.milestones.due.date.label")}</Label>
                   <Popover>
@@ -660,7 +660,7 @@ export function MilestonesTab({ projectId, isFreelancer, initialMilestones = [] 
                         />
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 gap-4">
                         <div className="space-y-2">
                           <Label>{t("project.milestones.due.date.label")}</Label>
                           <Popover>
@@ -781,11 +781,11 @@ export function MilestonesTab({ projectId, isFreelancer, initialMilestones = [] 
                         {getStatusIcon(status)}
                       </button>
 
-                      <div className="flex-1 space-y-2">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1">
+                      <div className="flex-1 min-w-0 space-y-2">
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                          <div className="flex-1 min-w-0">
                             <h3 className={cn(
-                              "font-medium",
+                              "font-medium truncate",
                               milestone.status === 'completed' && "line-through text-muted-foreground"
                             )}>
                               {milestone.title}
@@ -794,7 +794,7 @@ export function MilestonesTab({ projectId, isFreelancer, initialMilestones = [] 
                           </div>
 
                           {isFreelancer && (
-                            <div className="flex gap-1">
+                            <div className="flex gap-1 flex-shrink-0">
                               <Button
                                 variant="ghost"
                                 size="icon"

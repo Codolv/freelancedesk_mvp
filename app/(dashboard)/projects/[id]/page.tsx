@@ -203,7 +203,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   const { data: pendingInvites } = await supabase.from("project_invites").select("id, email, accepted").eq("project_id", id).eq("accepted", false);
 
   return (
-    <Motion className="w-full max-w-7xl mx-auto py-6 px-4" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+      <Motion className="w-full max-w-7xl mx-auto py-6 px-2 sm:px-4" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
       {/* Header (shrink-0 so it doesn't flex) */}
       <div className="space-y-4 shrink-0">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -214,7 +214,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
           </div>
 
           {isFreelancer && (
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2 items-center">
               <MarkCompleteButton projectId={id} currentStatus={project.status} isFreelancer={isFreelancer} />
               <Button asChild variant="outline"><Link href={`/projects/${id}/edit`}>{dict["invoice.edit"]} {dict["dashboard.projects"]}</Link></Button>
             </div>
@@ -238,7 +238,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         <Separator />
       </div>
 
-      {/* Client-side scrollable tabs area */}
+      {/* Client-side tabs area */}
       <ProjectTabsAnimated
         projectId={id}
         isFreelancer={isFreelancer}

@@ -32,7 +32,7 @@ export function InvoicesTab({
 }) {
   const { t } = useT();
   return (
-    <Card className="shadow-sm border border-border/50 bg-background/80 backdrop-blur-sm">
+    <Card className="shadow-sm border border-border/50 bg-background/80 backdrop-blur-sm mx-0 sm:mx-0">
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
           <h2 className="text-xl font-semibold">{t("dashboard.invoices")}</h2>
@@ -85,47 +85,62 @@ export function InvoicesTab({
                   })}
                 </div>
 
-                {canManage && <div className="flex items-center gap-2">
+                {canManage && <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 min-w-fit">
                   {/* View Button */}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    asChild
-                  >
-                    <Link href={`/projects/${projectId}/invoices/${inv.id}/view`}>
-                      <FileText className="h-4 w-4 mr-1" /> {t("project.view")}
-                    </Link>
-                  </Button>
+                  <div className="flex-1 flex min-h-9">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      asChild
+                      className="flex-1 justify-center min-h-9"
+                    >
+                      <Link href={`/projects/${projectId}/invoices/${inv.id}/view`} title={t("project.view")}>
+                        <FileText className="h-4 w-4" />
+                        <span className="ml-1">{t("project.view")}</span>
+                      </Link>
+                    </Button>
+                  </div>
 
                   {/* Edit Button */}
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    asChild
-                  >
-                    <Link href={`/projects/${projectId}/invoices/${inv.id}`}>
-                      <FileEdit className="h-4 w-4 mr-1" /> {t("project.edit")}
-                    </Link>
-                  </Button>
+                  <div className="flex-1 flex min-h-9">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      asChild
+                      className="flex-1 justify-center min-h-9"
+                    >
+                      <Link href={`/projects/${projectId}/invoices/${inv.id}`} title={t("project.edit")}>
+                        <FileEdit className="h-4 w-4" />
+                        <span className="ml-1">{t("project.edit")}</span>
+                      </Link>
+                    </Button>
+                  </div>
 
                   {/* Mark Paid Button */}
-                  <form action={markInvoicePaid.bind(null, projectId, inv.id)}>
-                    <Button
-                      variant={inv.status === "Paid" ? "outline" : "secondary"}
-                      size="sm"
-                      type="submit"
-                    >
-                      <CheckCircle className="h-4 w-4 mr-1" />
-                      {inv.status === "Paid" ? t("project.invoices.mark.open") : t("project.invoices.mark.paid")}
-                    </Button>
-                  </form>
+                  <div className="flex-1 flex min-h-9">
+                    <form action={markInvoicePaid.bind(null, projectId, inv.id)} className="w-full min-h-9 flex items-center justify-center p-0 m-0">
+                      <Button
+                        variant={inv.status === "Paid" ? "outline" : "secondary"}
+                        size="sm"
+                        type="submit"
+                        className="w-full justify-center min-h-9 h-full"
+                        title={inv.status === "Paid" ? t("project.invoices.mark.open") : t("project.invoices.mark.paid")}
+                      >
+                        <CheckCircle className="h-4 w-4" />
+                        <span className="ml-1">{inv.status === "Paid" ? t("project.invoices.mark.open") : t("project.invoices.mark.paid")}</span>
+                      </Button>
+                    </form>
+                  </div>
 
                   {/* Delete Button */}
-                  <form action={deleteInvoice.bind(null, projectId, inv.id)}>
-                    <Button variant="destructive" size="sm" type="submit" className="text-red">
-                      <Trash2 className="h-4 w-4 mr-1" /> {t("project.delete")}
-                    </Button>
-                  </form>
+                  <div className="flex-1 flex min-h-9">
+                    <form action={deleteInvoice.bind(null, projectId, inv.id)} className="w-full min-h-9 flex items-center justify-center p-0 m-0">
+                      <Button variant="destructive" size="sm" type="submit" className="w-full justify-center min-h-9 h-full text-red" title={t("project.delete")}>
+                        <Trash2 className="h-4 w-4" />
+                        <span className="ml-1">{t("project.delete")}</span>
+                      </Button>
+                    </form>
+                  </div>
                 </div>}
               </Motion>
             ))}
