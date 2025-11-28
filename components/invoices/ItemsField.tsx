@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AnimatePresence } from "framer-motion";
 import { Motion } from "@/components/custom/Motion"
 import { Plus, Trash2 } from "lucide-react";
+import { useT } from '@/lib/i18n/client';
 
 type Item = {
   description: string;
@@ -16,6 +17,7 @@ type Item = {
 };
 
 export function ItemsField({ initialItems }: { initialItems?: Item[] } = {}) {
+  const { t } = useT();
   const [items, setItems] = useState<Item[]>(
     initialItems && initialItems.length > 0
       ? initialItems
@@ -51,7 +53,7 @@ export function ItemsField({ initialItems }: { initialItems?: Item[] } = {}) {
 
   return (
     <div className="space-y-3">
-      <Label>Rechnungsposten</Label>
+      <Label>{t('invoice.items.label')}</Label>
       <input type="hidden" name="items" value={JSON.stringify(items)} />
 
       <Card className="bg-background/60 border-border/60">
@@ -66,10 +68,10 @@ export function ItemsField({ initialItems }: { initialItems?: Item[] } = {}) {
                 transition={{ duration: 0.2 }}
                 className="grid grid-cols-12 gap-2 items-center"
               >
-                {/* Beschreibung */}
+                {/* Description */}
                 <div className="col-span-5">
                   <Input
-                    placeholder="Beschreibung"
+                    placeholder={t('invoice.items.description.placeholder')}
                     value={item.description}
                     onChange={(e) =>
                       handleItemChange(index, "description", e.target.value)
@@ -77,11 +79,11 @@ export function ItemsField({ initialItems }: { initialItems?: Item[] } = {}) {
                   />
                 </div>
 
-                {/* Menge */}
+                {/* Quantity */}
                 <div className="col-span-2">
                   <Input
                     type="number"
-                    placeholder="Menge"
+                    placeholder={t('invoice.items.quantity.placeholder')}
                     value={item.quantity === null ? "" : item.quantity}
                     onChange={(e) =>
                       handleItemChange(index, "quantity", e.target.value)
@@ -89,12 +91,12 @@ export function ItemsField({ initialItems }: { initialItems?: Item[] } = {}) {
                   />
                 </div>
 
-                {/* Einzelpreis */}
+                {/* Unit Price */}
                 <div className="col-span-3">
                   <Input
                     type="number"
                     step="0.01"
-                    placeholder="Einzelpreis (€)"
+                    placeholder={t('invoice.items.unit_price.placeholder')}
                     value={
                       item.unit_price_cents === null
                         ? ""
@@ -106,7 +108,7 @@ export function ItemsField({ initialItems }: { initialItems?: Item[] } = {}) {
                   />
                 </div>
 
-                {/* Einzel-Total */}
+                {/* Individual Total */}
                 <div className="col-span-1 text-right text-sm font-medium">
                   {item.quantity && item.unit_price_cents
                     ? ((item.quantity * item.unit_price_cents) / 100).toLocaleString(
@@ -116,7 +118,7 @@ export function ItemsField({ initialItems }: { initialItems?: Item[] } = {}) {
                     : ""}
                 </div>
 
-                {/* Löschen */}
+                {/* Remove */}
                 <div className="col-span-1 flex justify-end">
                   <Button
                     type="button"
@@ -132,21 +134,21 @@ export function ItemsField({ initialItems }: { initialItems?: Item[] } = {}) {
             ))}
           </AnimatePresence>
 
-          {/* Hinzufügen + Gesamt */}
+          {/* Add + Total */}
           <div className="flex justify-between items-center pt-2 border-t border-border/50">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={addItem}
-              className="flex items-center gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              Position hinzufügen
-            </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addItem}
+                className="flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                {t('invoice.items.add')}
+              </Button>
 
             <div className="text-right font-semibold text-sm">
-              Gesamt:{" "}
+              {t('invoice.items.total')}:{" "}
               {(total / 100).toLocaleString("de-DE", {
                 style: "currency",
                 currency: "EUR",

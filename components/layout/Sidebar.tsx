@@ -310,7 +310,11 @@ export default function Sidebar() {
                   </button>
                 </DropdownMenuTrigger>
 
-                <DropdownMenuContent side="right" align="end" className="w-48 ml-1 lg:hidden">
+                <DropdownMenuContent 
+                  side={collapsed && !isMobile ? "right" : "bottom"} 
+                  align={collapsed && !isMobile ? "start" : "end"} 
+                  className="w-48 ml-1"
+                >
                   <DropdownMenuItem asChild>
                     <Link href="/settings">
                       <User size={16} className="mr-2" /> {t("sidebar.profile")}

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Calendar } from "lucide-react";
 import { Motion } from "@/components/custom/Motion";
+import { getT } from '@/lib/i18n/server';
 
 const schema = z.object({
   name: z.string().min(1).max(120),
@@ -43,6 +44,7 @@ async function updateProject(projectId: string, formData: FormData) {
 }
 
 export default async function EditProjectPage({ params }: { params: { id: string } }) {
+  const t = await getT();
   const supabase = await getServerSupabaseComponent();
   const { data: project } = await supabase
     .from("projects")
@@ -51,7 +53,7 @@ export default async function EditProjectPage({ params }: { params: { id: string
     .single();
 
   if (!project) {
-    return <div className="text-center text-muted-foreground py-20">Projekt nicht gefunden.</div>;
+    return <div className="text-center text-muted-foreground py-20">{t('project.not.found')}</div>;
   }
 
   return (
@@ -61,24 +63,24 @@ export default async function EditProjectPage({ params }: { params: { id: string
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <h1 className="text-3xl font-bold tracking-tight mb-1">Projekt bearbeiten</h1>
+      <h1 className="text-3xl font-bold tracking-tight mb-1">{t('project.edit.title')}</h1>
       <p className="text-muted-foreground mb-6">
-        Aktualisiere die Projektdetails. Änderungen werden sofort übernommen.
+        {t('project.edit.description')}
       </p>
 
       <Card className="border-border/60 bg-background/80 backdrop-blur-sm shadow-sm">
         <CardHeader>
-          <CardTitle>Projektdetails</CardTitle>
+          <CardTitle>{t('project.edit.details')}</CardTitle>
         </CardHeader>
         <CardContent>
           <form action={updateProject.bind(null, params.id)} className="grid gap-4">
             <div className="grid gap-1.5">
-              <Label htmlFor="name">Projektname</Label>
+              <Label htmlFor="name">{t('project.new.name.label')}</Label>
               <Input id="name" name="name" defaultValue={project.name} required />
             </div>
 
             <div className="grid gap-1.5">
-              <Label htmlFor="description">Beschreibung</Label>
+              <Label htmlFor="description">{t('project.new.description.label')}</Label>
               <Textarea
                 id="description"
                 name="description"
@@ -88,7 +90,7 @@ export default async function EditProjectPage({ params }: { params: { id: string
             </div>
 
             <div className="grid gap-1.5">
-              <Label htmlFor="deadline">Frist</Label>
+              <Label htmlFor="deadline">{t('project.new.deadline.label')}</Label>
               <div className="relative">
                 <Calendar className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -107,9 +109,9 @@ export default async function EditProjectPage({ params }: { params: { id: string
 
             <div className="flex justify-end gap-3 pt-4">
               <Button variant="outline" asChild>
-                <a href={`/projects/${params.id}`}>Abbrechen</a>
+                <a href={`/projects/${params.id}`}>{t('project.edit.cancel')}</a>
               </Button>
-              <Button type="submit">Änderungen speichern</Button>
+              <Button type="submit">{t('project.edit.save')}</Button>
             </div>
           </form>
         </CardContent>

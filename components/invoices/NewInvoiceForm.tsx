@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { ItemsField } from "@/components/invoices/ItemsField";
 import { FileText } from "lucide-react";
+import { useT } from '@/lib/i18n/client';
 
 export default function NewInvoiceForm({
   projectId,
@@ -17,6 +18,8 @@ export default function NewInvoiceForm({
   projectName?: string;
   createAction: (projectId: string, formData: FormData) => void;
 }) {
+  const { t } = useT();
+
   return (
     <Motion
       className="w-full max-w-4xl mx-auto py-10 px-4"
@@ -26,10 +29,10 @@ export default function NewInvoiceForm({
     >
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight mb-1">
-          Rechnung für {projectName ?? "Projekt"}
+          {t('invoice.new.title').replace('{projectName}', projectName ?? "Projekt")}
         </h1>
         <p className="text-muted-foreground">
-          Erstelle eine neue Rechnung mit Positionen und Beträgen.
+          {t('invoice.new.description')}
         </p>
       </div>
 
@@ -37,22 +40,27 @@ export default function NewInvoiceForm({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5 text-muted-foreground" />
-            Rechnungsdetails
+            {t('invoice.new.details')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <form action={createAction.bind(null, projectId)} className="grid gap-5">
             <div className="grid gap-2">
-              <Label htmlFor="title">Titel</Label>
-              <Input id="title" name="title" placeholder="Projekt-Rechnung" />
+              <Label htmlFor="title">{t('invoice.new.title.label')}</Label>
+              <Input id="title" name="title" placeholder={t('invoice.new.title.placeholder')} />
             </div>
 
             {/* Interactive items field */}
             <ItemsField />
 
-            <Button type="submit" size="lg" className="w-full">
-              Rechnung speichern
-            </Button>
+            <div className="flex gap-3">
+              <Button type="button" variant="outline" size="lg" className="flex-1" onClick={() => window.history.back()}>
+                {t('invoice.new.cancel')}
+              </Button>
+              <Button type="submit" size="lg" className="flex-1">
+                {t('invoice.new.save')}
+              </Button>
+            </div>
           </form>
         </CardContent>
       </Card>

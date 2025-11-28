@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { markProjectComplete, markProjectActive } from '../actions'
 import { toast } from 'sonner'
 import { CheckCircle, RotateCcw } from 'lucide-react'
+import { useT } from '@/lib/i18n/client'
 
 interface MarkCompleteButtonProps {
   projectId: string
@@ -13,6 +14,7 @@ interface MarkCompleteButtonProps {
 }
 
 export function MarkCompleteButton({ projectId, currentStatus, isFreelancer }: MarkCompleteButtonProps) {
+  const { t } = useT()
   const [isLoading, setIsLoading] = useState(false)
 
   const handleMarkComplete = async () => {
@@ -27,7 +29,7 @@ export function MarkCompleteButton({ projectId, currentStatus, isFreelancer }: M
         toast.error(result.message)
       }
     } catch (error) {
-      toast.error('Fehler beim Abschließen des Projekts')
+      toast.error(t('project.complete.error'))
     } finally {
       setIsLoading(false)
     }
@@ -45,7 +47,7 @@ export function MarkCompleteButton({ projectId, currentStatus, isFreelancer }: M
         toast.error(result.message)
       }
     } catch (error) {
-      toast.error('Fehler beim Aktualisieren des Projektstatus')
+      toast.error(t('project.active.error'))
     } finally {
       setIsLoading(false)
     }
@@ -64,7 +66,7 @@ export function MarkCompleteButton({ projectId, currentStatus, isFreelancer }: M
         className="flex items-center gap-2"
       >
         <RotateCcw className="h-4 w-4" />
-        {isLoading ? 'Wird aktualisiert...' : 'Als aktiv markieren'}
+        {isLoading ? t('project.marking.active') : t('project.mark.active')}
       </Button>
     )
   }
@@ -74,10 +76,10 @@ export function MarkCompleteButton({ projectId, currentStatus, isFreelancer }: M
       onClick={handleMarkComplete}
       disabled={isLoading}
       variant="default"
-      className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
+      className="flex items-center gap-2 bg-green-600 hover:bg-green-70"
     >
       <CheckCircle className="h-4 w-4" />
-      {isLoading ? 'Wird abgeschlossen...' : 'Als abgeschlossen markieren'}
+      {isLoading ? t('project.marking.completed') : t('project.mark.completed')}
     </Button>
   )
 }

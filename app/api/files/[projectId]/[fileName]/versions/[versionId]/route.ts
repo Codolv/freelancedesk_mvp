@@ -70,6 +70,7 @@ export async function GET(
       .createSignedUrl(fileVersion.file_path, 3600); // 1 hour expiry
 
     if (error) {
+      console.error("Error creating signed URL for version:", error);
       return new Response("File not found", { status: 404 });
     }
 

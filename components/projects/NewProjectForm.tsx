@@ -8,12 +8,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Calendar, FileText, Loader2, CheckCircle2 } from "lucide-react";
+import { useT } from '@/lib/i18n/client';
 
 export default function NewProjectForm({
   createAction,
 }: {
   createAction: (formData: FormData) => Promise<void>;
 }) {
+  const { t } = useT();
   const [isPending, startTransition] = useTransition();
   const [success, setSuccess] = useState(false);
 
@@ -35,10 +37,10 @@ export default function NewProjectForm({
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight mb-1">
-          Neues Projekt
+          {t('project.new.title')}
         </h1>
         <p className="text-muted-foreground">
-          Lege ein neues Kundenprojekt mit Frist und Beschreibung an.
+          {t('project.new.description')}
         </p>
       </div>
 
@@ -47,35 +49,35 @@ export default function NewProjectForm({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5 text-muted-foreground" />
-            Projektdetails
+            {t('project.new.details')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <form action={handleSubmit} className="grid gap-5">
             <div className="grid gap-2">
-              <Label htmlFor="name">Projektname</Label>
+              <Label htmlFor="name">{t('project.new.name.label')}</Label>
               <Input
                 id="name"
                 name="name"
-                placeholder="Website-Relaunch"
+                placeholder={t('project.new.name.placeholder')}
                 required
                 disabled={isPending}
               />
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="description">Beschreibung</Label>
+              <Label htmlFor="description">{t('project.new.description.label')}</Label>
               <Textarea
                 id="description"
                 name="description"
-                placeholder="Projektumfang, Ziele, Notizen..."
+                placeholder={t('project.new.description.placeholder')}
                 rows={4}
                 disabled={isPending}
               />
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="deadline">Frist</Label>
+              <Label htmlFor="deadline">{t('project.new.deadline.label')}</Label>
               <div className="relative">
                 <Calendar className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -97,17 +99,17 @@ export default function NewProjectForm({
               {isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Projekt wird erstellt...
+                  {t('project.new.creating')}
                 </>
               ) : (
-                "Projekt erstellen"
+                t('project.new.create')
               )}
             </Button>
 
             {success && (
               <div className="flex items-center justify-center text-green-600 dark:text-green-400 mt-3 text-sm">
                 <CheckCircle2 className="h-4 w-4 mr-2" />
-                Projekt erfolgreich erstellt!
+                {t('project.new.success')}
               </div>
             )}
           </form>

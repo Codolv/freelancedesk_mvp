@@ -189,23 +189,23 @@ export default function ProjectTabsAnimated({
     <>
       <Tabs value={value} onValueChange={(v) => setValue(v)} className="w-full">
         <TabsList className="mb-4 flex flex-wrap gap-1 justify-center items-center w-full">
-          <TabsTrigger value="messages" className="flex items-center gap-1 text-xs sm:text-sm px-1.5 py-1 whitespace-nowrap max-w-[100px] truncate">
+          <TabsTrigger value="messages" className="flex items-center gap-1 text-xs sm:text-sm px-3 py-1 whitespace-nowrap min-w-[100px]">
             <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4" /> <span className="hidden sm:block ml-1">{t("dashboard.messages")}</span>
           </TabsTrigger>
-          <TabsTrigger value="todos" className="flex items-center gap-1 text-xs sm:text-sm px-1.5 py-1 whitespace-nowrap max-w-[100px] truncate">
+          <TabsTrigger value="todos" className="flex items-center gap-1 text-xs sm:text-sm px-3 py-1 whitespace-nowrap min-w-[100px]">
             <CheckSquare className="h-3 w-3 sm:h-4 sm:w-4" /> <span className="hidden sm:block ml-1">{t("dashboard.todos")}</span>
           </TabsTrigger>
-          <TabsTrigger value="milestones" className="flex items-center gap-1 text-xs sm:text-sm px-1.5 py-1 whitespace-nowrap max-w-[100px] truncate">
+          <TabsTrigger value="milestones" className="flex items-center gap-1 text-xs sm:text-sm px-3 py-1 whitespace-nowrap min-w-[120px]">
             <Flag className="h-3 w-3 sm:h-4 sm:w-4" /> <span className="hidden sm:block ml-1">{t("dashboard.milestones")}</span>
           </TabsTrigger>
-          <TabsTrigger value="files" className="flex items-center gap-1 text-xs sm:text-sm px-1.5 py-1 whitespace-nowrap max-w-[100px] truncate">
+          <TabsTrigger value="files" className="flex items-center gap-1 text-xs sm:text-sm px-3 py-1 whitespace-nowrap min-w-[80px]">
             <Folder className="h-3 w-3 sm:h-4 sm:w-4" /> <span className="hidden sm:block ml-1">{t("dashboard.files")}</span>
           </TabsTrigger>
-          <TabsTrigger value="invoices" className="flex items-center gap-1 text-xs sm:text-sm px-1.5 py-1 whitespace-nowrap max-w-[100px] truncate">
+          <TabsTrigger value="invoices" className="flex items-center gap-1 text-xs sm:text-sm px-3 py-1 whitespace-nowrap min-w-[100px]">
             <Wallet className="h-3 w-3 sm:h-4 sm:w-4" /> <span className="hidden sm:block ml-1">{t("dashboard.invoices")}</span>
           </TabsTrigger>
           {isFreelancer && (
-            <TabsTrigger value="clients" className="flex items-center gap-1 text-xs sm:text-sm px-1.5 py-1 whitespace-nowrap max-w-[100px] truncate">
+            <TabsTrigger value="clients" className="flex items-center gap-1 text-xs sm:text-sm px-3 py-1 whitespace-nowrap min-w-[90px]">
               <User className="h-3 w-3 sm:h-4 sm:w-4" /> <span className="hidden sm:block ml-1">{t("dashboard.clients")}</span>
             </TabsTrigger>
           )}
