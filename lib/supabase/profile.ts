@@ -13,11 +13,16 @@ export async function getProfileById(id: string) {
     .single();
   if (error) throw error;
 
-  const { data: singedUrl, error: urlError } = await supabase.storage
-    .from("avatars")
-    .createSignedUrl(data.avatar_url, 60 * 60);
-  if (urlError) throw urlError
-  return { ...data, email: user.email, singedAvatarUrl: singedUrl.signedUrl };
+  let signedAvatarUrl = null;
+  if (data.avatar_url) {
+    const { data: signedUrl, error: urlError } = await supabase.storage
+      .from("avatars")
+      .createSignedUrl(data.avatar_url, 60 * 60);
+    if (!urlError) {
+      signedAvatarUrl = signedUrl.signedUrl;
+    }
+  }
+  return { ...data, email: user.email, signedAvatarUrl: signedAvatarUrl };
 }
 
 export async function getProfile() {
@@ -32,11 +37,16 @@ export async function getProfile() {
     .single();
   if (error) throw error;
 
-  const { data: singedUrl, error: urlError } = await supabase.storage
-    .from("avatars")
-    .createSignedUrl(data.avatar_url, 60 * 60);
-  if (urlError) throw urlError
-  return { ...data, email: user.email, singedAvatarUrl: singedUrl.signedUrl };
+  let signedAvatarUrl = null;
+  if (data.avatar_url) {
+    const { data: signedUrl, error: urlError } = await supabase.storage
+      .from("avatars")
+      .createSignedUrl(data.avatar_url, 60 * 60);
+    if (!urlError) {
+      signedAvatarUrl = signedUrl.signedUrl;
+    }
+  }
+  return { ...data, email: user.email, signedAvatarUrl: signedAvatarUrl };
 }
 
 export async function updateProfile(profile: {

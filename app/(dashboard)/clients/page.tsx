@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { getServerSupabaseComponent } from "@/lib/supabase/server";
+import { getAvatarUrl } from "@/lib/supabase/getAvatarUrl";
 import { Motion } from "@/components/custom/Motion";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -124,14 +125,24 @@ export default async function ClientsPage() {
     ...new Set((projectClients || []).map((r: { client_id: string }) => r.client_id)),
   ];
 
-  // 3) Load profiles
-  let profiles: { id: string; name: string; email: string; avatar_url: string | null }[] = [];
+  // 3) Load profiles and their signed avatar URLs
+  let profiles: { id: string; name: string; email: string; avatar_url: string | null; signed_avatar_url: string | null }[] = [];
   if (clientIds.length) {
     const { data: _profiles } = await supabase
       .from("profiles")
       .select("id, name, email, avatar_url")
       .in("id", clientIds);
-    profiles = _profiles || [];
+    
+    // Create signed URLs for avatars
+    const profilesWithSignedUrls = [];
+    for (const profile of (_profiles || [])) {
+      const signedUrl = await getAvatarUrl(profile.avatar_url);
+      profilesWithSignedUrls.push({
+        ...profile,
+        signed_avatar_url: signedUrl
+      });
+    }
+    profiles = profilesWithSignedUrls;
   }
 
   // 4) Map projectId -> project
@@ -147,6 +158,7 @@ export default async function ClientsPage() {
       name: string;
       email: string;
       avatar_url: string | null;
+      signed_avatar_url: string | null;
     };
     projects: Array<{ id: string; name: string }>;
   }
@@ -156,11 +168,12 @@ export default async function ClientsPage() {
     const cid = r.client_id;
     if (!clientsMap[cid]) {
       const profile =
-        profiles.find((p: { id: string; name: string; email: string; avatar_url: string | null }) => p.id === cid) || {
+        profiles.find((p: { id: string; name: string; email: string; avatar_url: string | null; signed_avatar_url: string | null }) => p.id === cid) || {
           id: cid,
           name: dict["dashboard.settings"],
           email: "—",
           avatar_url: null,
+          signed_avatar_url: null,
         };
       clientsMap[cid] = { profile, projects: [] };
     }
@@ -226,13 +239,9 @@ export default async function ClientsPage() {
             <Card className="hover:shadow-lg border-border/60 bg-background/80 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 h-full flex flex-col">
               <CardHeader className="flex flex-row items-center gap-3 pb-3">
                 <Avatar className="w-12 h-12">
-                  {c.profile?.avatar_url ? (
+                  {c.profile?.signed_avatar_url ? (
                     <AvatarImage
-                      src={
-                        c.profile.avatar_url.startsWith("http")
-                          ? c.profile.avatar_url
-                          : `/api/avatar/${c.profile.avatar_url}`
-                      }
+                      src={c.profile.signed_avatar_url}
                       alt={c.profile.name || "Avatar"}
                     />
                   ) : (

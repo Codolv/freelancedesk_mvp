@@ -71,10 +71,17 @@ export function FilesTab({ files: initialFiles, projectId, canUpload = true }: {
   const handleDelete = async (fileName: string) => {
     startTransition(async () => {
       try {
-        await deleteFile(projectId, fileName);
-        setFiles((prev: FileItem[]) => prev.filter((f: FileItem) => f.name !== fileName));
+        const result = await deleteFile(projectId, fileName);
+        if (result.success) {
+          setFiles((prev: FileItem[]) => prev.filter((f: FileItem) => f.name !== fileName));
+        } else {
+          console.error("Delete failed:", result.message);
+          // You might want to show an error toast here
+          // For now, we'll just log the error
+        }
       } catch (err) {
         console.error("Delete failed:", err);
+        // You might want to show an error toast here
       }
     });
   };

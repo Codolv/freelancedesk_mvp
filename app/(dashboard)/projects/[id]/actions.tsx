@@ -123,27 +123,78 @@ export async function deleteFile(projectId: string, fileName: string) {
       throw new Error('Nur der Projektbesitzer kann Dateien löschen')
     }
 
-    // Delete file from Supabase storage
-    const { error: storageError } = await supabase
-      .storage
-      .from('files')
-      .remove([`${projectId}/${fileName}`]);
+    // Get all file versions for this file name to delete from storage
+    const { data: fileRecord, error: fileError } = await supabase
+      .from('project_files')
+      .select('id, name')
+      .eq('project_id', projectId)
+      .eq('name', fileName)
+      .single();
 
-    if (storageError) {
-      throw new Error(storageError.message)
+    if (fileError || !fileRecord) {
+      throw new Error('Datei nicht gefunden');
     }
 
-    // Delete file record from database
+    // Get all versions of this file to delete from storage
+    const { data: fileVersions, error: versionsError } = await supabase
+      .from('file_versions')
+      .select('file_path')
+      .eq('project_file_id', fileRecord.id);
+
+    if (versionsError) {
+      console.error('Error fetching file versions:', versionsError);
+      // Continue with deletion even if we can't get all versions
+    }
+
+    // Collect all file paths to delete from storage
+    const filePathsToDelete: string[] = [];
+    if (fileVersions) {
+      filePathsToDelete.push(...fileVersions.map(v => v.file_path));
+    }
+
+    // Also try to delete the original path format as fallback
+    filePathsToDelete.push(`${projectId}/${fileName}`);
+
+    // Delete all file versions from Supabase storage
+    if (filePathsToDelete.length > 0) {
+      const { error: storageError } = await supabase
+        .storage
+        .from('files')
+        .remove(filePathsToDelete);
+
+      if (storageError) {
+        console.error('Storage delete error:', storageError);
+        // Don't throw here as we want to continue with database deletion
+      }
+    }
+
+    // Delete file versions records from database
+    const { error: versionsDeleteError } = await supabase
+      .from('file_versions')
+      .delete()
+      .eq('project_file_id', fileRecord.id);
+
+    if (versionsDeleteError) {
+      console.error('Error deleting file versions:', versionsDeleteError);
+    }
+
+    // Delete the main file record from database
     const { error: dbError } = await supabase
       .from('project_files')
       .delete()
-      .eq('project_id', projectId)
-      .eq('name', fileName);
+      .eq('id', fileRecord.id);
 
     if (dbError) {
       console.error('Database delete error:', dbError);
-      // Don't throw here as the file was already deleted from storage
+      throw new Error(dbError.message);
     }
+
+    // Also delete any download records for this file
+    await supabase
+      .from('file_downloads')
+      .delete()
+      .eq('project_id', projectId)
+      .eq('file_name', fileName);
 
     // Revalidate the project page
     revalidatePath(`/projects/${projectId}`)
