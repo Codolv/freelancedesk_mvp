@@ -139,7 +139,7 @@ export default function Sidebar() {
       <motion.aside
         animate={{ width: getWidth() }}
         className={cn(
-          "h-screen fixed left-0 top-0 z-50 flex flex-col border-r border-border/40 bg-background shadow-lg transition-all duration-300",
+          "h-screen fixed left-0 top-0 z-50 flex flex-col border-r border-border/40 bg-background shadow-2xl transition-all duration-300",
           isMobile ? "lg:static lg:h-full lg:relative" : "max-w-[280px] min-w-[80px]"
         )}
         style={{ width: getWidth() }}

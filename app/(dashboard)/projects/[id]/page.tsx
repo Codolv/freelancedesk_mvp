@@ -239,6 +239,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
       </div>
 
       {/* Client-side tabs area */}
+      <div className="pb-24 sm:pb-0">
       <ProjectTabsAnimated
         projectId={id}
         isFreelancer={isFreelancer}
@@ -252,6 +253,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         pendingInvites={pendingInvites || []}
         user={userProfile || null}
       />
+      </div>
     </Motion>
   );
 }
