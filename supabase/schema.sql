@@ -264,3 +264,11 @@ CREATE POLICY "Project members can manage files" ON project_files FOR ALL USING 
 
 -- Grant permissions
 GRANT SELECT, INSERT, UPDATE, DELETE ON project_files TO authenticated;
+
+-- Create storage bucket for branding logos
+INSERT INTO storage.buckets (id, name, public) VALUES ('branding-logos', 'branding-logos', false);
+
+-- Storage policy for branding logos
+CREATE POLICY "Users can upload branding logos" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'branding-logos' AND auth.uid()::text = (storage.foldername(name))[1]);
+CREATE POLICY "Users can update own branding logos" ON storage.objects FOR UPDATE USING (bucket_id = 'branding-logos' AND auth.uid()::text = (storage.foldername(name))[1]);
+CREATE POLICY "Users can delete own branding logos" ON storage.objects FOR DELETE USING (bucket_id = 'branding-logos' AND auth.uid()::text = (storage.foldername(name))[1]);
