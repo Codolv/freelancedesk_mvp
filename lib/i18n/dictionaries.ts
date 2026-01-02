@@ -14,14 +14,14 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
 		"projects.title": "Projekte",
 		"projects.new": "Neues Projekt",
 		"projects.empty": "Noch keine Projekte.",
-			"projects.active": "Projekt aktiv",
+		"projects.active": "Projekt aktiv",
 		"projects.completed": "Projekt abgeschlossen",
 		"project.mark.active": "Als aktiv markieren",
 		"project.mark.completed": "Als abgeschlossen markieren",
 		"project.marking.active": "Wird aktualisiert...",
 		"project.marking.completed": "Wird abgeschlossen...",
 		"project.complete.error": "Fehler beim Abschließen des Projekts",
-			"project.active.error": "Fehler beim Aktualisieren des Projektstatus",
+		"project.active.error": "Fehler beim Aktualisieren des Projektstatus",
 		"project.new.title": "Neues Projekt",
 		"project.new.description": "Lege ein neues Kundenprojekt mit Frist und Beschreibung an.",
 		"project.new.details": "Projektdetails",
@@ -321,7 +321,6 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
 		"branding.company.name.placeholder": "Ihr Firmenname",
 		"branding.primary.color": "Primärfarbe",
 		"branding.accent.color": "Akzentfarbe",
-		"branding.logo": "Logo",
 		"branding.save.branding": "Branding-Einstellungen speichern",
 
 		// Domain Settings
@@ -384,7 +383,7 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
 		"projects.new": "New Project",
 		"projects.empty": "No projects yet.",
 		"projects.active": "Project active",
-			"projects.completed": "Project completed",
+		"projects.completed": "Project completed",
 		"project.mark.active": "Mark as active",
 		"project.mark.completed": "Mark as completed",
 		"project.marking.active": "Updating...",
@@ -691,7 +690,6 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
 		"branding.company.name.placeholder": "Your Company Name",
 		"branding.primary.color": "Primary Color",
 		"branding.accent.color": "Accent Color",
-		"branding.logo": "Logo",
 		"branding.save.branding": "Save Branding Settings",
 
 		// Domain Settings

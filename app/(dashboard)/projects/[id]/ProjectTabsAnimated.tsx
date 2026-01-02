@@ -19,18 +19,105 @@ import { TodosTab } from "./components/TodosTab";
 import { MilestonesTab } from "./components/MilestonesTab";
 import { useT } from "@/lib/i18n/client";
 
-// All your interfaces stay the same…
+// Define type interfaces
+interface Message {
+  id: string;
+  project_id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+  profile?: {
+    name?: string;
+    signedAvatarUrl?: string | null;
+  };
+}
+
+interface FileItem {
+  id: string;
+  name: string;
+  path: string;
+  size_bytes?: number;
+  mime_type?: string;
+  description?: string;
+  uploaded_by: string;
+  version?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+interface Invoice {
+  id: string;
+  title: string;
+  amount_cents: number;
+  status: string;
+  created_at: string;
+}
+
+interface Todo {
+  id: string;
+  title: string;
+  description: string | null;
+  completed: boolean;
+  due_date: string | null;
+  created_at: string;
+  created_by: string;
+  profiles: {
+    id: string;
+    name: string;
+    email: string;
+    avatar_url: string | null;
+  } | null;
+}
+
+interface Milestone {
+  id: string;
+  title: string;
+  description: string | null;
+  status: 'pending' | 'in_progress' | 'completed' | 'overdue';
+  due_date: string | null;
+  target_date: string | null;
+  actual_completion_date: string | null;
+  order_number: number;
+  created_at: string;
+  created_by: string;
+  profiles: {
+    id: string;
+    name: string;
+    email: string;
+    avatar_url: string | null;
+  } | null;
+}
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  avatar_url: string | null;
+}
+
+// Define the props interface
+interface ProjectTabsAnimatedProps {
+  projectId: string;
+  isFreelancer: boolean;
+  isClient: boolean;
+  messages: Message[];
+  files: FileItem[];
+  invoices: Invoice[];
+  acceptedClients: Array<{ id: string; email: string }>;
+  pendingInvites: Array<{ id: string; email: string; accepted: boolean }>;
+  user: User;
+  todos: Todo[];
+  milestones: Milestone[];
+}
 
 export default function ProjectTabsAnimated({
   projectId,
   isFreelancer,
-  isClient,
   messages,
   files,
   invoices,
   acceptedClients,
   pendingInvites,
-  user,
   todos,
   milestones
 }: ProjectTabsAnimatedProps) {

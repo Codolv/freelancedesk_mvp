@@ -68,51 +68,8 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
     profiles: MessageProfile[];
   }
 
-  interface Todo {
-    id: string;
-    title: string;
-    description: string | null;
-    completed: boolean;
-    due_date: string | null;
-    created_at: string;
-    created_by: string;
-    profiles: {
-      id: string;
-      name: string;
-      email: string;
-      avatar_url: string | null;
-    } | null;
-  }
-
-  interface MilestoneProfile {
-    id: string;
-    name: string;
-    email: string;
-    avatar_url: string | null;
-  }
-
-  interface Milestone {
-    id: string;
-    title: string;
-    description: string | null;
-    status: 'pending' | 'in_progress' | 'completed' | 'overdue';
-    due_date: string | null;
-    target_date: string | null;
-    actual_completion_date: string | null;
-    order_number: number;
-    created_at: string;
-    created_by: string;
-    profiles: MilestoneProfile | null;
-  }
-
   interface ProjectClient {
     client_id: string;
-  }
-
-  interface ProjectInvite {
-    id: string;
-    email: string;
-    accepted: boolean;
   }
 
   interface UserProfile {
@@ -251,7 +208,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         milestones={milestones || []}
         acceptedClients={acceptedClients || []}
         pendingInvites={pendingInvites || []}
-        user={userProfile || null}
+        user={userProfile || { id: user.id, name: '', email: user.email || '', avatar_url: null }}
       />
       </div>
     </Motion>
