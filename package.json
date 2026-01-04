@@ -36,6 +36,7 @@
     "date-fns": "^4.1.0",
     "framer-motion": "^12.23.22",
     "lucide-react": "^0.544.0",
+    "micro": "^10.0.1",
     "next": "15.5.9",
     "nodemailer": "^7.0.10",
     "pdf-lib": "^1.17.1",

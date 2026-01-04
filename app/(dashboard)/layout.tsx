@@ -4,6 +4,7 @@ import "../globals.css";
 import { Toaster } from "sonner";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { SubscriptionProvider } from "@/lib/subscription/context";
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -17,7 +18,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               <LanguageSwitcher />
               <ThemeToggle />
             </div>
-            {children}
+            <SubscriptionProvider>
+              {children}
+            </SubscriptionProvider>
           </div>
         </main>
       </div>

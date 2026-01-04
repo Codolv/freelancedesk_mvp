@@ -1,9 +1,26 @@
-import { createServerClient } from "@supabase/ssr";
-import { NextResponse, type NextRequest } from "next/server";
+import { NextRequest, NextResponse } from 'next/server';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
 
 export async function middleware(request: NextRequest) {
-  // Create a Supabase client with the request
- const supabase = createServerClient(
+  // Check if user is accessing protected routes
+  const protectedPaths = [
+    '/dashboard',
+    '/projects',
+    '/invoices',
+    '/settings',
+    '/api/stripe/user-subscription'
+  ];
+
+  const isProtectedRoute = protectedPaths.some(path => 
+    request.nextUrl.pathname.startsWith(path)
+  );
+
+  if (!isProtectedRoute) {
+    return NextResponse.next();
+  }
+
+  // Get cookies from the request
+  const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -11,50 +28,32 @@ export async function middleware(request: NextRequest) {
         get(name: string) {
           return request.cookies.get(name)?.value;
         },
-        set() {
-          // No-op for middleware
-        },
-        remove() {
-          // No-op for middleware
-        },
       },
     }
   );
 
-  // Get the user session
-  const {
+  // Get user session
+ const {
     data: { user },
+    error,
   } = await supabase.auth.getUser();
 
-  // Define protected routes
-  const isAuthRoute = request.nextUrl.pathname.startsWith("/auth");
-  const isProtectedRoute = request.nextUrl.pathname.startsWith("/dashboard") || 
-                          request.nextUrl.pathname.startsWith("/projects") ||
-                          request.nextUrl.pathname.startsWith("/clients") ||
-                          request.nextUrl.pathname.startsWith("/invoices") ||
-                          request.nextUrl.pathname.startsWith("/settings");
-
-  // Special handling for auth callback - let it pass through to handle OAuth
-  if (request.nextUrl.pathname === '/auth/callback') {
-    return NextResponse.next();
+  if (error || !user) {
+    // Redirect to login if not authenticated
+    return NextResponse.redirect(new URL('/signin', request.url));
   }
 
-  // If user is authenticated and trying to access auth routes, redirect to dashboard
-  if (user && isAuthRoute) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
-  }
-
-  // If user is not authenticated and trying to access protected routes, redirect to signin
-  if (!user && isProtectedRoute) {
-    return NextResponse.redirect(new URL("/signin", request.url));
-  }
-
+  // For now, allow access - we'll check subscription status in the component
+  // In a production app, you might want to make an API call here to check subscription
   return NextResponse.next();
 }
 
-// Configure which routes the middleware should run for
 export const config = {
   matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
+    '/dashboard/:path*',
+    '/projects/:path*',
+    '/invoices/:path*',
+    '/settings/:path*',
+    '/api/stripe/user-subscription'
   ],
 };
