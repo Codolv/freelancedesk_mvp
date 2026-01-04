@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import PricingPlansSection from "@/components/landing/PricingPlansSection";
 
 export default function LandingPage() {
   // Animation variants for sections
@@ -175,37 +176,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <motion.div
-            variants={container}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true }}
-            className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
-          >
-            {[
-              { name: "Free", price: "0 €", features: "1 Kunde • 1 Projekt • Branding sichtbar", text: "Starten" },
-              { name: "Starter", price: "9 €/Monat", features: "Bis 5 Kunden • PDF-Rechnungen • Branding anpassbar", text: "Wählen" },
-              { name: "Pro", price: "29 €/Monat", features: "Unbegrenzt • Stripe • White-Label", text: "Wählen" },
-              { name: "Agentur", price: "79 €/Monat", features: "Teams • Kundengruppen • Branding", text: "Kontakt" },
-            ].map((plan, i) => (
-              <motion.div
-                key={plan.name}
-                whileHover={{ scale: 1.05 }}
-                transition={{ type: "spring", stiffness: 200, damping: 10 }}
-                className={`p-6 rounded-2xl border text-center bg-card shadow-sm ${i === 1 || i === 2 ? "border-primary/50 shadow-md" : "border-border"
-                  }`}
-              >
-                <h3 className="font-semibold text-lg">{plan.name}</h3>
-                <div className="text-2xl font-bold mt-3">{plan.price}</div>
-                <p className="text-sm text-muted-foreground mt-2">{plan.features}</p>
-                <Button
-                  className="mt-6 w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                >
-                  {plan.text}
-                </Button>
-              </motion.div>
-            ))}
-          </motion.div>
+          <PricingPlansSection />
         </motion.section>
 
         {/* CTA SECTION */}

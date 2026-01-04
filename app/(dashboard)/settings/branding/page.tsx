@@ -83,7 +83,7 @@ export default function BrandingSettingsPage() {
       ...prev,
       [field]: value
     }));
- };
+  };
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -116,6 +116,38 @@ export default function BrandingSettingsPage() {
         ...prev,
         logo_url: signedUrlData.signedUrl
       }));
+    }
+  };
+
+  const handleReset = async () => {
+    if (!window.confirm(t("branding.reset.confirmation"))) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const defaultBranding: BrandingSettings = {
+        primary_color: '#3B4B2F',
+        secondary_color: '#4F5F40',
+        accent_color: '#2E3A25',
+        logo_url: '',
+        company_name: '',
+        custom_css: '',
+      };
+
+      setBrandingSettings(defaultBranding);
+      
+      // Save to database
+      await updateProfile(defaultBranding);
+      // Update theme context
+      await updateBranding(defaultBranding);
+      
+      setMessage(t("branding.reset.success"));
+    } catch (error) {
+      console.error('Error resetting branding:', error);
+      setMessage(t("branding.reset.error"));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -306,6 +338,14 @@ export default function BrandingSettingsPage() {
                     disabled={loading}
                   >
                     {t("settings.cancel")}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={handleReset}
+                    disabled={loading}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20"
+                  >
+                    {t("branding.reset")}
                   </Button>
                   <Button onClick={handleSave} disabled={loading}>
                     {loading ? (

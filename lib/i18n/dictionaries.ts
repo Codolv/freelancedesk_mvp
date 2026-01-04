@@ -368,6 +368,12 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
 		"branding.domain.added": "Domain hinzugefügt",
 		"branding.domain.add.txt.record.message": "Fügen Sie diesen TXT-Eintrag zu Ihrem DNS hinzu",
 		"branding.domain.add.error": "Domain konnte nicht hinzugefügt werden",
+
+		// Reset Branding
+		"branding.reset": "Auf Standard zurücksetzen",
+		"branding.reset.confirmation": "Sind Sie sicher, dass Sie alle Branding-Einstellungen auf die Standardwerte zurücksetzen möchten? Dies kann nicht rückgängig gemacht werden.",
+		"branding.reset.success": "Branding-Einstellungen wurden erfolgreich auf die Standardwerte zurückgesetzt.",
+		"branding.reset.error": "Fehler beim Zurücksetzen der Branding-Einstellungen",
 	},
 	en: {
 		"nav.features": "Features",
@@ -737,5 +743,11 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
 		"branding.domain.added": "Domain Added",
 		"branding.domain.add.txt.record.message": "Add this TXT record to your DNS",
 		"branding.domain.add.error": "Failed to add domain",
+
+		// Reset Branding
+		"branding.reset": "Reset to defaults",
+		"branding.reset.confirmation": "Are you sure you want to reset all branding settings to their default values? This cannot be undone.",
+		"branding.reset.success": "Branding settings have been successfully reset to default values.",
+		"branding.reset.error": "Error resetting branding settings",
 	},
 };
