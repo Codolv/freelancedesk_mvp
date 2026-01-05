@@ -9,10 +9,11 @@ import { getLocale } from "@/lib/i18n/server";
 import { ArrowLeft, Download, Edit } from "lucide-react";
 
 export default async function InvoiceViewPage({
-  params,
+  params: paramsPromise,
 }: {
-  params: { id: string; invoiceId: string };
+  params: Promise<{ id: string; invoiceId: string }>;
 }) {
+  const params = await paramsPromise;
   const supabase = await getServerSupabaseComponent();
   const locale = await getLocale();
 
@@ -100,6 +101,10 @@ export default async function InvoiceViewPage({
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Projekt:</span>
                   <span>{invoice.projects?.name || invoice.project_id}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Fälligkeitsdatum:</span>
+                  <span>{invoice.due_date ? formatInvoiceDate(invoice.due_date, locale) : "Nicht gesetzt"}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Status:</span>

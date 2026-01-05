@@ -13,6 +13,7 @@ interface InvoiceData {
   id: string;
   title: string;
   created_at: string;
+  due_date?: string | null;
   status: string;
   project_id: string;
   projects?: { name: string };
@@ -100,6 +101,10 @@ export async function generateEnhancedInvoicePDF(
   const dateFormat = locale === "de" ? "dd.MM.yyyy" : "MM/dd/yyyy";
   page.drawText(`Datum: ${format(new Date(invoice.created_at), dateFormat, { locale: dateLocale })}`, { x: 50, y, size: 11, font: helvetica, color: text });
   y -= 15;
+  if (invoice.due_date) {
+    page.drawText(`Fällig am: ${format(new Date(invoice.due_date), dateFormat, { locale: dateLocale })}`, { x: 50, y, size: 11, font: helvetica, color: text });
+    y -= 15;
+  }
   page.drawText(`Projekt: ${invoice.projects?.name || "Unbekannt"}`, { x: 50, y, size: 11, font: helvetica, color: text });
   y -= 25;
 

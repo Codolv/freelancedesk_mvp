@@ -16,6 +16,7 @@ interface Invoice {
   amount_cents: number;
   status: string;
   created_at: string;
+  due_date: string | null;
   project_id: string;
   projects: { name: string }[] | { name: string } | null;
 }
@@ -41,7 +42,7 @@ export default async function InvoicesPage() {
     .from("project_invoices")
     .select(
       `
-        id, title, amount_cents, status, created_at, project_id,
+        id, title, amount_cents, status, created_at, due_date, project_id,
         projects(name)
       `
     )
@@ -125,22 +126,28 @@ export default async function InvoicesPage() {
                       variant={
                         invoice.status === "Paid"
                           ? "default"
-                          : invoice.status === "Open"
+                          : invoice.status === "Open" || invoice.status === "draft"
                           ? "secondary"
+                          : invoice.status === "overdue"
+                          ? "destructive"
                           : "outline"
                       }
                       className={
                         invoice.status === "Paid"
                           ? "bg-olive-600 text-white"
-                          : invoice.status === "Open"
+                          : invoice.status === "Open" || invoice.status === "draft"
                           ? "bg-yellow-50/20 text-yellow-800 dark:text-yellow-300"
+                          : invoice.status === "overdue"
+                          ? "bg-red-500/20 text-red-700 dark:text-red-300"
                           : ""
                       }
                     >
                       {invoice.status === "Paid"
                         ? dict["invoice.status.paid"]
-                        : invoice.status === "Open"
+                        : invoice.status === "Open" || invoice.status === "draft"
                         ? dict["invoice.status.open"]
+                        : invoice.status === "overdue"
+                        ? "Überfällig"
                         : invoice.status}
                     </Badge>
                     <p className="text-sm font-medium">
@@ -153,10 +160,24 @@ export default async function InvoicesPage() {
                 </CardHeader>
 
                 <CardContent className="flex justify-between items-center text-sm text-muted-foreground">
-                  <p>
-                    {dict["invoice.created"]}{" "}
-                    {formatDate(invoice.created_at, locale)}
-                  </p>
+                  <div className="space-y-1">
+                    <p className="flex items-center gap-2">
+                      <span>{dict["invoice.created"]} {formatDate(invoice.created_at, locale)}</span>
+                      {invoice.due_date && (
+                        <span className="text-xs bg-muted px-2 py-1 rounded">
+                          Fällig: {formatDate(invoice.due_date, locale)}
+                          {new Date(invoice.due_date) < new Date() && invoice.status !== "Paid" && (
+                            <span className="ml-1 text-red-500">⚠️</span>
+                          )}
+                        </span>
+                      )}
+                    </p>
+                    {invoice.due_date && new Date(invoice.due_date) < new Date() && invoice.status !== "Paid" && (
+                      <p className="text-xs text-red-600 dark:text-red-400 font-medium">
+                        {dict["invoice.overdue"] || "Rechnung ist überfällig!"}
+                      </p>
+                    )}
+                  </div>
                   <div className="flex gap-3">
                     <Button variant="outline" size="sm" asChild>
                       <Link
@@ -167,7 +188,7 @@ export default async function InvoicesPage() {
                     </Button>
                     <Button variant="secondary" size="sm" asChild>
                       <Link
-                        href={`/projects/${invoice.project_id}/invoices/${invoice.id}`}
+                        href={`/projects/${invoice.project_id}/invoices/${invoice.id}/edit`}
                       >
                         {dict["invoice.edit"]}
                       </Link>

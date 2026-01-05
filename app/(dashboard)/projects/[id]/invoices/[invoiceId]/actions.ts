@@ -19,7 +19,18 @@ export async function updateInvoiceAction(
   // Extract form values
   const title = formData.get("title")?.toString() || "";
   const status = formData.get("status")?.toString() || "Open";
+  const dueDate = formData.get("due_date")?.toString() || null;
   const itemsRaw = formData.get("items")?.toString() || "[]";
+
+  // Validate due date is not in the past (only if due date is being set/changed)
+  if (dueDate) {
+    const dueDateObj = new Date(dueDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set to start of day for comparison
+    if (dueDateObj < today) {
+      throw new Error("Fälligkeitsdatum kann nicht in der Vergangenheit liegen");
+    }
+  }
 
   let items: Array<{
     description: string;
@@ -50,6 +61,7 @@ export async function updateInvoiceAction(
       title,
       amount_cents,
       status,
+      due_date: dueDate ? new Date(dueDate).toISOString() : null,
     })
     .eq("id", invoiceId)
     .eq("project_id", projectId);

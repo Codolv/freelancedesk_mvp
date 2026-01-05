@@ -3,10 +3,11 @@ import NewInvoiceForm from "@/components/invoices/NewInvoiceForm";
 import { createInvoiceAction } from "./actions";
 
 export default async function NewInvoicePage({
-  params,
+  params: paramsPromise,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+ const params = await paramsPromise;
   const supabase = await getServerSupabaseComponent();
   const { data: project } = await supabase
     .from("projects")

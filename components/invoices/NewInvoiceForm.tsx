@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { ItemsField } from "@/components/invoices/ItemsField";
-import { FileText } from "lucide-react";
+import { FileText, Calendar } from "lucide-react";
+import { DatePickerInput } from "@/components/ui/date-picker";
 import { useT } from '@/lib/i18n/client';
 
 export default function NewInvoiceForm({
@@ -48,6 +49,16 @@ export default function NewInvoiceForm({
             <div className="grid gap-2">
               <Label htmlFor="title">{t('invoice.new.title.label')}</Label>
               <Input id="title" name="title" placeholder={t('invoice.new.title.placeholder')} />
+            </div>
+
+            {/* Due Date Field */}
+            <div className="grid gap-2">
+              <Label htmlFor="due_date">{t('invoice.new.due_date.label') || 'Due Date'}</Label>
+              <DatePickerInput 
+                id="due_date" 
+                name="due_date"
+                placeholder={t('invoice.new.due_date.placeholder') || 'Select due date'} 
+              />
             </div>
 
             {/* Interactive items field */}

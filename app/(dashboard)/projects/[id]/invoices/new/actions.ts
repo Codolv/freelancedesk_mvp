@@ -29,14 +29,28 @@ export async function createInvoiceAction(projectId: string, formData: FormData)
     0
   );
 
+  // Get due date from form data
+  const dueDate = formData.get("due_date")?.toString() || null;
+
+  // Validate due date is not in the past
+  if (dueDate) {
+    const dueDateObj = new Date(dueDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set to start of day for comparison
+    if (dueDateObj < today) {
+      throw new Error("Fälligkeitsdatum kann nicht in der Vergangenheit liegen");
+    }
+  }
+
   const { data: inv, error } = await supabase
     .from("project_invoices")
     .insert({
       project_id: projectId,
-      user_id: user.id,
       title,
       amount_cents,
-      status: "Open",
+      status: "draft",
+      due_date: dueDate ? new Date(dueDate).toISOString() : null,
+      user_id: user.id, // Add the user_id to track who created the invoice
     })
     .select("id")
     .single();
