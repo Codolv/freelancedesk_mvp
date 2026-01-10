@@ -37,7 +37,8 @@ export default function TestVersionsPage() {
     setLoading(true);
     setMessage('');
     try {
-      const response = await fetch(`/api/files/${projectId}/${fileName}/versions`);
+      const encodedFileName = encodeURIComponent(fileName);
+      const response = await fetch(`/api/files/${projectId}/${encodedFileName}/versions`);
       if (response.ok) {
         const data = await response.json();
         setVersions(data.versions || []);
@@ -106,7 +107,7 @@ export default function TestVersionsPage() {
                           </span>
                         </div>
                         <a
-                          href={`/api/files/${projectId}/${fileName}/versions/${version.id}`}
+                          href={`/api/files/${projectId}/${encodeURIComponent(fileName)}/versions/${version.id}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-blue-600 hover:underline text-sm"

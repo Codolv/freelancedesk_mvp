@@ -11,6 +11,7 @@ import { Motion } from "@/components/custom/Motion";
 import Image from "next/image";
 import Footer from "@/components/layout/Footer";
 import { useT } from "@/lib/i18n/client";
+import { toast } from "sonner";
 
 export default function SignUpClient() {
   const { t } = useT();
@@ -20,24 +21,20 @@ export default function SignUpClient() {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage(null);
-    setError(null);
 
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError(t("auth.email.required"));
+      toast.error(t("auth.email.required"));
       return;
     }
     if (!password || password.length < 6) {
-      setError(t("auth.password.min"));
+      toast.error(t("auth.password.min"));
       return;
     }
     if (!name.trim()) {
-      setError(t("auth.name.required"));
+      toast.error(t("auth.name.required"));
       return;
     }
 
@@ -54,19 +51,18 @@ export default function SignUpClient() {
       });
 
       if (err) {
-        setError(err.message);
+        toast.error(err.message);
       } else {
-        setMessage(t("auth.signup.success"));
+        toast.success(t("auth.signup.success"));
         setTimeout(() => router.replace("/dashboard"), 2500);
       }
     } finally {
       setLoading(false);
     }
-  };
+ };
 
   const handleGoogleSignUp = async () => {
     setOauthLoading(true);
-    setError(null);
     try {
       const supabase = getBrowserSupabase();
       const { error } = await supabase.auth.signInWithOAuth({
@@ -76,11 +72,11 @@ export default function SignUpClient() {
         },
       });
       if (error) {
-        setError(error.message);
+        toast.error(error.message);
       }
       // The redirect happens automatically after successful OAuth flow
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      toast.error(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setOauthLoading(false);
     }
@@ -193,11 +189,11 @@ export default function SignUpClient() {
               <svg className="w-4 h-4" viewBox="0 0 24 24">
                 <path
                   fill="currentColor"
-                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                  d="M2.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                 />
                 <path
                   fill="currentColor"
-                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.6-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
                 />
                 <path
                   fill="currentColor"
@@ -210,17 +206,6 @@ export default function SignUpClient() {
               </svg>
               {oauthLoading ? t("auth.signup.loading") : t("auth.google.signup")}
             </Button>
-
-            {message && (
-              <div className="text-sm text-green-600 dark:text-green-400 text-center">
-                {message}
-              </div>
-            )}
-            {error && (
-              <div className="text-sm text-red-600 dark:text-red-400 text-center">
-                {error}
-              </div>
-            )}
           </motion.form>
 
           {/* Footer */}

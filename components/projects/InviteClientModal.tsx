@@ -15,6 +15,7 @@ import { Loader2, Mail } from "lucide-react";
 import { motion } from "framer-motion";
 import { createProjectInvite } from "@/app/actions/inviteClient";
 import { useT } from "@/lib/i18n/client";
+import { toast } from "sonner";
 
 export default function InviteClientModal({
   projectId,
@@ -26,15 +27,19 @@ export default function InviteClientModal({
   const [email, setEmail] = useState("");
   const [pending, startTransition] = useTransition();
 
-  const handleSubmit = (formData: FormData) => {
+   const handleSubmit = (formData: FormData) => {
     const emailValue = formData.get("email")?.toString() || "";
     startTransition(async () => {
       try {
-        await createProjectInvite(projectId, emailValue);
-        setOpen(false);
-        setEmail("");
-      } catch (err: any) {
+        const result = await createProjectInvite(projectId, emailValue);
+        if (result.success) {
+          setOpen(false);
+          setEmail("");
+          toast.success(t('project.invite.client.success'));
+        }
+      } catch (err: unknown) {
         console.error(err);
+        toast.error(t('project.invite.client.error'));
       }
     });
   };

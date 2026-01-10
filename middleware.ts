@@ -40,6 +40,8 @@ export async function middleware(request: NextRequest) {
 
   if (error || !user) {
     // Redirect to login if not authenticated
+    // For unauthorized access to protected routes, we could show a specific page
+    // But for now, redirect to signin as before
     return NextResponse.redirect(new URL('/signin', request.url));
   }
 

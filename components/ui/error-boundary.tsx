@@ -2,8 +2,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { AlertCircle } from "lucide-react";
+import { ErrorMessage } from "@/components/ui/error-message";
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -42,29 +41,24 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
       return (
         <div className="flex items-center justify-center min-h-screen p-4">
-          <Card className="max-w-md w-full">
-            <CardHeader className="flex flex-row items-center gap-2">
-              <AlertCircle className="h-5 w-5 text-destructive" />
-              <h2 className="text-lg font-semibold">Something went wrong</h2>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                We encountered an unexpected error. Please try again or contact support if the problem persists.
-              </p>
-              <details className="text-xs text-muted-foreground bg-muted p-3 rounded-md">
-                <summary>Error details</summary>
-                <pre className="mt-2 whitespace-pre-wrap">{this.state.error.message}</pre>
-              </details>
-              <div className="flex gap-2">
-                <Button onClick={this.reset} variant="default">
-                  Try again
-                </Button>
-                <Button onClick={() => window.location.reload()} variant="outline">
-                  Reload page
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="max-w-md w-full">
+            <ErrorMessage
+              title="Etwas ist schiefgelaufen"
+              message="Wir haben einen unerwarteten Fehler festgestellt. Bitte versuchen Sie es erneut oder kontaktieren Sie den Support, wenn das Problem weiterhin besteht."
+              onRetry={this.reset}
+              showRetry={true}
+              retryText="Erneut versuchen"
+              titleGerman="Etwas ist schiefgelaufen"
+              messageGerman="Wir haben einen unerwarteten Fehler festgestellt. Bitte versuchen Sie es erneut oder kontaktieren Sie den Support, wenn das Problem weiterhin besteht."
+              retryTextGerman="Erneut versuchen"
+              details={this.state.error.message}
+            />
+            <div className="mt-4 flex gap-2 justify-center">
+              <Button onClick={() => window.location.reload()} variant="outline">
+                Reload Page
+              </Button>
+            </div>
+          </div>
         </div>
       );
     }

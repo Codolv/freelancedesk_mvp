@@ -13,6 +13,7 @@ import { getProfile, updateProfile } from "@/lib/supabase/profile";
 import { useTheme } from "@/components/theme/ThemeProvider";
 import { useT } from "@/lib/i18n/client";
 import { getBrowserSupabase } from "@/lib/supabase/client";
+import { toast } from "sonner";
 
 interface BrandingSettings {
   primary_color: string;
@@ -27,7 +28,6 @@ export default function BrandingSettingsPage() {
   const { t } = useT();
   const { branding, updateBranding } = useTheme();
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const [brandingSettings, setBrandingSettings] = useState<BrandingSettings>({
     primary_color: '#3B4B2F',
@@ -62,10 +62,10 @@ export default function BrandingSettingsPage() {
     try {
       await updateProfile(brandingSettings);
       await updateBranding(brandingSettings);
-      setMessage(t("settings.logout.success"));
+      toast.success(t("settings.branding.updated"));
       setEditing(false);
     } catch (e) {
-      setMessage(t("dashboard.settings"));
+      toast.error(t("settings.branding.update.error"));
     } finally {
       setLoading(false);
     }
@@ -92,30 +92,42 @@ export default function BrandingSettingsPage() {
     const supabase = getBrowserSupabase();
     const userData = await supabase.auth.getUser();
     const user = userData.data.user;
-    if (!user) return alert("Not authenticated");
-
-    // Upload to branding logos bucket
-    const { data: list } = await supabase.storage.from("branding-logos").list(user.id);
-    if (list) {
-      const filesToRemove = list.map((x) => `${user.id}/${x.name}`);
-      await supabase.storage.from("branding-logos").remove(filesToRemove);
+    if (!user) {
+      toast.error("Not authenticated");
+      return;
     }
 
-    const { data, error } = await supabase.storage
-      .from("branding-logos")
-      .upload(`${user.id}/${file.name}`, file, { upsert: true });
-    if (error) return alert(error.message);
-    
-    // Get signed URL for the uploaded logo
-    const { data: signedUrlData } = await supabase.storage
-      .from("branding-logos")
-      .createSignedUrl(`${user.id}/${file.name}`, 60 * 24 * 365); // 1 year expiry
+    try {
+      // Upload to branding logos bucket
+      const { data: list } = await supabase.storage.from("branding-logos").list(user.id);
+      if (list) {
+        const filesToRemove = list.map((x) => `${user.id}/${x.name}`);
+        await supabase.storage.from("branding-logos").remove(filesToRemove);
+      }
 
-    if (signedUrlData) {
-      setBrandingSettings(prev => ({
-        ...prev,
-        logo_url: signedUrlData.signedUrl
-      }));
+      const encodedFileName = encodeURIComponent(file.name);
+      const { data, error } = await supabase.storage
+        .from("branding-logos")
+        .upload(`${user.id}/${encodedFileName}`, file, { upsert: true });
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+      
+      // Get signed URL for the uploaded logo
+      const { data: signedUrlData } = await supabase.storage
+        .from("branding-logos")
+        .createSignedUrl(`${user.id}/${encodedFileName}`, 60 * 24 * 365); // 1 year expiry
+
+      if (signedUrlData) {
+        setBrandingSettings(prev => ({
+          ...prev,
+          logo_url: signedUrlData.signedUrl
+        }));
+        toast.success(t("settings.logo.updated"));
+      }
+    } catch (error) {
+      toast.error(t("settings.logo.update.error"));
     }
   };
 
@@ -142,10 +154,10 @@ export default function BrandingSettingsPage() {
       // Update theme context
       await updateBranding(defaultBranding);
       
-      setMessage(t("branding.reset.success"));
+      toast.success(t("branding.reset.success"));
     } catch (error) {
       console.error('Error resetting branding:', error);
-      setMessage(t("branding.reset.error"));
+      toast.error(t("branding.reset.error"));
     } finally {
       setLoading(false);
     }
@@ -358,12 +370,6 @@ export default function BrandingSettingsPage() {
                     )}
                   </Button>
                 </div>
-
-                {message && (
-                  <p className="text-sm text-green-600 dark:text-green-400">
-                    {message}
-                  </p>
-                )}
               </Motion>
             )}
           </AnimatePresence>

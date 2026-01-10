@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { toast } from 'sonner';
 
 interface BillingPortalButtonProps {
   children?: React.ReactNode;
@@ -27,7 +28,7 @@ export default function BillingPortalButton({
       const user = session?.user;
 
       if (!user) {
-        alert('Please sign in to manage billing');
+        toast.error('Please sign in to manage billing');
         return;
       }
 
@@ -47,11 +48,11 @@ export default function BillingPortalButton({
       if (data.success && data.url) {
         window.location.href = data.url;
       } else {
-        alert(data.error || 'Failed to open billing portal');
+        toast.error(data.error || 'Failed to open billing portal');
       }
     } catch (error) {
       console.error('Error opening billing portal:', error);
-      alert('Failed to open billing portal');
+      toast.error('Failed to open billing portal');
     } finally {
       setLoading(false);
     }

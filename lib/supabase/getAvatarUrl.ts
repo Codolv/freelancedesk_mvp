@@ -4,10 +4,10 @@ export async function getAvatarUrl(path: string | null) {
   if (!path) return null;
   const supabase = await getServerSupabaseComponent();
 
+  const encodedPath = encodeURIComponent(path);
   const { data } = await supabase.storage
     .from("avatars")
-    .createSignedUrl(path, 60 * 60); // valid for 1 hour
+    .createSignedUrl(encodedPath, 60 * 60); // valid for 1 hour
 
   return data?.signedUrl || null;
 }
-

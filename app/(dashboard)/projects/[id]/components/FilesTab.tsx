@@ -11,6 +11,7 @@ import { useT } from "@/lib/i18n/client";
 import { PreviewModal } from "@/components/ui/PreviewModal";
 import { FileVersionHistory } from "./FileVersionHistory";
 import { formatFileDate, formatTodoDate } from "@/lib/i18n/date-format";
+import { toast } from "sonner";
 
 interface FileDownload {
   id: string;
@@ -52,15 +53,24 @@ export function FilesTab({ files: initialFiles, projectId, canUpload = true }: {
 
   // Handle upload
   const handleUpload = async (formData: FormData) => {
+    const file = formData.get("file") as File | null;
+    
+    if (!file) {
+      toast.error(t('project.file.upload.no.file'));
+      return;
+    }
+
     setUploading(true);
     startTransition(async () => {
       try {
         const newFile = await uploadFile(projectId, formData);
         if (newFile) {
           setFiles((prev: FileItem[]) => [newFile, ...prev]);
+          toast.success(t('project.file.uploaded'));
         }
       } catch (err) {
         console.error("Upload failed:", err);
+        toast.error(t('project.file.upload.error'));
       } finally {
         setUploading(false);
       }
@@ -74,14 +84,14 @@ export function FilesTab({ files: initialFiles, projectId, canUpload = true }: {
         const result = await deleteFile(projectId, fileName);
         if (result.success) {
           setFiles((prev: FileItem[]) => prev.filter((f: FileItem) => f.name !== fileName));
+          toast.success(t('project.file.deleted'));
         } else {
           console.error("Delete failed:", result.message);
-          // You might want to show an error toast here
-          // For now, we'll just log the error
+          toast.error(result.message || t('project.file.delete.error'));
         }
       } catch (err) {
         console.error("Delete failed:", err);
-        // You might want to show an error toast here
+        toast.error(t('project.file.delete.error'));
       }
     });
   };
@@ -132,7 +142,15 @@ export function FilesTab({ files: initialFiles, projectId, canUpload = true }: {
           {/* Upload form */}
           {canUpload && (
             <form
-              action={handleUpload}
+              onSubmit={(e) => {
+                const fileInput = e.currentTarget.querySelector('input[type="file"]') as HTMLInputElement;
+                if (!fileInput?.files?.[0]) {
+                  e.preventDefault();
+                  toast.error(t('project.file.upload.no.file'));
+                  return;
+                }
+                handleUpload(new FormData(e.currentTarget));
+              }}
               className="flex items-center gap-3 mb-6"
             >
               <Input
@@ -226,10 +244,10 @@ export function FilesTab({ files: initialFiles, projectId, canUpload = true }: {
                         asChild
                         variant="ghost"
                         size="sm"
-                        className="text-blue-600 hover:text-blue-800"
+                        className="text-blue-600 hover:text-blue-80"
                       >
                         <a
-                          href={`/api/files/${projectId}/${f.name}`}
+                          href={`/api/files/${projectId}/${encodeURIComponent(f.name)}`}
                           target="_blank"
                           rel="noreferrer"
                         >

@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '@/components/ui/badge';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Motion } from '@/components/custom/Motion';
+import { toast } from 'sonner';
 
 interface UserSubscription {
   id: string;
@@ -51,10 +52,10 @@ export default function SubscriptionManagement() {
     }
   };
 
-  const handleCancelSubscription = async () => {
+   const handleCancelSubscription = async () => {
     if (!subscription) return;
 
-    if (!confirm('Are you sure you want to cancel your subscription? This will end your access at the end of the current billing period.')) {
+    if (!window.confirm("Are you sure you want to cancel your subscription? This will end your access at the end of the current billing period.")) {
       return;
     }
 
@@ -81,13 +82,13 @@ export default function SubscriptionManagement() {
 
       if (data.success) {
         setSubscription(data.subscription);
-        alert('Subscription canceled successfully!');
+        toast.success('Subscription canceled successfully!');
       } else {
-        alert(data.error || 'Failed to cancel subscription');
+        toast.error(data.error || 'Failed to cancel subscription');
       }
     } catch (error) {
       console.error('Error canceling subscription:', error);
-      alert('Failed to cancel subscription');
+      toast.error('Failed to cancel subscription');
     }
   };
 
@@ -98,6 +99,7 @@ export default function SubscriptionManagement() {
       const user = session?.user;
 
       if (!user) {
+        toast.error('Please sign in to manage billing');
         return;
       }
 
@@ -117,11 +119,11 @@ export default function SubscriptionManagement() {
       if (data.success && data.url) {
         window.location.href = data.url;
       } else {
-        alert(data.error || 'Failed to open billing portal');
+        toast.error(data.error || 'Failed to open billing portal');
       }
     } catch (error) {
       console.error('Error opening billing portal:', error);
-      alert('Failed to open billing portal');
+      toast.error('Failed to open billing portal');
     } finally {
       setBillingLoading(false);
     }
@@ -193,7 +195,7 @@ export default function SubscriptionManagement() {
             ) : (
               <div className="text-center py-8">
                 <p className="text-muted-foreground mb-4">
-                  You don't have an active subscription yet.
+                  You don&apos;t have an active subscription yet.
                 </p>
                 <Button asChild>
                   <a href="/pricing">Choose a Plan</a>

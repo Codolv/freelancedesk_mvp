@@ -152,8 +152,10 @@ export async function deleteFile(projectId: string, fileName: string) {
       filePathsToDelete.push(...fileVersions.map(v => v.file_path));
     }
 
-    // Also try to delete the original path format as fallback
+    // Also try to delete the original path format as fallback (in case of old unencoded files)
     filePathsToDelete.push(`${projectId}/${fileName}`);
+    // Also try the encoded version of the original filename
+    filePathsToDelete.push(`${projectId}/${encodeURIComponent(fileName)}`);
 
     // Delete all file versions from Supabase storage
     if (filePathsToDelete.length > 0) {
@@ -238,7 +240,7 @@ export async function uploadFile(projectId: string, formData: FormData) {
     const { error: updateError } = await supabase
       .from("project_files")
       .update({
-        path: `${projectId}/${file.name}`,
+        path: `${projectId}/${encodeURIComponent(file.name)}`,
         size_bytes: file.size,
         mime_type: file.type || "",
         updated_at: new Date().toISOString(),
@@ -254,7 +256,7 @@ export async function uploadFile(projectId: string, formData: FormData) {
       .insert({
         project_id: projectId,
         name: file.name,
-        path: `${projectId}/${file.name}`,
+        path: `${projectId}/${encodeURIComponent(file.name)}`,
         size_bytes: file.size,
         mime_type: file.type || "",
         uploaded_by: user.id,
@@ -273,10 +275,13 @@ export async function uploadFile(projectId: string, formData: FormData) {
     ? file.name 
     : `${file.name.split('.')[0]}_v${versionNumber}.${file.name.split('.').pop() || ''}`;
   
+  // URL encode the filename to handle special characters
+  const encodedFileName = encodeURIComponent(versionFileName);
+  
   // Upload file to Supabase storage with version-specific name
   const { data, error } = await supabase.storage
     .from("files")
-    .upload(`${projectId}/${versionFileName}`, file, { upsert: true });
+    .upload(`${projectId}/${encodedFileName}`, file, { upsert: true });
 
   if (error) throw error;
 
@@ -286,7 +291,7 @@ export async function uploadFile(projectId: string, formData: FormData) {
     .insert({
       project_file_id: projectFileId,
       version_number: versionNumber,
-      file_path: `${projectId}/${versionFileName}`,
+      file_path: `${projectId}/${encodedFileName}`,
       size_bytes: file.size,
       mime_type: file.type || "",
       created_by: user.id,
@@ -319,25 +324,49 @@ export async function uploadFile(projectId: string, formData: FormData) {
 // Get file URL
 export async function getFileUrl(path: string) {
   const supabase = await getServerSupabaseAction();
-  const { data } = await supabase.storage.from("files").createSignedUrl(path, 60);
+  const encodedPath = encodeURIComponent(path);
+  const { data } = await supabase.storage.from("files").createSignedUrl(encodedPath, 60);
   return data?.signedUrl;
 }
 
 export async function deleteInvoice(projectId: string, invoiceId: string) {
-  const supabase = await getServerSupabaseAction();
-  await supabase.from("project_invoice_items").delete().eq("invoice_id", invoiceId);
-  await supabase.from("project_invoices").delete().eq("id", invoiceId);
-  revalidatePath(`/projects/${projectId}`);
+  try {
+    const supabase = await getServerSupabaseAction();
+    await supabase.from("project_invoice_items").delete().eq("invoice_id", invoiceId);
+    const { error } = await supabase.from("project_invoices").delete().eq("id", invoiceId);
+    
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    revalidatePath(`/projects/${projectId}`);
+    
+    return { success: true, message: 'Rechnung erfolgreich gelöscht!' };
+  } catch (error) {
+    console.error('Error deleting invoice:', error);
+    return { success: false, message: error instanceof Error ? error.message : 'Fehler beim Löschen der Rechnung' };
+  }
 }
 
 export async function markInvoicePaid(projectId: string, invoiceId: string) {
-  const supabase = await getServerSupabaseAction();
-  await supabase
-    .from("project_invoices")
-    .update({ status: "Paid" })
-    .eq("id", invoiceId);
+  try {
+    const supabase = await getServerSupabaseAction();
+    const { error } = await supabase
+      .from("project_invoices")
+      .update({ status: "Paid" })
+      .eq("id", invoiceId);
 
-  revalidatePath(`/projects/${projectId}`);
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    revalidatePath(`/projects/${projectId}`);
+    
+    return { success: true, message: 'Rechnung erfolgreich als bezahlt markiert!' };
+  } catch (error) {
+    console.error('Error marking invoice paid:', error);
+    return { success: false, message: error instanceof Error ? error.message : 'Fehler beim Markieren der Rechnung als bezahlt' };
+  }
 }
 
 export async function addMessage(projectId: string, content: string) {

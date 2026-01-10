@@ -81,7 +81,8 @@ export function PreviewModal({
       setError(null);
 
       // Fetch signed URL for preview (same as download but for preview)
-      const response = await fetch(`/api/files/${projectId}/${fileName}`);
+      const encodedFileName = encodeURIComponent(fileName);
+      const response = await fetch(`/api/files/${projectId}/${encodedFileName}`);
       if (!response.ok) {
         throw new Error('Failed to fetch file preview');
       }

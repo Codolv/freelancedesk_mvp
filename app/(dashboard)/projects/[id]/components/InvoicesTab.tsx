@@ -10,6 +10,7 @@ import { formatInvoiceDate } from "@/lib/i18n/date-format";
 import { useT } from "@/lib/i18n/client";
 import { FileEdit, FileText, Trash2, CheckCircle } from "lucide-react";
 import { deleteInvoice, markInvoicePaid } from "../actions";
+import { toast } from "sonner";
 
 interface Invoice {
   id: string;
@@ -118,28 +119,58 @@ export function InvoicesTab({
 
                   {/* Mark Paid Button */}
                   <div className="flex-1 flex min-h-9">
-                    <form action={markInvoicePaid.bind(null, projectId, inv.id)} className="w-full min-h-9 flex items-center justify-center p-0 m-0">
-                      <Button
-                        variant={inv.status === "Paid" ? "outline" : "secondary"}
-                        size="sm"
-                        type="submit"
-                        className="w-full justify-center min-h-9 h-full"
-                        title={inv.status === "Paid" ? t("project.invoices.mark.open") : t("project.invoices.mark.paid")}
-                      >
-                        <CheckCircle className="h-4 w-4" />
-                        <span className="ml-1">{inv.status === "Paid" ? t("project.invoices.mark.open") : t("project.invoices.mark.paid")}</span>
-                      </Button>
-                    </form>
+                    <Button
+                      variant={inv.status === "Paid" ? "outline" : "secondary"}
+                      size="sm"
+                      className="w-full justify-center min-h-9 h-full"
+                      title={inv.status === "Paid" ? t("project.invoices.mark.open") : t("project.invoices.mark.paid")}
+                      onClick={async () => {
+                        try {
+                          const result = await markInvoicePaid(projectId, inv.id);
+                          if (result.success) {
+                            toast.success(result.message);
+                            // Refresh the page to update the UI
+                            window.location.reload();
+                          } else {
+                            toast.error(result.message);
+                          }
+                        } catch (error) {
+                          toast.error(t('project.invoices.mark.paid.error'));
+                        }
+                      }}
+                    >
+                      <CheckCircle className="h-4 w-4" />
+                      <span className="ml-1">{inv.status === "Paid" ? t("project.invoices.mark.open") : t("project.invoices.mark.paid")}</span>
+                    </Button>
                   </div>
 
                   {/* Delete Button */}
                   <div className="flex-1 flex min-h-9">
-                    <form action={deleteInvoice.bind(null, projectId, inv.id)} className="w-full min-h-9 flex items-center justify-center p-0 m-0">
-                      <Button variant="destructive" size="sm" type="submit" className="w-full justify-center min-h-9 h-full text-red" title={t("project.delete")}>
-                        <Trash2 className="h-4 w-4" />
-                        <span className="ml-1">{t("project.delete")}</span>
-                      </Button>
-                    </form>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="w-full justify-center min-h-9 h-full text-red"
+                      title={t("project.delete")}
+                      onClick={async () => {
+                        if (confirm(t('project.invoices.delete.confirm'))) {
+                          try {
+                            const result = await deleteInvoice(projectId, inv.id);
+                            if (result.success) {
+                              toast.success(result.message);
+                              // Refresh the page to update the UI
+                              window.location.reload();
+                            } else {
+                              toast.error(result.message);
+                            }
+                          } catch (error) {
+                            toast.error(t('project.invoices.delete.error'));
+                          }
+                        }
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      <span className="ml-1">{t("project.delete")}</span>
+                    </Button>
                   </div>
                 </div>}
               </Motion>

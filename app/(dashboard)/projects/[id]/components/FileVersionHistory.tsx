@@ -44,7 +44,8 @@ export function FileVersionHistory({ projectId, fileName, currentVersion }: File
   const fetchVersions = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/files/${projectId}/${fileName}/versions`);
+      const encodedFileName = encodeURIComponent(fileName);
+      const response = await fetch(`/api/files/${projectId}/${encodedFileName}/versions`);
       if (!response.ok) {
         throw new Error('Failed to fetch versions');
       }
@@ -153,7 +154,7 @@ export function FileVersionHistory({ projectId, fileName, currentVersion }: File
                     className="text-blue-600 hover:text-blue-800"
                   >
                     <a
-                      href={`/api/files/${projectId}/${fileName}/versions/${version.id}`}
+                      href={`/api/files/${projectId}/${encodeURIComponent(fileName)}/versions/${version.id}`}
                       target="_blank"
                       rel="noreferrer"
                     >

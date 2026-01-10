@@ -11,6 +11,7 @@ import { Motion } from "@/components/custom/Motion";
 import Image from "next/image";
 import Footer from "@/components/layout/Footer";
 import { useT } from "@/lib/i18n/client";
+import { toast } from "sonner";
 
 export default function SignInClient() {
   const { t } = useT();
@@ -19,10 +20,8 @@ export default function SignInClient() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
-  // Check for error parameters in URL on component mount
+   // Check for error parameters in URL on component mount
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const urlError = urlParams.get('error');
@@ -30,13 +29,13 @@ export default function SignInClient() {
     if (urlError) {
       switch (urlError) {
         case 'oauth_failed':
-          setError('Google OAuth authentication failed. Please check your Supabase OAuth configuration.');
+          toast.error('Google OAuth authentication failed. Please check your Supabase OAuth configuration.');
           break;
         case 'no_session':
-          setError('No session was created during OAuth. Please try again.');
+          toast.error('No session was created during OAuth. Please try again.');
           break;
         default:
-          setError('An authentication error occurred.');
+          toast.error('An authentication error occurred.');
       }
       
       // Clear error from URL
@@ -47,15 +46,13 @@ export default function SignInClient() {
 
   const handleEmailPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage(null);
-    setError(null);
 
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError(t("auth.email.required"));
+      toast.error(t("auth.email.required"));
       return;
     }
     if (!password || password.length < 6) {
-      setError(t("auth.password.min"));
+      toast.error(t("auth.password.min"));
       return;
     }
 
@@ -67,11 +64,11 @@ export default function SignInClient() {
         password,
       });
       if (err) {
-        setError(err.message);
+        toast.error(err.message);
       } else if (data.session) {
         router.replace("/dashboard");
       } else {
-        setMessage(t("auth.signin.success"));
+        toast.success(t("auth.signin.success"));
         router.replace("/dashboard");
       }
     } finally {
@@ -81,8 +78,6 @@ export default function SignInClient() {
 
   const handleGoogleSignIn = async () => {
     setOauthLoading(true);
-    setError(null);
-    setMessage(null);
     try {
       const supabase = getBrowserSupabase();
       const { error } = await supabase.auth.signInWithOAuth({
@@ -92,11 +87,11 @@ export default function SignInClient() {
         },
       });
       if (error) {
-        setError(error.message);
+        toast.error(error.message);
       }
       // The redirect happens automatically after successful OAuth flow
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      toast.error(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setOauthLoading(false);
     }
@@ -196,7 +191,7 @@ export default function SignInClient() {
               <svg className="w-4 h-4" viewBox="0 0 24 24">
                 <path
                   fill="currentColor"
-                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                  d="M2.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                 />
                 <path
                   fill="currentColor"
@@ -213,17 +208,6 @@ export default function SignInClient() {
               </svg>
               {oauthLoading ? t("auth.signin.loading") : t("auth.google.signin")}
             </Button>
-
-            {message && (
-              <div className="text-sm text-green-600 dark:text-green-400 text-center">
-                {message}
-              </div>
-            )}
-            {error && (
-              <div className="text-sm text-red-600 dark:text-red-400 text-center">
-                {error}
-              </div>
-            )}
           </motion.form>
 
           {/* Footer */}

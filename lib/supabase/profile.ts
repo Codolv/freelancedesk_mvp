@@ -30,9 +30,10 @@ export async function getProfileById(id: string) {
 
   let signedAvatarUrl = null;
   if (data.avatar_url) {
+    const encodedAvatarUrl = encodeURIComponent(data.avatar_url);
     const { data: signedUrl, error: urlError } = await supabase.storage
       .from("avatars")
-      .createSignedUrl(data.avatar_url, 60 * 60);
+      .createSignedUrl(encodedAvatarUrl, 60 * 60);
     if (!urlError) {
       signedAvatarUrl = signedUrl.signedUrl;
     }
@@ -54,9 +55,10 @@ export async function getProfile() {
 
   let signedAvatarUrl = null;
   if (data.avatar_url) {
+    const encodedAvatarUrl = encodeURIComponent(data.avatar_url);
     const { data: signedUrl, error: urlError } = await supabase.storage
       .from("avatars")
-      .createSignedUrl(data.avatar_url, 60 * 60);
+      .createSignedUrl(encodedAvatarUrl, 60 * 60);
     if (!urlError) {
       signedAvatarUrl = signedUrl.signedUrl;
     }

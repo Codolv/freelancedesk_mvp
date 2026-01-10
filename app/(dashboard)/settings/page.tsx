@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
 import { getProfile, updateProfile } from "@/lib/supabase/profile";
 import { useT } from "@/lib/i18n/client";
+import { toast } from "sonner";
 
 interface Profile {
   avatar_url: string;
@@ -29,7 +30,6 @@ interface Profile {
 export default function SettingsPage() {
   const { t } = useT();
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
   const [profile, setProfile] = useState<Profile>({
@@ -49,10 +49,10 @@ export default function SettingsPage() {
     setLoading(true);
     try {
       await updateProfile(profile);
-      setMessage(t("settings.logout.success"));
+      toast.success(t("settings.profile.updated"));
       setEditing(false);
     } catch (e) {
-      setMessage(t("dashboard.settings"));
+      toast.error(t("settings.profile.update.error"));
     } finally {
       setLoading(false);
     }
@@ -64,19 +64,33 @@ export default function SettingsPage() {
     const supabase = getBrowserSupabase();
     const userData = await supabase.auth.getUser();
     const user = userData.data.user;
-    if (!user) return alert("Not authenticated");
-
-    const { data: list } = await supabase.storage.from("avatars").list(user.id);
-    if (list) {
-      const filesToRemove = list.map((x) => `${user.id}/${x.name}`);
-      await supabase.storage.from("avatars").remove(filesToRemove);
+    if (!user) {
+      toast.error("Not authenticated");
+      return;
     }
 
-    const { data, error } = await supabase.storage
-      .from("avatars")
-      .upload(`${user.id}/${file.name}`, file, { upsert: true });
-    if (error) return alert(error.message);
-    setProfile((p: Profile) => ({ ...p, avatar_url: `${user.id}/${file.name}` }));
+    try {
+      const { data: list } = await supabase.storage.from("avatars").list(user.id);
+      if (list) {
+        const filesToRemove = list.map((x) => `${user.id}/${x.name}`);
+        await supabase.storage.from("avatars").remove(filesToRemove);
+      }
+
+      const encodedFileName = encodeURIComponent(file.name);
+      const { data, error } = await supabase.storage
+        .from("avatars")
+        .upload(`${user.id}/${encodedFileName}`, file, { upsert: true });
+      
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+      
+      setProfile((p: Profile) => ({ ...p, avatar_url: `${user.id}/${encodedFileName}` }));
+      toast.success(t("settings.avatar.updated"));
+    } catch (error) {
+      toast.error(t("settings.avatar.update.error"));
+    }
   };
 
   return (
@@ -279,12 +293,6 @@ export default function SettingsPage() {
                         )}
                       </Button>
                     </div>
-
-                    {message && (
-                      <p className="text-sm text-green-600 dark:text-green-400">
-                        {message}
-                      </p>
-                    )}
                   </Motion>
                 )}
               </AnimatePresence>

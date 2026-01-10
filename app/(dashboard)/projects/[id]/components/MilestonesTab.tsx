@@ -31,7 +31,6 @@ interface Milestone {
   actual_completion_date: string | null;
   order_number: number;
   created_at: string;
-  created_by: string;
   profiles: {
     id: string;
     name: string;
@@ -206,6 +205,22 @@ export function MilestonesTab({ projectId, isFreelancer, initialMilestones = [] 
       setError(null);
       setIsCreating(true);
       
+      // Get the current user's profile ID
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError || !profileData) {
+        throw new Error("User profile not found");
+      }
+
       const { data, error: insertError } = await supabase
         .from("project_milestones")
         .insert([{
@@ -215,7 +230,7 @@ export function MilestonesTab({ projectId, isFreelancer, initialMilestones = [] 
           due_date: formData.due_date || null,
           target_date: formData.target_date || null,
           order_number: formData.order_number,
-          created_by: (await supabase.auth.getUser()).data.user?.id
+          profile_id: profileData.id
         }])
         .select()
         .single();
@@ -230,7 +245,45 @@ export function MilestonesTab({ projectId, isFreelancer, initialMilestones = [] 
       setShowAddForm(false);
     } catch (err) {
       console.error("Error adding milestone:", err);
-      setError(t("project.milestones.error.creating"));
+      console.error("Full error object:", JSON.stringify(err, null, 2)); // Debug log
+      
+      // Extract detailed error information from Supabase error
+      let errorMessage = t("project.milestones.error.creating");
+      
+      if (err instanceof Error) {
+        errorMessage = `Error: ${err.message}`;
+      } else if (err && typeof err === 'object') {
+        // Handle Supabase error objects
+        if ('message' in err && err.message && typeof err.message === 'string') {
+          errorMessage = `Error: ${err.message}`;
+        } else if ('error' in err && err.error && typeof err.error === 'string') {
+          errorMessage = `Error: ${err.error}`;
+        } else if ('details' in err && err.details && typeof err.details === 'string') {
+          errorMessage = `Error: ${err.details}`;
+        } else if ('code' in err && err.code && typeof err.code === 'string') {
+          errorMessage = `Error Code: ${err.code}`;
+        } else if (typeof err === 'object' && Object.keys(err).length > 0) {
+          // If it's an object with properties, try to extract meaningful info
+          const errorObj = err as Record<string, unknown>;
+          const errorKeys = Object.keys(errorObj);
+          if (errorKeys.length > 0) {
+            // Try common error property names
+            const commonErrorProps = ['message', 'error', 'details', 'code', 'status', 'response'];
+            for (const prop of commonErrorProps) {
+              if (prop in errorObj && errorObj[prop] !== undefined && errorObj[prop] !== null) {
+                errorMessage = `Error: ${prop} - ${String(errorObj[prop])}`;
+                break;
+              }
+            }
+          }
+        }
+      } else if (typeof err === 'string') {
+        errorMessage = `Error: ${err}`;
+      } else if (err !== null && err !== undefined) {
+        errorMessage = `Error: ${JSON.stringify(err)}`;
+      }
+      
+      setError(errorMessage);
     } finally {
       setIsCreating(false);
     }
@@ -242,6 +295,12 @@ export function MilestonesTab({ projectId, isFreelancer, initialMilestones = [] 
     try {
       setError(null);
       
+      // Get the current user's profile ID for the update
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+
       const { error: updateError } = await supabase
         .from("project_milestones")
         .update({
@@ -253,7 +312,8 @@ export function MilestonesTab({ projectId, isFreelancer, initialMilestones = [] 
           status: editFormData.status,
           updated_at: new Date().toISOString()
         })
-        .eq("id", milestoneId);
+        .eq("id", milestoneId)
+        .eq("profile_id", user.id); // Ensure user can only update their own milestones
 
       if (updateError) throw updateError;
 
@@ -263,20 +323,65 @@ export function MilestonesTab({ projectId, isFreelancer, initialMilestones = [] 
       setEditingId(null);
     } catch (err) {
       console.error("Error updating milestone:", err);
-      setError(t("project.milestones.error.updating"));
+      console.error("Full error object:", JSON.stringify(err, null, 2)); // Debug log
+      
+      // Extract detailed error information from Supabase error
+      let errorMessage = t("project.milestones.error.updating");
+      
+      if (err instanceof Error) {
+        errorMessage = `Error: ${err.message}`;
+      } else if (err && typeof err === 'object') {
+        // Handle Supabase error objects
+        if ('message' in err && err.message && typeof err.message === 'string') {
+          errorMessage = `Error: ${err.message}`;
+        } else if ('error' in err && err.error && typeof err.error === 'string') {
+          errorMessage = `Error: ${err.error}`;
+        } else if ('details' in err && err.details && typeof err.details === 'string') {
+          errorMessage = `Error: ${err.details}`;
+        } else if ('code' in err && err.code && typeof err.code === 'string') {
+          errorMessage = `Error Code: ${err.code}`;
+        } else if (typeof err === 'object' && Object.keys(err).length > 0) {
+          // If it's an object with properties, try to extract meaningful info
+          const errorObj = err as Record<string, unknown>;
+          const errorKeys = Object.keys(errorObj);
+          if (errorKeys.length > 0) {
+            // Try common error property names
+            const commonErrorProps = ['message', 'error', 'details', 'code', 'status', 'response'];
+            for (const prop of commonErrorProps) {
+              if (prop in errorObj && errorObj[prop] !== undefined && errorObj[prop] !== null) {
+                errorMessage = `Error: ${prop} - ${String(errorObj[prop])}`;
+                break;
+              }
+            }
+          }
+        }
+      } else if (typeof err === 'string') {
+        errorMessage = `Error: ${err}`;
+      } else if (err !== null && err !== undefined) {
+        errorMessage = `Error: ${JSON.stringify(err)}`;
+      }
+      
+      setError(errorMessage);
     }
   };
 
-  const handleDeleteMilestone = async (milestoneId: string) => {
+   const handleDeleteMilestone = async (milestoneId: string) => {
     if (!confirm(t("project.milestones.confirm.delete"))) return;
 
     try {
       setError(null);
       
+      // Get the current user's profile ID for the delete
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+
       const { error: deleteError } = await supabase
         .from("project_milestones")
         .delete()
-        .eq("id", milestoneId);
+        .eq("id", milestoneId)
+        .eq("profile_id", user.id); // Ensure user can only delete their own milestones
 
       if (deleteError) throw deleteError;
 
@@ -284,7 +389,45 @@ export function MilestonesTab({ projectId, isFreelancer, initialMilestones = [] 
       await fetchMilestones(false);
     } catch (err) {
       console.error("Error deleting milestone:", err);
-      setError(t("project.milestones.error.deleting"));
+      console.error("Full error object:", JSON.stringify(err, null, 2)); // Debug log
+      
+      // Extract detailed error information from Supabase error
+      let errorMessage = t("project.milestones.error.deleting");
+      
+      if (err instanceof Error) {
+        errorMessage = `Error: ${err.message}`;
+      } else if (err && typeof err === 'object') {
+        // Handle Supabase error objects
+        if ('message' in err && err.message && typeof err.message === 'string') {
+          errorMessage = `Error: ${err.message}`;
+        } else if ('error' in err && err.error && typeof err.error === 'string') {
+          errorMessage = `Error: ${err.error}`;
+        } else if ('details' in err && err.details && typeof err.details === 'string') {
+          errorMessage = `Error: ${err.details}`;
+        } else if ('code' in err && err.code && typeof err.code === 'string') {
+          errorMessage = `Error Code: ${err.code}`;
+        } else if (typeof err === 'object' && Object.keys(err).length > 0) {
+          // If it's an object with properties, try to extract meaningful info
+          const errorObj = err as Record<string, unknown>;
+          const errorKeys = Object.keys(errorObj);
+          if (errorKeys.length > 0) {
+            // Try common error property names
+            const commonErrorProps = ['message', 'error', 'details', 'code', 'status', 'response'];
+            for (const prop of commonErrorProps) {
+              if (prop in errorObj && errorObj[prop] !== undefined && errorObj[prop] !== null) {
+                errorMessage = `Error: ${prop} - ${String(errorObj[prop])}`;
+                break;
+              }
+            }
+          }
+        }
+      } else if (typeof err === 'string') {
+        errorMessage = `Error: ${err}`;
+      } else if (err !== null && err !== undefined) {
+        errorMessage = `Error: ${JSON.stringify(err)}`;
+      }
+      
+      setError(errorMessage);
     }
   };
 
@@ -314,7 +457,45 @@ export function MilestonesTab({ projectId, isFreelancer, initialMilestones = [] 
       if (updateError) throw updateError;
     } catch (err) {
       console.error("Error updating milestone status:", err);
-      setError(t("project.milestones.error.updating"));
+      console.error("Full error object:", JSON.stringify(err, null, 2)); // Debug log
+      
+      // Extract detailed error information from Supabase error
+      let errorMessage = t("project.milestones.error.updating");
+      
+      if (err instanceof Error) {
+        errorMessage = `Error: ${err.message}`;
+      } else if (err && typeof err === 'object') {
+        // Handle Supabase error objects
+        if ('message' in err && err.message && typeof err.message === 'string') {
+          errorMessage = `Error: ${err.message}`;
+        } else if ('error' in err && err.error && typeof err.error === 'string') {
+          errorMessage = `Error: ${err.error}`;
+        } else if ('details' in err && err.details && typeof err.details === 'string') {
+          errorMessage = `Error: ${err.details}`;
+        } else if ('code' in err && err.code && typeof err.code === 'string') {
+          errorMessage = `Error Code: ${err.code}`;
+        } else if (typeof err === 'object' && Object.keys(err).length > 0) {
+          // If it's an object with properties, try to extract meaningful info
+          const errorObj = err as Record<string, unknown>;
+          const errorKeys = Object.keys(errorObj);
+          if (errorKeys.length > 0) {
+            // Try common error property names
+            const commonErrorProps = ['message', 'error', 'details', 'code', 'status', 'response'];
+            for (const prop of commonErrorProps) {
+              if (prop in errorObj && errorObj[prop] !== undefined && errorObj[prop] !== null) {
+                errorMessage = `Error: ${prop} - ${String(errorObj[prop])}`;
+                break;
+              }
+            }
+          }
+        }
+      } else if (typeof err === 'string') {
+        errorMessage = `Error: ${err}`;
+      } else if (err !== null && err !== undefined) {
+        errorMessage = `Error: ${JSON.stringify(err)}`;
+      }
+      
+      setError(errorMessage);
       // Revert optimistic update on error
       setMilestones(prev => prev.map(milestone =>
         milestone.id === milestoneId ? { ...milestone, status: currentStatus as 'pending' | 'in_progress' | 'completed' | 'overdue' } : milestone
