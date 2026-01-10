@@ -52,8 +52,17 @@ export function Comments({ messages: initialMessages, projectId }: CommentsProps
   // === Fetch signed avatar URLs ===
   async function getAvatarUrl(path: string | null) {
     if (!path) return null;
-    const { data } = await supabase.storage.from("avatars").createSignedUrl(path, 60 * 60);
-    return data?.signedUrl || null;
+    try {
+      const { data, error } = await supabase.storage.from("avatars").createSignedUrl(path, 60 * 60);
+      if (error) {
+        console.error('Error creating signed URL for avatar:', error);
+        return null;
+      }
+      return data?.signedUrl || null;
+    } catch (error) {
+      console.error('Exception creating signed URL for avatar:', error);
+      return null;
+    }
   }
 
   // === Enrich messages with profile info and avatar URL ===
